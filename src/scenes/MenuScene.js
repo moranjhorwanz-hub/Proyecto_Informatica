@@ -10,7 +10,7 @@ export default class MenuScene extends Phaser.Scene {
   this.services=this.registry.get('services');this.services.audio.playMenu();
   const unlockMenu=()=>this.services.audio.unlock();
   this.input.once('pointerdown',unlockMenu);this.input.keyboard.once('keydown',unlockMenu);
-  this.events.once('shutdown',()=>{this.input.off('pointerdown',unlockMenu);this.input.keyboard.off('keydown',unlockMenu);this.services.audio.stopMenu();});
+  this.events.once('shutdown',()=>{this.input.off('pointerdown',unlockMenu);this.input.keyboard.off('keydown',unlockMenu);});
   this.level=levels[this.services.progress.data.selectedLevel-1];this.appearance=getAppearance(this.level,this.services.progress.data);scenery(this,this.level);dancer(this,this.appearance);this.cameras.main.fadeIn(350);
   txt(this,56,32,'M J A  /  EST. 2026',15,'#d6ba88');txt(this,952,32,'UNA AVENTURA DE RITMO',13,'#c5d3d7');txt(this,56,97,'MICHAEL JACKSON',18,'#f1d199');txt(this,52,121,'ADVENTURE',66);txt(this,57,203,'Cuatro estaciones. Un escenario. Tu ritmo.',17,'#beced1');
   this.buttons=[];[['Jugar','LevelSelect'],['Tienda','Shop'],['Skins','Character'],['Personajes','Characters'],['Ataques','Attacks'],['Configuración','Settings']].forEach(([label,key],i)=>{const y=268+i*49,box=this.add.rectangle(190,y,268,41,0x101e2a,.65).setStrokeStyle(1,0xd8c49d,.15).setInteractive({useHandCursor:true}),t=txt(this,77,y-11,label,20);txt(this,298,y-10,'↗',18,'#d8c49d');const activate=()=>{this.services.audio.unlock();this.scene.start(key);};box.on('pointerdown',activate);box.on('pointerover',()=>{this.focus=i;this.highlight();});this.buttons.push({box,t,activate});});this.focus=0;this.highlight();

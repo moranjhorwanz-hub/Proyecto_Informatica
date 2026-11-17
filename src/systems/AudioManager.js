@@ -3,9 +3,10 @@ import { validateSettings } from '../data/settings.js';
 export class AudioManager {
   constructor(settings) {
     this.context = null; this.timer = null; this.level = 1;
-    this.menuMusic = null; this.inMenu = false;
+    this.menuMusic = null; this.damageSound = null; this.inMenu = false;
     this.musicVoices = new Set(); this.sfxVoices = new Set();
     this.settings = validateSettings(settings);
+    if (this.damageSound) this.damageSound.volume = this.settings.sfxVolume / 100;
   }
   get muted() { return !this.settings.music; }
   configure(settings) {
@@ -67,6 +68,13 @@ export class AudioManager {
   stop() { this.stopMenu(); this.stopMusic(); this.stopVoices(this.sfxVoices); }
   effect(type) {
     if (!this.context || this.settings.sfxVolume === 0) return;
+    if (type === 'damage') {
+      if (!this.damageSound) this.damageSound = new Audio(`${import.meta.env.BASE_URL}assets/damage.mp3`);
+      this.damageSound.volume = this.settings.sfxVolume / 100;
+      this.damageSound.currentTime = 0;
+      this.damageSound.play().catch(() => {});
+      return;
+    }
     const tones = { jump:[330,660,.15], moonwalk:[520,160,.28], damage:[160,65,.2], hat:[740,300,.16], spin:[260,900,.3], freeze:[1200,600,.22] };
     this.voice(tones[type] || tones.jump, type === 'damage' ? 'triangle' : 'sine', this.sfxGain, this.sfxVoices, .065);
   }

@@ -6,6 +6,7 @@ export default class LevelSelectScene extends Phaser.Scene {
   constructor() { super('LevelSelect'); }
   create() {
     this.services = this.registry.get('services');
+    this.services.audio.playMenu();
     this.selected = this.services.progress.data.selectedLevel - 1;
     this.cameras.main.setBackgroundColor('#111e2c');
     const text = (x, y, value, size, color = '#e8e9e3') => this.add.text(x, y, value, { fontFamily: 'Arial', fontSize: `${size}px`, color });
