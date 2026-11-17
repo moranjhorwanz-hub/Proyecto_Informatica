@@ -7,7 +7,11 @@ const txt=(s,x,y,t,size=18,color='#ecede8')=>s.add.text(x,y,t,{fontFamily:'Arial
 export default class MenuScene extends Phaser.Scene {
  constructor(){super('Menu');}
  create(){
-  this.services=this.registry.get('services');this.level=levels[this.services.progress.data.selectedLevel-1];this.appearance=getAppearance(this.level,this.services.progress.data);scenery(this,this.level);dancer(this,this.appearance);this.cameras.main.fadeIn(350);
+  this.services=this.registry.get('services');this.services.audio.playMenu();
+  const unlockMenu=()=>this.services.audio.unlock();
+  this.input.once('pointerdown',unlockMenu);this.input.keyboard.once('keydown',unlockMenu);
+  this.events.once('shutdown',()=>{this.input.off('pointerdown',unlockMenu);this.input.keyboard.off('keydown',unlockMenu);this.services.audio.stopMenu();});
+  this.level=levels[this.services.progress.data.selectedLevel-1];this.appearance=getAppearance(this.level,this.services.progress.data);scenery(this,this.level);dancer(this,this.appearance);this.cameras.main.fadeIn(350);
   txt(this,56,32,'M J A  /  EST. 2026',15,'#d6ba88');txt(this,952,32,'UNA AVENTURA DE RITMO',13,'#c5d3d7');txt(this,56,97,'MICHAEL JACKSON',18,'#f1d199');txt(this,52,121,'ADVENTURE',66);txt(this,57,203,'Cuatro estaciones. Un escenario. Tu ritmo.',17,'#beced1');
   this.buttons=[];[['Jugar','LevelSelect'],['Tienda','Shop'],['Skins','Character'],['Personajes','Characters'],['Ataques','Attacks'],['Configuración','Settings']].forEach(([label,key],i)=>{const y=268+i*49,box=this.add.rectangle(190,y,268,41,0x101e2a,.65).setStrokeStyle(1,0xd8c49d,.15).setInteractive({useHandCursor:true}),t=txt(this,77,y-11,label,20);txt(this,298,y-10,'↗',18,'#d8c49d');const activate=()=>{this.services.audio.unlock();this.scene.start(key);};box.on('pointerdown',activate);box.on('pointerover',()=>{this.focus=i;this.highlight();});this.buttons.push({box,t,activate});});this.focus=0;this.highlight();
   const p=this.add.graphics();p.fillStyle(0x101e2a,.78).fillRoundedRect(948,227,276,343,14);p.lineStyle(1,0xd8c49d,.25).strokeRoundedRect(948,227,276,343,14);
@@ -21,6 +25,6 @@ export default class MenuScene extends Phaser.Scene {
  }
  highlight(){this.buttons.forEach((b,i)=>{b.box.setFillStyle(i===this.focus?0xe4c18b:0x101e2a,i===this.focus?1:.65);b.t.setColor(i===this.focus?'#17212b':'#ecede8');});}
  toggleMusic(){this.services.audio.unlock();const result=this.services.settings.update({music:!this.services.progress.data.settings.music});this.musicLabel.setText(this.services.audio.muted?'♪ Activar música':'♪ Silenciar');if(!result.ok){this.audioNotice?.destroy();this.audioNotice=txt(this,973,580,'No se pudo guardar. Los ajustes no han cambiado.',12,'#ffb5b5').setWordWrapWidth(245);}}
- select(id){this.services.audio.unlock();this.services.progress.selectLevel(id);this.services.audio.play(id);this.scene.restart();}
+ select(id){this.services.audio.unlock();this.services.progress.selectLevel(id);this.scene.restart();}
  onKey(e){if(['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Enter',' '].includes(e.key))e.preventDefault();if(e.key==='ArrowDown'||e.key==='ArrowUp'){this.focus=Phaser.Math.Wrap(this.focus+(e.key==='ArrowDown'?1:-1),0,6);this.highlight();}if(e.key==='Enter')this.buttons[this.focus].activate();if(e.key==='ArrowRight')this.select(this.level.id%4+1);if(e.key==='ArrowLeft')this.select((this.level.id+2)%4+1);if(e.key.toLowerCase()==='s'){this.toggleMusic();}}
 }

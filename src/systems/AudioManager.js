@@ -3,6 +3,7 @@ import { validateSettings } from '../data/settings.js';
 export class AudioManager {
   constructor(settings) {
     this.context = null; this.timer = null; this.level = 1;
+    this.menuMusic = null; this.inMenu = false;
     this.musicVoices = new Set(); this.sfxVoices = new Set();
     this.settings = validateSettings(settings);
   }
@@ -10,10 +11,15 @@ export class AudioManager {
   configure(settings) {
     const previous = this.settings.music;
     this.settings = validateSettings(settings);
+    if (this.menuMusic) {
+      this.menuMusic.volume = this.settings.music ? this.settings.musicVolume / 100 : 0;
+      if (this.inMenu && !this.settings.music) this.menuMusic.pause();
+      else if (this.inMenu && previous !== this.settings.music) this.menuMusic.play().catch(() => {});
+    }
     if (!this.context) return;
     this.musicGain.gain.setValueAtTime(this.settings.music ? this.settings.musicVolume / 100 : 0, this.context.currentTime);
     this.sfxGain.gain.setValueAtTime(this.settings.sfxVolume / 100, this.context.currentTime);
-    if (previous !== this.settings.music) this.play(this.level);
+    if (previous !== this.settings.music && !this.inMenu) this.play(this.level);
   }
   unlock() {
     if (!this.context) {
@@ -22,7 +28,8 @@ export class AudioManager {
       this.musicGain.connect(this.context.destination); this.sfxGain.connect(this.context.destination);
       this.configure(this.settings);
     }
-    this.context.resume().catch(() => {}); this.play(this.level);
+    this.context.resume().catch(() => {});
+    if (this.inMenu) this.playMenu(); else this.play(this.level);
   }
   voice(tones, type, bus, voices, peak) {
     const [start, end, duration] = tones, c = this.context;
@@ -36,7 +43,18 @@ export class AudioManager {
     oscillator.onended = () => { voices.delete(oscillator); gain.disconnect(); oscillator.disconnect(); };
     oscillator.start(); oscillator.stop(c.currentTime + duration);
   }
+  playMenu() {
+    this.stopMusic(); this.inMenu = true;
+    if (!this.menuMusic) {
+      this.menuMusic = new Audio(`${import.meta.env.BASE_URL}assets/menu-music.mp3`);
+      this.menuMusic.loop = true;
+    }
+    this.menuMusic.volume = this.muted ? 0 : this.settings.musicVolume / 100;
+    if (!this.muted) this.menuMusic.play().catch(() => {});
+  }
+  stopMenu() { this.inMenu = false; if (this.menuMusic) { this.menuMusic.pause(); this.menuMusic.currentTime = 0; } }
   play(level) {
+    this.stopMenu();
     this.stopMusic(); this.level = [1,2,3,4].includes(level) ? level : 1;
     if (!this.context || this.muted) return;
     const notes = [[261.63,329.63,392,440],[293.66,369.99,440,493.88],[220,261.63,329.63,392],[261.63,349.23,392,523.25]][this.level - 1];
@@ -46,7 +64,7 @@ export class AudioManager {
   }
   stopMusic() { clearInterval(this.timer); this.timer = null; this.stopVoices(this.musicVoices); }
   stopVoices(voices) { for (const voice of voices) { try { voice.stop(); } catch {} } voices.clear(); }
-  stop() { this.stopMusic(); this.stopVoices(this.sfxVoices); }
+  stop() { this.stopMenu(); this.stopMusic(); this.stopVoices(this.sfxVoices); }
   effect(type) {
     if (!this.context || this.settings.sfxVolume === 0) return;
     const tones = { jump:[330,660,.15], moonwalk:[520,160,.28], damage:[160,65,.2], hat:[740,300,.16], spin:[260,900,.3], freeze:[1200,600,.22] };
