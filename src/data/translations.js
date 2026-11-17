@@ -1,5 +1,9 @@
 // Spanish source phrases are stable localization keys. Placeholders preserve live values.
 const rows = `
+ELIGE TU RITMO|CHOOSE YOUR RHYTHM|CHOISISSEZ VOTRE RYTHME
+PERSONAJE|CHARACTER|PERSONNAGE
+PROGRESO|PROGRESS|PROGRESSION
+MEJOR TIEMPO|BEST TIME|MEILLEUR TEMPS
 Jugar|Play|Jouer
 Tienda|Shop|Boutique
 Skins|Outfits|Tenues

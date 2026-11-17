@@ -68,6 +68,12 @@ try {
   const tap = async (value, code = `Key${value.toUpperCase()}`) => {
     await key(value, code, 'keyDown'); await advance(70); await key(value, code, 'keyUp'); await advance(120);
   };
+  const click = async (x,y) => {
+    const point=await evaluate(`(()=>{const r=testGame.canvas.getBoundingClientRect();return{x:r.left+${x}*r.width/1280,y:r.top+${y}*r.height/720};})()`);
+    await cdp('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...point});
+    await cdp('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});
+    await advance(90);
+  };
   const waitFor = async (expression, message) => {
     for (let i = 0; i < 80; i++) {
       if (await evaluate(expression)) return;
@@ -86,6 +92,36 @@ try {
   // DOM keyboard events, scene lifecycle, Arcade physics and rendering stay real.
   await evaluate('testGame.loop.stop(); window.simTime=performance.now(); window.keyLog=[];window.addEventListener("keydown",e=>keyLog.push({key:e.key,code:e.keyCode,prevented:e.defaultPrevented})); true');
   manualFrames = true;
+  // Visual upgrade: verify menu geometry, pointer navigation, seasons and aspect ratio.
+  const originalProgress=await evaluate(`JSON.stringify(testGame.registry.get('services').progress.data)`);
+  for(const id of [1,2,3,4]) {
+    await click(147+(id-1)*222,651);await advance(400);
+    assert.equal(await evaluate(`testGame.scene.getScene('Menu').level.id`),id);
+    assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.color`),await evaluate(`testGame.scene.getScene('Menu').level.color`));
+    assert.equal(await evaluate(`testGame.registry.get('services').audio.level`),id);
+    assert.ok(await evaluate(`testGame.scene.getScene('Menu').hero.getBounds().bottom<629 && testGame.scene.getScene('Menu').hero.getBounds().top>135`),'Full-body hero remains above the selector and inside the scenario');
+    const shot=await cdp('Page.captureScreenshot',{format:'png'});
+    await writeFile(`.tools/upgrade-menu-${id}.png`,Buffer.from(shot.data,'base64'));
+  }
+  await click(147,651);await advance(400);
+  const keys=['LevelSelect','Shop','Characters','Character','Attacks','Settings'];
+  for(let index=0;index<keys.length;index++) {
+    await click(186,228+index*53);await advance(100);
+    assert.equal(await evaluate(`testGame.scene.isActive('${keys[index]}')`),true,'Every menu destination opens with pointer input');
+    await tap('Escape','Escape');
+  }
+  const textureCount=await evaluate('testGame.textures.getTextureKeys().length');
+  for(let index=0;index<8;index++)await tap('ArrowRight','ArrowRight');
+  assert.equal(await evaluate('testGame.textures.getTextureKeys().length'),textureCount,'Season changes reuse cached textures');
+  assert.equal(await evaluate(`testGame.scene.getScene('Menu').backdrop.particles.length`),26,'Particle budget is bounded');
+  for(const [width,height] of [[960,540],[1440,900],[800,1000]]) {
+    await cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await advance(150);
+    const rect=await evaluate('(()=>{const r=testGame.canvas.getBoundingClientRect();return{width:r.width,height:r.height};})()');
+    assert.ok(Math.abs(rect.width/rect.height-16/9)<.02,'Canvas keeps 16:9 at different screen sizes');
+  }
+  await cdp('Emulation.clearDeviceMetricsOverride');await advance(150);
+  assert.equal(await evaluate(`JSON.stringify(testGame.registry.get('services').progress.data)`),originalProgress,'Menu exploration preserves progress');
+  console.log('Menu upgrade passed: six pointer destinations, four seasons/outfits/tracks, full-body bounds, texture reuse, particle budget and three viewport sizes.');
   await tap('ArrowDown', 'ArrowDown'); await tap('Enter', 'Enter');
   await waitFor(`testGame.scene.isActive('Shop')`, 'Menu opens Shop');
   await tap('Enter', 'Enter');
@@ -291,12 +327,6 @@ try {
   await tap('Escape','Escape');
   await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Shop')`, 'Shop reopens after campaign');
-  const click = async (x,y) => {
-    const point=await evaluate(`(()=>{const r=testGame.canvas.getBoundingClientRect();return{x:r.left+${x}*r.width/1280,y:r.top+${y}*r.height/720};})()`);
-    await cdp('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...point});
-    await cdp('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});
-    await advance(90);
-  };
   await click(365,506); // Snow item.
   await evaluate(`window.originalSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw Error('simulated quota');};true`);
   await click(975,555);
@@ -358,7 +388,7 @@ try {
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance);
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'thriller');
   assert.ok(await evaluate(`testGame.registry.get('services').progress.data.abilities.includes('freeze')`));
-  await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
+  await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Character')`,'Skins opens wardrobe');
   const wardrobeShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-wardrobe.png',Buffer.from(wardrobeShot.data,'base64'));
@@ -373,7 +403,7 @@ try {
   // Phase 7 uses an explicit isolated save fixture to avoid farming 3400 coins.
   await evaluate(`(()=>{const s=testGame.registry.get('services');s.progress.data={...s.progress.data,coins:5000,character:'michael',equippedSkin:'thriller',purchases:s.progress.data.purchases.filter(id=>id!=='freeze'),abilities:['hat','moonwalk']};localStorage.setItem('mja.save.v1',JSON.stringify(s.progress.data));})()`);
   await tap('Escape','Escape');
-  for(let i=0;i<3;i++)await tap('ArrowDown','ArrowDown');
+  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');
   await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Characters')`,'Menu opens character selection');
   await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter'); await tap('Enter','Enter');
@@ -391,7 +421,7 @@ try {
   await tap(' ','Space');
   assert.ok(await evaluate('p.y<520'),'Agile character jumps higher');
   await tap('Escape','Escape');
-  for(let i=0;i<3;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
+  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');await tap('Enter','Enter');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'snow-king');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),3100);
@@ -407,7 +437,7 @@ try {
   const kingShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase7-snow-king.png',Buffer.from(kingShot.data,'base64'));
   await tap('Escape','Escape');
-  for(let i=0;i<3;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
+  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');await tap('Enter','Enter');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'gold-dancer');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),1600);
@@ -427,7 +457,7 @@ try {
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'gold-dancer');
   assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.accessory`),'glasses');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'thriller');
-  for(let i=0;i<3;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
+  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await tap('ArrowDown','ArrowDown');await tap('Enter','Enter'); // Wrap gold -> Michael.
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),1600,'Free switching never charges again');
@@ -494,6 +524,18 @@ try {
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),1600,'Settings preserve purchases and balance');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
   console.log(`Settings passed: ES/EN/FR, translated screens and HUD, independent audio gains, disabled music with effects, save rollback, fullscreen ${fullAvailable?'enter/exit':'unsupported feedback'}, all difficulty profiles/restart and reload persistence.`);
+  for(const language of ['es','en','fr']) {
+    await evaluate(`testGame.registry.get('services').settings.update({language:'${language}'});testGame.scene.getScene('Menu').scene.restart();true`);await advance(350);
+    assert.ok(await evaluate(`testGame.scene.getScene('Menu').buttons.every(b=>b.t.getBounds().right<b.arrow.x-8)`),'Localized button labels fit before the arrow');
+    const shot=await cdp('Page.captureScreenshot',{format:'png'});
+    await writeFile(`.tools/upgrade-menu-${language}.png`,Buffer.from(shot.data,'base64'));
+  }
+  await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+  await evaluate(`testGame.scene.getScene('Menu').scene.restart();true`);await advance(350);
+  assert.equal(await evaluate(`testGame.scene.getScene('Menu').reducedMotion`),true);
+  assert.equal(await evaluate(`testGame.scene.getScene('Menu').tweens.getTweensOf(testGame.scene.getScene('Menu').hero).length`),0,'Reduced motion removes character tween');
+  assert.equal(await evaluate(`testGame.scene.getScene('Menu').tweens.getTweensOf(testGame.scene.getScene('Menu').backdrop.particles[0]).length`),0,'Reduced motion removes particle tweens');
+  console.log('Visual review passed: localized menu bounds and reduced-motion preference.');
   // Browser may request favicon before one exists; runtime errors are never filtered.
   const relevantErrors = errors.filter(error => !error.includes('favicon.ico'));
   assert.deepEqual(relevantErrors, [], 'No browser exceptions or console errors');
