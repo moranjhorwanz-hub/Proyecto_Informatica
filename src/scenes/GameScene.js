@@ -178,12 +178,14 @@ export default class GameScene extends Phaser.Scene {
         if(!manager.canFinish())this.notice.setText('Derrota al Rey de la Nieve para abrir la meta');
         else {
           this.finished=true;
+          this.services.audio.effect('victory');
           const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,time:Math.max(1,Math.round(this.playTime))});
           this.scene.start('Victory',{levelId:this.level.id,result}); return;
         }
       }
     } else if (this.player.x > 2420 && !this.finished) {
       this.finished = true;
+      this.services.audio.effect('victory');
       this.notice.setText('¡Ensayo completado! R para repetir · ESC para volver');
     }
   }

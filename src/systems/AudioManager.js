@@ -3,10 +3,11 @@ import { validateSettings } from '../data/settings.js';
 export class AudioManager {
   constructor(settings) {
     this.context = null; this.timer = null; this.level = 1;
-    this.menuMusic = null; this.damageSound = null; this.inMenu = false;
+    this.menuMusic = null; this.damageBuffer = null; this.damageLoading = null;
+    this.victoryBuffer = null; this.victoryLoading = null;
+    this.jumpBuffer = null; this.jumpLoading = null; this.inMenu = false;
     this.musicVoices = new Set(); this.sfxVoices = new Set();
     this.settings = validateSettings(settings);
-    if (this.damageSound) this.damageSound.volume = this.settings.sfxVolume / 100;
   }
   get muted() { return !this.settings.music; }
   configure(settings) {
@@ -30,7 +31,36 @@ export class AudioManager {
       this.configure(this.settings);
     }
     this.context.resume().catch(() => {});
+    this.loadDamageSound();
+    this.loadVictorySound();
+    this.loadJumpSound();
     if (this.inMenu) this.playMenu(); else this.play(this.level);
+  }
+  loadDamageSound() {
+    return this.loadClip('damage', 1.69, 2.3);
+  }
+  loadVictorySound() {
+    return this.loadClip('victory', 1.2, 2.8);
+  }
+  loadJumpSound() {
+    return this.loadClip('jump', 0, 0.7);
+  }
+  loadClip(name, startTime, endTime) {
+    if (this[`${name}Loading`] || !this.context?.decodeAudioData) return this[`${name}Loading`];
+    this[`${name}Loading`] = fetch(`${import.meta.env.BASE_URL}assets/${name}.mp3`)
+      .then(response => { if (!response.ok) throw new Error('Sound unavailable'); return response.arrayBuffer(); })
+      .then(data => this.context.decodeAudioData(data))
+      .then(audio => {
+        const start = Math.floor(startTime * audio.sampleRate);
+        const end = Math.min(audio.length, Math.ceil(endTime * audio.sampleRate));
+        const clip = this.context.createBuffer(audio.numberOfChannels, end - start, audio.sampleRate);
+        for (let channel = 0; channel < audio.numberOfChannels; channel++) {
+          clip.copyToChannel(audio.getChannelData(channel).subarray(start, end), channel);
+        }
+        this[`${name}Buffer`] = clip;
+      })
+      .catch(() => { this[`${name}Loading`] = null; });
+    return this[`${name}Loading`];
   }
   voice(tones, type, bus, voices, peak) {
     const [start, end, duration] = tones, c = this.context;
@@ -68,11 +98,18 @@ export class AudioManager {
   stop() { this.stopMenu(); this.stopMusic(); this.stopVoices(this.sfxVoices); }
   effect(type) {
     if (!this.context || this.settings.sfxVolume === 0) return;
-    if (type === 'damage') {
-      if (!this.damageSound) this.damageSound = new Audio(`${import.meta.env.BASE_URL}assets/damage.mp3`);
-      this.damageSound.volume = this.settings.sfxVolume / 100;
-      this.damageSound.currentTime = 0;
-      this.damageSound.play().catch(() => {});
+    if (type === 'damage' || type === 'victory' || type === 'jump') {
+      if (!this[`${type}Buffer`]) {
+        if (type === 'damage') this.loadDamageSound();
+        else if (type === 'victory') this.loadVictorySound();
+        else this.loadJumpSound();
+        return;
+      }
+      const source = this.context.createBufferSource();
+      source.buffer = this[`${type}Buffer`];
+      source.connect(this.sfxGain);
+      source.onended = () => source.disconnect();
+      source.start();
       return;
     }
     const tones = { jump:[330,660,.15], moonwalk:[520,160,.28], damage:[160,65,.2], hat:[740,300,.16], spin:[260,900,.3], freeze:[1200,600,.22] };
