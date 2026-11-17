@@ -1,0 +1,1 @@
+export const shopItems=[{id:'thriller',type:'skin',price:500},{id:'white',type:'skin',price:800},{id:'christmas',type:'skin',price:1000},{id:'gold',type:'skin',price:2000},{id:'michael',type:'character',price:0},{id:'christmas-dancer',type:'character',price:700},{id:'snow-king',type:'character',price:1200},{id:'gold-dancer',type:'character',price:1500}];

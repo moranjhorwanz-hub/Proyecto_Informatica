@@ -1,0 +1,1 @@
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#080d14;color:#fff;font-family:Arial,sans-serif}body{display:grid;place-items:center}#game{width:100%;height:100%;overflow:hidden}canvas{display:block}button:focus-visible{outline:3px solid #f9d88b}

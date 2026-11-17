@@ -1,0 +1,67 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { PlayerState, PLAYER_DEFAULTS as config } from '../src/entities/playerState.js';
+const ground = { grounded: true, canStand: true };
+
+test('walking, running and contradictory input have bounded speed', () => {
+  const player = new PlayerState();
+  assert.equal(player.update({ right: true }, ground, 1).vx, config.speed);
+  assert.equal(player.update({ left: true, run: true }, ground, 2).vx, -config.runSpeed);
+  assert.equal(player.update({ left: true, right: true }, ground, 3).vx, 0);
+});
+test('jump requires ground and cannot start while crouching', () => {
+  const player = new PlayerState();
+  assert.equal(player.update({ jumpPressed: true }, ground, 1).jump, true);
+  assert.equal(player.update({ jumpPressed: true }, { grounded: false }, 2).jump, false);
+  assert.equal(player.update({ jumpPressed: true, down: true }, ground, 3).jump, false);
+});
+test('crouch stays active beneath a low ceiling until there is clearance', () => {
+  const player = new PlayerState();
+  assert.equal(player.update({ down: true, right: true }, ground, 1).vx, 75);
+  player.update({}, { grounded: true, canStand: false }, 2);
+  assert.equal(player.crouched, true);
+  player.update({}, ground, 3);
+  assert.equal(player.crouched, false);
+});
+test('moonwalk moves backward, retains facing, and respects cooldown', () => {
+  const player = new PlayerState();
+  player.update({ left: true }, ground, 1);
+  assert.equal(player.update({ moonPressed: true }, ground, 10).vx, config.moonSpeed);
+  assert.equal(player.facing, -1);
+  player.update({ moonPressed: true }, ground, 10 + config.moonDuration);
+  assert.notEqual(player.pose, 'moonwalk');
+  player.update({ moonPressed: true }, ground, 10 + config.moonCooldown);
+  assert.equal(player.pose, 'moonwalk');
+});
+test('moonwalk cannot begin in the air or while crouched', () => {
+  const player = new PlayerState();
+  player.update({ moonPressed: true }, { grounded: false }, 1);
+  assert.notEqual(player.pose, 'moonwalk');
+  player.update({ moonPressed: true, down: true }, ground, 2);
+  assert.notEqual(player.pose, 'moonwalk');
+});
+test('damage removes one life; immunity prevents repeated overlap damage', () => {
+  const player = new PlayerState();
+  assert.equal(player.takeDamage(10), true);
+  assert.equal(player.lives, 2);
+  assert.equal(player.takeDamage(100), false);
+  assert.equal(player.update({}, ground, 100).vx, -170);
+  assert.equal(player.takeDamage(10 + config.invulnerability), true);
+  assert.equal(player.lives, 1);
+});
+test('moonwalk evades damage; falling still removes lives and clears crouch', () => {
+  const player = new PlayerState();
+  player.update({ moonPressed: true }, ground, 1);
+  assert.equal(player.takeDamage(2), false);
+  player.fall(3);
+  assert.equal(player.lives, 2);
+  assert.equal(player.moonUntil, 0);
+  assert.equal(player.crouched, false);
+});
+test('life count stops at zero and dead player cannot move or jump', () => {
+  const player = new PlayerState();
+  for (let i = 0; i < 4; i++) player.fall(i);
+  assert.equal(player.lives, 0);
+  assert.equal(player.takeDamage(10000), false);
+  assert.deepEqual(player.update({ right: true, jumpPressed: true }, ground, 10000), { vx: 0, jump: false });
+});
