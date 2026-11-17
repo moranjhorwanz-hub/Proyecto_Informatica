@@ -1,2 +1,2 @@
-import FeatureScene from './FeatureScene.js';
-export default class VictoryScene extends FeatureScene {constructor(){super('Victory','Una actuación inolvidable',5);}}
+import ResultScene from './ResultScene.js';
+export default class VictoryScene extends ResultScene { constructor(){super('Victory');} }
