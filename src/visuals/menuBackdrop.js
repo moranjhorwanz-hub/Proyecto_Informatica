@@ -39,6 +39,28 @@ function tree(g, x, y, height, theme, world, variant) {
   }
 }
 
+export function createSpringMenuBackdrop(scene) {
+  const width = 1280, height = 720;
+  const image = scene.add.image(width / 2, height / 2, 'spring-menu');
+  image.setScale(Math.max(width / image.width, height / image.height));
+
+  const key = 'spring-menu-shade';
+  if (!scene.textures.exists(key)) {
+    const texture = scene.textures.createCanvas(key, 1, height);
+    const gradient = texture.context.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, 'rgba(16, 5, 8, .88)');
+    gradient.addColorStop(.19, 'rgba(16, 5, 8, .68)');
+    gradient.addColorStop(.43, 'rgba(16, 5, 8, .18)');
+    gradient.addColorStop(.72, 'rgba(16, 5, 8, .18)');
+    gradient.addColorStop(.86, 'rgba(16, 5, 8, .72)');
+    gradient.addColorStop(1, 'rgba(16, 5, 8, .92)');
+    texture.context.fillStyle = gradient;
+    texture.context.fillRect(0, 0, 1, height);
+    texture.refresh();
+  }
+  scene.add.image(width / 2, height / 2, key).setDisplaySize(width, height);
+}
+
 export function createMenuBackdrop(scene, level, reducedMotion = false) {
   const theme=themes[level.world], layers=[];
   scene.add.image(640,360,skyTexture(scene,level,theme));

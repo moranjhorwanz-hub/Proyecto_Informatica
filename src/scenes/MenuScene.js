@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { getCharacter } from '../data/characters.js';
 import { getAppearance } from '../entities/appearance.js';
-import { createMenuBackdrop } from '../visuals/menuBackdrop.js';
+import { createMenuBackdrop, createSpringMenuBackdrop } from '../visuals/menuBackdrop.js';
 import { createMenuCharacter } from '../visuals/menuCharacter.js';
 import { menuText as text, menuPanel, fitMenuText, menuColors } from '../ui/menuComponents.js';
 
@@ -23,7 +23,12 @@ export default class MenuScene extends Phaser.Scene {
     });
     this.appearance=getAppearance(this.level,progress);
     this.reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
-    this.backdrop=createMenuBackdrop(this,this.level,this.reducedMotion);
+    this.backdrop=null;
+    if (this.level.world===1 && this.textures.exists('spring-menu')) {
+      createSpringMenuBackdrop(this);
+    } else {
+      this.backdrop=createMenuBackdrop(this,this.level,this.reducedMotion);
+    }
     this.hero=createMenuCharacter(this,this.appearance,this.reducedMotion);
     this.createHeader();this.createNavigation();this.createStatus();this.createSeasons();
     this.cameras.main.fadeIn(this.reducedMotion?0:320,10,5,6);
@@ -128,5 +133,5 @@ export default class MenuScene extends Phaser.Scene {
     if(key==='ArrowLeft')this.select((this.level.id+levels.length-2)%levels.length+1);
   }
 
-  update(_time,delta) {this.backdrop.update(this.input.activePointer,delta);}
+  update(_time,delta) {this.backdrop?.update(this.input.activePointer,delta);}
 }
