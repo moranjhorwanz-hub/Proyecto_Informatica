@@ -165,11 +165,13 @@ export default class GameScene extends Phaser.Scene {
     const remaining = Math.max(0, state.nextMoon - this.playTime);
     this.moonText.setText(remaining ? `M · Recargando ${(remaining / 1000).toFixed(1)} s` : 'M · Moonwalk listo');
     if (!state.lives) {
-      if(this.campaign) { this.scene.start('GameOver',{levelId:this.level.id}); return; }
-      this.dead = true; this.physics.pause(); this.player.anims.pause();
-      this.overlayTitle.setText('Un nuevo intento');
-      this.overlayBody.setText('R para reiniciar el ensayo · ESC para volver');
-      this.overlay.setVisible(true);
+      this.dead = true;
+      this.scene.start('GameOver', {
+        levelId: this.level.id,
+        mode: this.campaign ? 'campaign' : 'practice',
+        coins: this.levelManager?.coins ?? 0,
+      });
+      return;
     }
     if(this.campaign) {
       const manager=this.levelManager, boss=this.combat.boss;

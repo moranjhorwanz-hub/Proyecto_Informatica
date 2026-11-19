@@ -229,6 +229,7 @@ Saldo: {count}|Balance: {count}|Solde : {count}
 Progreso guardado.|Progress saved.|Progression enregistrée.
 No se pudo guardar. El progreso se conserva solo en esta sesión.|Could not save. Progress is kept only for this session.|Échec de l'enregistrement. Progression conservée pour cette session seulement.
 No quedan vidas.|No lives remaining.|Il ne reste plus de vies.
+Monedas obtenidas|Coins collected|Pièces obtenues
 Los objetos de este intento no se han abonado.|Items from this attempt were not credited.|Les objets de cet essai n'ont pas été crédités.
 Siguiente estación|Next season|Saison suivante
 Repetir nivel|Replay level|Rejouer le niveau

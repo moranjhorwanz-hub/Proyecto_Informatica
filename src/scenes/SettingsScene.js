@@ -13,7 +13,8 @@ const cut = (x, y, w, h, edge = 12) => [
 export default class SettingsScene extends Phaser.Scene {
   constructor() { super('Settings'); }
 
-  create() {
+  create({ gameOver } = {}) {
+    this.goBack = () => gameOver ? this.scene.start('GameOver', gameOver) : this.scene.start('Menu');
     this.services = this.registry.get('services');
     this.draft = { ...this.services.progress.data.settings };
     this.tab = 0;
@@ -106,7 +107,7 @@ export default class SettingsScene extends Phaser.Scene {
       this.renderPage('Valores restablecidos. Pulsa Aplicar para guardarlos.');
     });
     this.button(960, 664, 137, 43, 'Aplicar', () => this.apply(), true);
-    this.button(1107, 664, 138, 43, 'Volver', () => this.scene.start('Menu'));
+    this.button(1107, 664, 138, 43, 'Volver', this.goBack);
   }
 
   row(y, label) {
@@ -206,7 +207,7 @@ export default class SettingsScene extends Phaser.Scene {
     if (!['Escape', 'Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) return;
     event.preventDefault();
     if (event.repeat) return;
-    if (key === 'Escape') this.scene.start('Menu');
+    if (key === 'Escape') this.goBack();
     else if (key === 'Tab') this.selectTab(this.tab + (event.shiftKey ? -1 : 1));
     else if (key === 'Enter') this.apply();
     else if (key === 'ArrowUp' || key === 'ArrowDown') {

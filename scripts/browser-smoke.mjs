@@ -217,7 +217,7 @@ try {
   await evaluate('p.body.reset(760,880); p.setVelocity(0,0); true');
   await waitFor('p.state.lives===1 && p.x<200', 'Fall must respawn and remove life');
   await evaluate('p.body.reset(760,880); p.setVelocity(0,0); true');
-  await waitFor('practice.dead', 'Third lost life must stop practice');
+  await waitFor(`testGame.scene.isActive('GameOver')`, 'Third lost life must open Game Over in practice');
   await tap('r');
   await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;true`);
   assert.equal(await evaluate('p.state.lives'), 3, 'Restart restores lives');
@@ -316,10 +316,17 @@ try {
   }
   // Re-entry must not grant rewards on death or restart.
   await tap('r'); await advance(100);
-  await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;p.state.lives=1;p.body.reset(850,880);true`);
+  await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.item=practice.levelManager.pickups.getChildren().find(i=>i.kind==='coin');p.body.reset(item.x,item.y+55);p.setVelocity(0,0);true`);
+  await waitFor('practice.levelManager.coins===1', 'Collect a coin before losing');
+  await evaluate('p.state.lives=1;p.body.reset(850,880);true');
   await advance(100);
   assert.equal(await evaluate(`testGame.scene.isActive('GameOver')`),true);
+  assert.ok(await evaluate(`testGame.scene.getScene('GameOver').children.list.some(t=>t.text==='1')`),'Game Over shows the coins collected in the attempt');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance);
+  await click(639,618);
+  await waitFor(`testGame.scene.isActive('Settings')`,'Game Over settings button opens Settings');
+  await tap('Escape','Escape');
+  await waitFor(`testGame.scene.isActive('GameOver')`,'Leaving settings returns to Game Over');
   await tap('r'); await advance(100);
   assert.equal(await evaluate(`testGame.scene.getScene('Game').player.state.lives`),3,'GameOver retries campaign');
   console.log('Campaign passed: four courses, locks, pickups, moving platform/pause, faster enemies, boss projectiles and eight hits, victory, saved rewards, defeat and retry.');
@@ -509,7 +516,7 @@ try {
   await writeFile('.tools/phase8-settings-fr.png',Buffer.from(settingsShot.data,'base64'));
   await tap('Escape','Escape');
   assert.equal(await evaluate(`testGame.scene.getScene('Menu').buttons[0].t.text`),'Jouer');
-  const screenCases=[['Shop','La boutique du rythme'],['Character','Vos tenues'],['Characters','Choisissez votre personnage'],['LevelSelect','Trouvez votre rythme'],['Attacks','Le pouvoir de la danse'],['Game','NIVEAU / PRINTEMPS'],['Victory','Niveau terminé !'],['GameOver','Le spectacle continue']];
+  const screenCases=[['Shop','La boutique du rythme'],['Character','Vos tenues'],['Characters','Choisissez votre personnage'],['LevelSelect','Trouvez votre rythme'],['Attacks','Le pouvoir de la danse'],['Game','NIVEAU / PRINTEMPS'],['Victory','Niveau terminé !'],['GameOver','Pièces obtenues']];
   for(const [sceneKey,expected] of screenCases) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('${sceneKey}',{levelId:1,mode:'campaign',result:{reward:10,first:false,saved:true}});true`);
     await advance(150);
