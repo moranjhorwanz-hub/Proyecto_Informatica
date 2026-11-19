@@ -11,17 +11,19 @@ export class AudioManager {
     this.settings = validateSettings(settings);
   }
   get muted() { return !this.settings.music; }
+  get musicLevel() { return this.muted ? 0 : this.settings.musicVolume * this.settings.masterVolume / 10000; }
+  get effectsLevel() { return this.settings.sfxVolume * this.settings.masterVolume / 10000; }
   configure(settings) {
     const previous = this.settings.music;
     this.settings = validateSettings(settings);
     if (this.menuMusic) {
-      this.menuMusic.volume = this.settings.music ? this.settings.musicVolume / 100 : 0;
+      this.menuMusic.volume = this.musicLevel;
       if (this.inMenu && !this.settings.music) this.menuMusic.pause();
       else if (this.inMenu && previous !== this.settings.music) this.menuMusic.play().catch(() => {});
     }
     if (!this.context) return;
-    this.musicGain.gain.setValueAtTime(this.settings.music ? this.settings.musicVolume / 100 : 0, this.context.currentTime);
-    this.sfxGain.gain.setValueAtTime(this.settings.sfxVolume / 100, this.context.currentTime);
+    this.musicGain.gain.setValueAtTime(this.musicLevel, this.context.currentTime);
+    this.sfxGain.gain.setValueAtTime(this.effectsLevel, this.context.currentTime);
     if (previous !== this.settings.music && !this.inMenu) this.play(this.level);
   }
   unlock() {
@@ -85,7 +87,7 @@ export class AudioManager {
       this.menuMusic = new Audio(`${import.meta.env.BASE_URL}assets/menu-music.mp3`);
       this.menuMusic.loop = true;
     }
-    this.menuMusic.volume = this.muted ? 0 : this.settings.musicVolume / 100;
+    this.menuMusic.volume = this.musicLevel;
     if (!this.muted) this.menuMusic.play().catch(() => {});
   }
   stopMenu() { this.inMenu = false; if (this.menuMusic) { this.menuMusic.pause(); this.menuMusic.currentTime = 0; } }
@@ -102,7 +104,7 @@ export class AudioManager {
   stopVoices(voices) { for (const voice of voices) { try { voice.stop(); } catch {} } voices.clear(); }
   stop() { this.stopMenu(); this.stopMusic(); this.stopVoices(this.sfxVoices); }
   effect(type) {
-    if (!this.context || this.settings.sfxVolume === 0) return;
+    if (!this.context || this.effectsLevel === 0) return;
     if (type === 'damage' || type === 'victory' || type === 'jump' || type === 'coin') {
       if (!this[`${type}Buffer`]) {
         if (type === 'damage') this.loadDamageSound();
