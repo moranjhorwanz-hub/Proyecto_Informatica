@@ -1,4 +1,4 @@
-# Michael Jackson Adventure
+# King Jackson
 
 Juego de navegador con JavaScript, Phaser 3 / Arcade y Vite. Entrega local de las fases 1 a 8: menú estacional, combate, cuatro niveles, tienda, personajes, configuración y tres idiomas con progreso guardado.
 
@@ -38,7 +38,7 @@ npm.cmd run dev
 
 - «Jugar» → elige una estación desbloqueada → «Jugar nivel» o Enter.
 - Flechas izquierda/derecha o A/D: caminar. Shift: correr.
-- Espacio: saltar desde el suelo o una plataforma. No hay doble salto.
+- Espacio: salta desde el suelo o una plataforma. Vuelve a pulsar Espacio en el aire para hacer un doble salto.
 - Flecha abajo o S: agacharse y avanzar despacio. Bajo un techo, permanece agachado hasta tener espacio para levantarse.
 - M: Moonwalk de 620 ms hacia atrás sin cambiar la orientación. Recarga de 1,8 s desde la activación; permite esquivar el daño durante el deslizamiento.
 - P o botón Pausa: pausar/reanudar. Se pausa automáticamente al perder el foco.

@@ -1,25 +1,18 @@
 import Phaser from 'phaser';
 import { PLAYER_PREFIX } from '../entities/playerSprites.js';
-import { createPlayerTextures } from '../entities/playerTextures.js';
 
-export function wardrobePreviewTexture(scene, appearance, characterSelection = false) {
-  const isMichael = !appearance.textureId?.startsWith('character-');
-  const usePixelSprite = isMichael || characterSelection;
-  const key = `wardrobe-${usePixelSprite ? 'sprite' : 'outfit'}-${appearance.textureId || appearance.id}`;
+export function wardrobePreviewTexture(scene, appearance) {
+  const key = `wardrobe-${appearance.textureId || appearance.id}`;
   if (scene.textures.exists(key)) return key;
 
-  const prefix = usePixelSprite ? PLAYER_PREFIX : createPlayerTextures(scene, appearance);
-  const source = scene.textures.get(`${prefix}-idle-0`).getSourceImage();
-  const width = usePixelSprite ? source.width : source.width / 2;
-  const height = usePixelSprite ? source.height : source.height / 2;
+  const source = scene.textures.get(`${PLAYER_PREFIX}-idle-0`).getSourceImage();
+  const { width, height } = source;
   const texture = scene.textures.createCanvas(key, width, height);
   const context = texture.getContext();
   context.imageSmoothingEnabled = false;
-  context.drawImage(source, 0, 0, width, height);
-  if (usePixelSprite) {
-    applyOutfitColors(context, width, height, appearance);
-    drawAccessory(context, appearance);
-  }
+  context.drawImage(source, 0, 0);
+  applyOutfitColors(context, width, height, appearance);
+  drawAccessory(context, appearance);
   texture.refresh();
   texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
   return key;

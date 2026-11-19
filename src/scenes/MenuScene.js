@@ -40,15 +40,14 @@ export default class MenuScene extends Phaser.Scene {
   createHeader() {
     const line=this.add.graphics();
     line.lineStyle(1,menuColors.border,.2).lineBetween(44,126,1236,126);
-    text(this,46,28,'MICHAEL JACKSON',18,menuColors.accentText).setLetterSpacing(3);
-    text(this,43,51,'ADVENTURE',48).setLetterSpacing(2);
+    text(this,43,41,'King Jackson',46).setLetterSpacing(2);
     text(this,48,107,'Cuatro estaciones. Un escenario. Tu ritmo.',12,menuColors.muted);
     text(this,650,45,'UNA AVENTURA DE RITMO',11,menuColors.muted).setOrigin(.5).setLetterSpacing(2);
     this.levelTitle=text(this,650,77,`${String(this.level.id).padStart(2,'0')} / ${this.level.name}`,29).setOrigin(.5);
     text(this,650,108,this.level.subtitle,13,menuColors.accentText).setOrigin(.5);
     text(this,1207,36,'MONEDAS',11,menuColors.muted).setOrigin(1,0).setLetterSpacing(2);
     this.balanceText=text(this,1207,61,`◈ ${this.services.progress.data.coins}`,30,menuColors.accentText).setOrigin(1,0);
-    text(this,1207,103,'M J A  /  EST. 2026',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
+    text(this,1207,103,'EST. 2026',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
   }
 
   createNavigation() {
@@ -103,7 +102,7 @@ export default class MenuScene extends Phaser.Scene {
       return {id:level.id,box,label};
     });
     text(this,45,697,'↑ ↓ ELEGIR · ENTER ABRIR · ← → ESTACIÓN',10,menuColors.muted);
-    text(this,1234,697,'M J A / ADVENTURE',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
+    text(this,1234,697,'KING JACKSON',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
   }
 
   highlight(immediate=false) {

@@ -158,7 +158,7 @@ export default class SettingsScene extends Phaser.Scene {
 
   controlsPage() {
     const controls = [
-      ['Mover', 'A / D  ·  ← / →'], ['Correr', 'SHIFT'], ['Saltar', 'ESPACIO'],
+      ['Mover', 'A / D  ·  ← / →'], ['Correr', 'SHIFT'], ['Saltar / Doble salto', 'ESPACIO / ESPACIO × 2'],
       ['Agacharse', 'S / ↓'], ['Moonwalk', 'M'], ['Sombrero / Giro / Nieve', 'J / K / L'],
       ['Pausa / Reiniciar / Menú', 'P / R / ESC'],
     ];

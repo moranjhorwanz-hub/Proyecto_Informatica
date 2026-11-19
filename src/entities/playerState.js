@@ -12,6 +12,7 @@ export class PlayerState {
     this.facing = 1;
     this.pose = 'idle';
     this.crouched = false;
+    this.airJumpAvailable = false;
     this.moonUntil = 0;
     this.nextMoon = 0;
     this.hurtUntil = 0;
@@ -21,6 +22,7 @@ export class PlayerState {
 
   update(input, { grounded, canStand = true }, now) {
     if (this.lives === 0) return { vx: 0, jump: false };
+    if (grounded) this.airJumpAvailable = false;
     if (now < this.hurtUntil) {
       this.pose = 'hurt';
       return { vx: this.knockback, jump: false };
@@ -41,7 +43,8 @@ export class PlayerState {
     }
     const direction = Number(Boolean(input.right)) - Number(Boolean(input.left));
     if (direction) this.facing = direction;
-    const jump = Boolean(input.jumpPressed && grounded && !this.crouched);
+    const jump = Boolean(input.jumpPressed && !this.crouched && (grounded || this.airJumpAvailable));
+    if (jump) this.airJumpAvailable = grounded;
     const speed = this.crouched ? 75 : input.run ? this.stats.runSpeed : this.stats.speed;
     this.pose = this.crouched ? 'crouch' : jump || !grounded ? 'jump' : direction ? 'run' : 'idle';
     return { vx: direction * speed, jump };
@@ -65,6 +68,7 @@ export class PlayerState {
     this.moonUntil = 0;
     this.hurtUntil = 0;
     this.crouched = false;
+    this.airJumpAvailable = false;
     this.invulnerableUntil = now + this.stats.invulnerability;
   }
 }

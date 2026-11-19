@@ -30,6 +30,8 @@ Sombrero / Giro / Nieve|Hat / Spin / Snow|Chapeau / Rotation / Neige
 Mover|Move|Se déplacer
 Correr|Run|Courir
 Saltar|Jump|Sauter
+Saltar / Doble salto|Jump / Double jump|Saut / Double saut
+ESPACIO / ESPACIO × 2|SPACE / SPACE × 2|ESPACE / ESPACE × 2
 Agacharse|Crouch|S’accroupir
 ESPACIO|SPACE|ESPACE
 Pausa / Reiniciar / Menú|Pause / Restart / Menu|Pause / Recommencer / Menu

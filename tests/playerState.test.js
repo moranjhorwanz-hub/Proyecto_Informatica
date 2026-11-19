@@ -9,11 +9,23 @@ test('walking, running and contradictory input have bounded speed', () => {
   assert.equal(player.update({ left: true, run: true }, ground, 2).vx, -config.runSpeed);
   assert.equal(player.update({ left: true, right: true }, ground, 3).vx, 0);
 });
-test('jump requires ground and cannot start while crouching', () => {
+test('each ground jump allows one more jump before landing', () => {
   const player = new PlayerState();
+  const air = { grounded: false };
+  assert.equal(player.update({ jumpPressed: true }, air, 0).jump, false);
   assert.equal(player.update({ jumpPressed: true }, ground, 1).jump, true);
-  assert.equal(player.update({ jumpPressed: true }, { grounded: false }, 2).jump, false);
-  assert.equal(player.update({ jumpPressed: true, down: true }, ground, 3).jump, false);
+  assert.equal(player.update({}, air, 2).jump, false);
+  assert.equal(player.update({ jumpPressed: true }, air, 3).jump, true);
+  assert.equal(player.update({ jumpPressed: true }, air, 4).jump, false);
+  assert.equal(player.update({ jumpPressed: true, down: true }, ground, 5).jump, false);
+  assert.equal(player.update({ jumpPressed: true }, ground, 6).jump, true);
+  assert.equal(player.update({ jumpPressed: true }, air, 7).jump, true);
+});
+test('respawning clears a pending air jump', () => {
+  const player = new PlayerState();
+  player.update({ jumpPressed: true }, ground, 1);
+  player.fall(2);
+  assert.equal(player.update({ jumpPressed: true }, { grounded: false }, 3).jump, false);
 });
 test('crouch stays active beneath a low ceiling until there is clearance', () => {
   const player = new PlayerState();

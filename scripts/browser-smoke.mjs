@@ -334,18 +334,18 @@ try {
   await tap('Escape','Escape');
   await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Shop')`, 'Shop reopens after campaign');
-  await click(365,506); // Snow item.
+  await click(172,399); // Snow item.
   await evaluate(`window.originalSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw Error('simulated quota');};true`);
-  await click(975,555);
+  await click(792,555);
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance,'Failed save does not spend coins');
   assert.equal(await evaluate(`testGame.registry.get('services').shop.owns('freeze')`),false);
   assert.ok(await evaluate(`testGame.scene.getScene('Shop').feedback.text.includes('No se pudo guardar')`));
   await evaluate('Storage.prototype.setItem=window.originalSetItem;true');
-  await click(975,555);
+  await click(792,555);
   expectedBalance-=300;
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance);
   assert.ok(await evaluate(`testGame.registry.get('services').progress.data.abilities.includes('freeze')`));
-  await click(975,555); // Owned ability opens controls, never charges again.
+  await click(792,555); // Owned ability opens controls, never charges again.
   assert.equal(await evaluate(`testGame.scene.isActive('Attacks')`),true);
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance);
   await tap('Escape','Escape');

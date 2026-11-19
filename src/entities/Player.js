@@ -45,7 +45,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   update(input, now) {
     const wasMoonwalking = this.state.pose === 'moonwalk';
-    const grounded = this.body.blocked.down || this.body.touching.down;
+    const grounded = this.body.velocity.y >= 0 && (this.body.blocked.down || this.body.touching.down);
     const movement = this.state.update(input, {
       grounded, canStand: this.scene.canStand(this),
     }, now);
