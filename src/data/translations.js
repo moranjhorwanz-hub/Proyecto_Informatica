@@ -27,6 +27,7 @@ Volver|Back|Retour
 Valores restablecidos. Pulsa Aplicar para guardarlos.|Defaults restored. Select Apply to save them.|Réglages rétablis. Sélectionnez Appliquer pour les enregistrer.
 Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar|Tab · Sections    ↑ ↓ · Select    ← → · Adjust|Tab · Sections    ↑ ↓ · Choisir    ← → · Régler
 Sombrero / Giro / Nieve|Hat / Spin / Snow|Chapeau / Rotation / Neige
+Sombrero / Giro / Nieve / Nota musical|Hat / Spin / Snow / Musical note|Chapeau / Rotation / Neige / Note de musique
 Mover|Move|Se déplacer
 Correr|Run|Courir
 Saltar|Jump|Sauter
@@ -188,6 +189,8 @@ Lanza un sombrero que regresa. Solo uno en vuelo.|Throw a returning hat. Only on
 Golpea alrededor de ti en un radio de {range} px.|Hit enemies within {range} px.|Frappe les ennemis dans un rayon de {range} px.
 Congela enemigos durante {duration} s.|Freeze enemies for {duration} s.|Gèle les ennemis pendant {duration} s.
 Esquiva mientras te deslizas.|Dodge while sliding.|Esquive pendant la glissade.
+Nota musical|Musical note|Note de musique
+Lanza una nota rápida que inflige un punto de daño.|Fire a fast note that deals one damage.|Lance une note rapide qui inflige un point de dégâts.
 Personaje activo · {name}|Active character · {name}|Personnage actif · {name}
 Copo en campaña|Campaign snowflake|Flocon en campagne
 Disponible en campaña y en el ensayo.|Available in campaign and practice.|Disponible en campagne et en entraînement.

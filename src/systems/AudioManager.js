@@ -121,7 +121,7 @@ export class AudioManager {
       source.start();
       return;
     }
-    const tones = { jump:[330,660,.15], moonwalk:[520,160,.28], damage:[160,65,.2], hat:[740,300,.16], spin:[260,900,.3], freeze:[1200,600,.22] };
+    const tones = { jump:[330,660,.15], moonwalk:[520,160,.28], damage:[160,65,.2], hat:[740,300,.16], spin:[260,900,.3], freeze:[1200,600,.22], note:[523,784,.18] };
     this.voice(tones[type] || tones.jump, type === 'damage' ? 'triangle' : 'sine', this.sfxGain, this.sfxVoices, .065);
   }
   toggle() {

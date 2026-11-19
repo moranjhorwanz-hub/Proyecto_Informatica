@@ -75,7 +75,7 @@ export default class GameScene extends Phaser.Scene {
     this.keys = this.input.keyboard.addKeys({
       left: 'LEFT', right: 'RIGHT', a: 'A', d: 'D', down: 'DOWN', s: 'S',
       jump: 'SPACE', run: 'SHIFT', moon: 'M', restart: 'R', pause: 'P', escape: 'ESC',
-      hat: 'J', spin: 'K', freeze: 'L',
+      hat: 'J', spin: 'K', freeze: 'L', note: 'N',
     });
     this.input.keyboard.addCapture(['SPACE', 'UP', 'DOWN', 'LEFT', 'RIGHT']);
     this.createHud();
@@ -149,12 +149,12 @@ export default class GameScene extends Phaser.Scene {
       jumpPressed: Phaser.Input.Keyboard.JustDown(this.keys.jump),
       moonPressed: Phaser.Input.Keyboard.JustDown(this.keys.moon),
     }, this.playTime);
-    for (const kind of ['hat', 'spin', 'freeze']) {
+    for (const kind of ['hat', 'spin', 'freeze', 'note']) {
       if (Phaser.Input.Keyboard.JustDown(this.keys[kind])) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
     if (this.player.y > 850) { this.player.respawn(...(this.levelManager?.course.spawn || [130,600])); this.combat.resetProjectiles(); }
-    this.combatText.setText([['hat', 'J · Sombrero'], ['spin', 'K · Giro'], ['freeze', 'L · Nieve']].map(([kind, title]) => {
+    this.combatText.setText([['hat', 'J · Sombrero'], ['spin', 'K · Giro'], ['freeze', 'L · Nieve'], ['note', 'N ♪ · Nota musical']].map(([kind, title]) => {
       const remaining = Math.max(0, this.combat.state.next[kind] - this.playTime);
       return `${title}: ${kind==='freeze'&&!this.trainingSnow&&!canUseSnow(this.services.progress.data)?'bloqueada':remaining ? `${(remaining / 1000).toFixed(1)} s` : kind === 'hat' && this.combat.hat?.active ? 'en vuelo' : 'listo'}`;
     }).join('     '));

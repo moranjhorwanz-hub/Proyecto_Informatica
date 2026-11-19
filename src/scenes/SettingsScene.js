@@ -160,7 +160,7 @@ export default class SettingsScene extends Phaser.Scene {
   controlsPage() {
     const controls = [
       ['Mover', 'A / D  ·  ← / →'], ['Correr', 'SHIFT'], ['Saltar / Doble salto', 'ESPACIO / ESPACIO × 2'],
-      ['Agacharse', 'S / ↓'], ['Moonwalk', 'M'], ['Sombrero / Giro / Nieve', 'J / K / L'],
+      ['Agacharse', 'S / ↓'], ['Moonwalk', 'M'], ['Sombrero / Giro / Nieve / Nota musical', 'J / K / L / N'],
       ['Pausa / Reiniciar / Menú', 'P / R / ESC'],
     ];
     controls.forEach(([label, keys], index) => {

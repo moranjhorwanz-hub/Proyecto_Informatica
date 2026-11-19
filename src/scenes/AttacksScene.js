@@ -88,19 +88,22 @@ export default class AttacksScene extends Phaser.Scene {
         `${seconds(combat.spinCooldown)} s`],
       ['L', 'Copo', `Congela enemigos durante ${seconds(combat.freezeDuration)} s.`,
         `${seconds(combat.freezeCooldown)} s`],
+      ['N', 'Nota musical', 'Lanza una nota rápida que inflige un punto de daño.',
+        `${seconds(combat.noteCooldown)} s`],
       ['M', 'Moonwalk', 'Esquiva mientras te deslizas.', '—'],
     ];
     this.text(1188, 181, 'Recarga', 16, 'bold', '#afbfd6').setOrigin(1, 0);
     const lines = this.add.graphics().lineStyle(1, 0x354560);
     this.content.add(lines);
     moves.forEach(([key, name, description, cooldown], index) => {
-      const y = 211 + index * 83;
+      const y = 211 + index * 70;
       this.shape(378, y + 9, 49, 38, 0x172335, 0x536680, 8);
       this.text(402, y + 28, key, 20, 'bold').setOrigin(.5);
-      this.text(452, y, name, 24, 'bold');
+      const title = this.text(452, y, name, 24, 'bold');
+      if (key === 'N') this.text(462 + title.width, y, '♪', 24, 'bold', '#80e7ff');
       this.text(452, y + 32, description, 18, 'normal', '#afbfd6');
       this.text(1188, y + 28, cooldown, 21, 'bold').setOrigin(1, .5);
-      lines.lineBetween(377, y + 69, 1209, y + 69);
+      lines.lineBetween(377, y + 59, 1209, y + 59);
     });
     this.text(379, 574, `Personaje activo · ${this.character.name}`, 18, 'normal', '#afbfd6');
   }

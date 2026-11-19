@@ -24,10 +24,13 @@ export default class CombatSystem {
       this.enemies.add(this.boss);
     }
     scene.physics.add.collider(this.enemies, scene.solids);
-    this.snow = scene.physics.add.group({ allowGravity: false });
-    scene.physics.add.collider(this.snow, scene.solids, flake => flake.destroy());
-    scene.physics.add.overlap(this.snow, this.enemies, (flake, enemy) => {
-      enemy.freeze(this.state.settings.freezeDuration); enemy.takeDamage(); flake.destroy();
+    this.projectiles = scene.physics.add.group({ allowGravity: false });
+    scene.physics.add.collider(this.projectiles, scene.solids, shot => shot.destroy());
+    scene.physics.add.overlap(this.projectiles, this.enemies, (shot, enemy) => {
+      if (!shot.active || !enemy.active) return;
+      if (shot.texture.key === 'combat-flake') enemy.freeze(this.state.settings.freezeDuration);
+      enemy.takeDamage();
+      shot.destroy();
     });
     scene.physics.add.overlap(scene.player, this.enemies, (_player, enemy) => {
       if (scene.playTime < this.state.spinUntil) this.spinHit(enemy);
@@ -48,6 +51,16 @@ export default class CombatSystem {
     g.lineStyle(2, 0xd6f6ff);
     for (let a = 0; a < 3; a++) { const angle = a * Math.PI / 3; g.lineBetween(12 - Math.cos(angle) * 10, 12 - Math.sin(angle) * 10, 12 + Math.cos(angle) * 10, 12 + Math.sin(angle) * 10); }
     g.generateTexture('combat-flake', 24, 24); g.destroy();
+    const note = scene.textures.createCanvas('combat-note', 48, 48);
+    const context = note.getContext();
+    context.font = '42px "Segoe UI Symbol", Arial, sans-serif';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.shadowColor = '#40d8ff';
+    context.shadowBlur = 7;
+    context.fillStyle = '#c7f5ff';
+    context.fillText('♪', 24, 24);
+    note.refresh();
   }
   damagePlayer(direction) { return this.scene.player.takeDamage(direction); }
   attack(kind) {
@@ -63,8 +76,13 @@ export default class CombatSystem {
       this.hat.once('destroy', () => collider?.destroy());
     } else if (kind === 'spin') this.spinHits.clear();
     else {
-      const flake = this.snow.create(p.x + p.state.facing * 30, p.y - 65, 'combat-flake');
-      flake.body.setAllowGravity(false); flake.setVelocityX(p.state.facing * 430); flake.expires = s.playTime + 1200;
+      const isNote = kind === 'note';
+      const shot = this.projectiles.create(p.x + p.state.facing * 30, p.y - 65,
+        isNote ? 'combat-note' : 'combat-flake');
+      if (isNote) shot.setDepth(12).body.setSize(26, 30);
+      shot.body.setAllowGravity(false);
+      shot.setVelocityX(p.state.facing * (isNote ? 620 : 430));
+      shot.expires = s.playTime + (isNote ? 750 : 1200);
     }
     s.services.audio.effect(kind);
     return true;
@@ -76,7 +94,7 @@ export default class CombatSystem {
   update(now, delta) {
     this.enemies.getChildren().slice().forEach(enemy => enemy.update(now));
     if (this.hat?.active) this.hat.update(now, delta);
-    this.snow.getChildren().slice().forEach(flake => { if (now >= flake.expires) flake.destroy(); });
+    this.projectiles.getChildren().slice().forEach(shot => { if (now >= shot.expires) shot.destroy(); });
     const p = this.scene.player, spinning = now < this.state.spinUntil && now >= p.state.hurtUntil;
     this.ring.setPosition(p.x, p.y - 60).setVisible(spinning);
     if (spinning) {
@@ -85,6 +103,6 @@ export default class CombatSystem {
     }
   }
   resetProjectiles() {
-    this.hat?.destroy(); this.snow.clear(true, true); this.state.spinUntil = 0;
+    this.hat?.destroy(); this.projectiles.clear(true, true); this.state.spinUntil = 0;
   }
 }

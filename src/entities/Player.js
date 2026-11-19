@@ -36,7 +36,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   playAttack(kind, now) {
     if (!this.usesNewSprites) return;
-    const pose = kind === 'freeze' ? 'kick' : kind;
+    const pose = kind === 'freeze' || kind === 'note' ? 'kick' : kind;
     const key = `${this.prefix}-${pose}`;
     this.attack = { pose, until: now + this.scene.anims.get(key).duration };
     this.currentPose = pose;
