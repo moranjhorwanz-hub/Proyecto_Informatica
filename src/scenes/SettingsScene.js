@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 import { DEFAULT_SETTINGS, difficulties } from '../data/settings.js';
 import { levels } from '../data/levels.js';
-import { getAppearance } from '../entities/appearance.js';
 import { createMenuBackdrop } from '../visuals/menuBackdrop.js';
-import { dancer } from './scenery.js';
+import { createPixelMenuCharacter } from '../visuals/menuCharacter.js';
 
 const tabs = ['Gráficos', 'Audio', 'Controles', 'General'];
 const cut = (x, y, w, h, edge = 12) => [
@@ -22,9 +21,8 @@ export default class SettingsScene extends Phaser.Scene {
     const level = levels.find(stage => stage.world === 4);
     createMenuBackdrop(this, level, true);
     this.add.rectangle(640, 360, 1280, 720, 0x020610, .6);
-    const hero = dancer(this, getAppearance(level, this.services.progress.data));
-    this.tweens.killTweensOf(hero);
-    hero.setPosition(165, 511).setScale(.47);
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    createPixelMenuCharacter(this, 165, 634, 1.45, reducedMotion);
     const frame = this.add.graphics();
     frame.fillStyle(0x080c17, .97).fillPoints(cut(0, 0, 585, 88, 35), true);
     frame.lineStyle(3, 0xee2543).strokePoints(cut(0, 0, 585, 88, 35), true);
