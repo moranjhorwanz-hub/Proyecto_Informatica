@@ -1,5 +1,10 @@
 // Spanish source phrases are stable localization keys. Placeholders preserve live values.
 const rows = `
+Calle iluminada|Lit Street|Rue illuminée
+Distrito de neón|Neon District|Quartier néon
+Callejón de las farolas|Lamplit Alley|Ruelle des réverbères
+Paseo de los reflejos|Reflection Walk|Promenade des reflets
+Punto de control guardado|Checkpoint saved|Point de contrôle enregistré
 ELIGE TU RITMO|CHOOSE YOUR RHYTHM|CHOISISSEZ VOTRE RYTHME
 PERSONAJE|CHARACTER|PERSONNAGE
 PROGRESO|PROGRESS|PROGRESSION

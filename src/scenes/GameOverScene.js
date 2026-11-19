@@ -4,7 +4,7 @@ import { PLAYER_PREFIX } from '../entities/playerSprites.js';
 export default class GameOverScene extends Phaser.Scene {
   constructor() { super('GameOver'); }
 
-  create({ levelId = 1, mode = 'campaign', coins = 0 } = {}) {
+  create({ levelId = 1, mode = 'campaign', coins = 0, checkpoint } = {}) {
     this.add.image(640, 360, 'game-over').setDisplaySize(1280, 720);
     const dance = PLAYER_PREFIX + '-dance';
     const dancer = this.add.sprite(205, 669, dance + '-0').setOrigin(.5, 1).setScale(2.3);
@@ -18,9 +18,9 @@ export default class GameOverScene extends Phaser.Scene {
       fontFamily: 'Arial', fontSize: 34, fontStyle: 'bold', color: '#ffdd50',
     }).setOrigin(.5);
 
-    const retry = () => this.scene.start('Game', { levelId, mode });
+    const retry = () => this.scene.start('Game', { levelId, mode, checkpoint });
     const menu = () => this.scene.start('Menu');
-    const settings = () => this.scene.start('Settings', { gameOver: { levelId, mode, coins } });
+    const settings = () => this.scene.start('Settings', { gameOver: { levelId, mode, coins, checkpoint } });
     for (const [x, y, width, height, action] of [
       [641, 464, 490, 64, retry],
       [639, 542, 468, 61, menu],

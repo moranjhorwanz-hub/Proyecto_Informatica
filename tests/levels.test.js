@@ -42,11 +42,14 @@ test('mandatory gaps fit running jump and patrols stay on ground',()=>{
     }
   }
 });
-test('harder courses are longer and have more patrols with separate lanes', () => {
+test('courses after Billie Jean grow in length and all courses have more patrols with separate lanes', () => {
   let previousWidth = 3000;
   let previousPatrols = 3;
-  for (const course of Object.values(courses)) {
-    assert.ok(course.width > previousWidth);
+  for (const [id, course] of Object.entries(courses)) {
+    if (id !== '1') {
+      assert.ok(course.width > previousWidth);
+      previousWidth = course.width;
+    }
     assert.ok(course.enemies.length > previousPatrols);
     let previousRight = course.spawn[0] + 180;
     for (const [, left, right] of course.enemies) {
@@ -54,9 +57,58 @@ test('harder courses are longer and have more patrols with separate lanes', () =
       previousRight = right;
     }
     if (course.boss) assert.ok(previousRight + 80 < course.boss.left);
-    previousWidth = course.width;
     previousPatrols = course.enemies.length;
   }
+});
+test('Billie Jean sections connect and checkpoints have clear ground', () => {
+  const course = courses[1];
+  assert.ok(course.width >= 7000);
+  assert.equal(course.sections.length, 4);
+  let edge = 0;
+  for (const { start, end, spawn: [x] } of course.sections) {
+    assert.equal(start, edge);
+    assert.ok(x > start && x < end);
+    assert.ok(course.platforms.some(([left, y, width]) => y === 620 && x - 48 >= left && x + 48 <= left + width));
+    assert.ok(course.enemies.every(([, left, right]) => x + 100 < left || x - 100 > right));
+    assert.ok(course.hazards.every(([hazardX]) => Math.abs(x - hazardX) > 100));
+    edge = end;
+  }
+  assert.equal(edge, course.width);
+});
+test('Billie Jean retries restore the latest checkpoint and its collected items', () => {
+  const overlaps = new Map();
+  const scene = {
+    level: { id: 1 },
+    player: { state: { lives: 3 } },
+    playTime: 3000,
+    physics: { add: { collider() {}, overlap(_player, target, callback) { overlaps.set(target, callback); } } },
+    services: { audio: { effect() {} } },
+  };
+  const level = new LevelManager(scene);
+  level.pickups = {};
+  level.hazards = {};
+  const light = { setFillStyle() {} };
+  const first = {};
+  const second = {};
+  level.markers = [
+    { trigger: first, pole: light, lamp: light, section: 1 },
+    { trigger: second, pole: light, lamp: light, section: 2 },
+  ];
+  level.connect();
+  const collect = (kind, index) => overlaps.get(level.pickups)(scene.player, {
+    kind, active: true, pickupKey: `${kind}-${index}`, destroy() {},
+  });
+  collect('coin', 0);
+  overlaps.get(second)();
+  collect('gift', 0);
+  overlaps.get(first)();
+  assert.deepEqual(level.checkpoint, { section: 2, collected: ['coin-0'], time: 3000 });
+
+  const retry = new LevelManager(scene, level.checkpoint);
+  retry.pickup(...retry.course.coins[0], 'coin', 0);
+  assert.equal(retry.coins, 1);
+  assert.equal(retry.gifts, 0);
+  assert.deepEqual(retry.spawn, retry.course.sections[2].spawn);
 });
 test('a living boss, no lives or falling below the flag prevent victory',()=>{
   const scene={level:{id:4},player:{state:{lives:3},body:{bottom:620}},combat:{boss:{active:true}}};

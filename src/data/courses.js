@@ -1,6 +1,7 @@
 ﻿// Individually designed gap patterns. Gaps remain short enough for a running jump.
+import { billieJeanCourse } from './billieJeanCourse.js';
+
 const designs = [
- {width:3000,gaps:[[740,105],[1820,115]], ledges:[350,1200,2310], movers:[]},
  {width:3150,gaps:[[620,110],[1450,120],[2380,115]], ledges:[300,1050,2030,2670], movers:[1]},
  {width:3300,gaps:[[830,125],[1680,115],[2610,130]], ledges:[380,1190,2100,2800], movers:[0]},
  {width:3400,gaps:[[670,130],[1390,125],[2240,140]], ledges:[310,980,1870,2770], movers:[2]},
@@ -67,4 +68,7 @@ function collectiblePositions(ground,goal,count,offset=.5) {
   }
  });
 }
-export const courses=Object.fromEntries(designs.map((design,i)=>[i+1,makeCourse(design,i)]));
+export const courses = {
+  1: billieJeanCourse,
+  ...Object.fromEntries(designs.map((design, i) => [i + 2, makeCourse(design, i + 1)])),
+};

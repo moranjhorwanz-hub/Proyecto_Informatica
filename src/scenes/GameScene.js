@@ -24,6 +24,7 @@ export default class GameScene extends Phaser.Scene {
     this.campaign = data.mode === 'campaign';
     if(this.campaign&&!this.services.progress.data.unlockedLevels.includes(this.level.id)) { this.scene.start('LevelSelect'); return; }
     this.playTime = 0;
+    this.checkpointNoticeUntil = 0;
     this.paused = false;
     this.finished = false;
     this.dead = false;
@@ -46,7 +47,8 @@ export default class GameScene extends Phaser.Scene {
     });
     this.solids = this.physics.add.staticGroup();
     if(this.campaign) {
-      this.levelManager=new LevelManager(this); this.levelManager.build();
+      this.levelManager=new LevelManager(this, data.checkpoint); this.levelManager.build();
+      this.playTime = this.levelManager.checkpoint?.time ?? 0;
     } else {
     this.levelManager=null;
     // Practice geometry only; complete seasonal level data belongs to phase 5.
@@ -67,7 +69,7 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.hazard, true);
     label(this, 1225, 666, 'Zona de daño', 15, '#ffb0a3');
     }
-    const [spawnX,spawnY]=this.levelManager?.course.spawn || [130,600];
+    const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
     this.appearance = getAppearance(this.level, this.services.progress.data);
     this.character = getCharacter(this.services.progress.data);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
@@ -76,6 +78,7 @@ export default class GameScene extends Phaser.Scene {
       this.combat.damagePlayer(this.player.x < this.hazard.x ? -1 : 1);
     });
     this.cameras.main.startFollow(this.player, true, .12, .12, -125, 0);
+    this.centerCameraOnPlayer();
     this.cameras.main.fadeIn(300);
     this.trainingSnow = !this.campaign;
     this.combat = new CombatSystem(this);
@@ -105,6 +108,11 @@ export default class GameScene extends Phaser.Scene {
     this.add.rectangle(x, y, width, 5, this.level.accent, .85).setOrigin(0);
   }
 
+  centerCameraOnPlayer() {
+    const camera = this.cameras.main;
+    camera.centerOn(this.player.x - camera.followOffset.x, this.player.y);
+  }
+
   canStand(player) {
     const left = player.body.x, right = player.body.right;
     const bottom = player.body.bottom, top = bottom - 116;
@@ -132,6 +140,7 @@ export default class GameScene extends Phaser.Scene {
     this.overlayBody = label(this, 0, 11, '', 19).setOrigin(.5, 0);
     this.overlay.add([this.overlayTitle, this.overlayBody]);
     this.notice = label(this, 640, 119, '', 19, '#f1d199').setOrigin(.5, 0).setScrollFactor(0).setDepth(101);
+    this.sectionText = this.levelManager?.course.sections && label(this, 28, 105, '', 16, '#ddf3ff').setScrollFactor(0).setDepth(101);
     this.combatText = label(this, 640, 148, '', 16, '#d7f3ff').setOrigin(.5, 0).setScrollFactor(0).setDepth(101);
     label(this, 640, 174, this.campaign?`J · Sombrero   K · Giro   L · ${canUseSnow(this.services.progress.data)?'Nieve disponible':'Nieve disponible en tienda'}`:'L · Nieve habilitada para este ensayo · Muñecos: 2 impactos', 14).setOrigin(.5, 0).setScrollFactor(0).setDepth(101);
   }
@@ -171,7 +180,11 @@ export default class GameScene extends Phaser.Scene {
       if (Phaser.Input.Keyboard.JustDown(this.keys[kind])) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
-    if (this.player.y > 850) { this.player.respawn(...(this.levelManager?.course.spawn || [130,600])); this.combat.resetProjectiles(); }
+    if (this.player.y > 850) {
+      this.player.respawn(...(this.levelManager?.spawn || [130,600]));
+      this.centerCameraOnPlayer();
+      this.combat.resetProjectiles();
+    }
     this.combatText.setText([['hat', 'J · Sombrero'], ['spin', 'K · Giro'], ['freeze', 'L · Nieve'], ['note', 'N ♪ · Nota musical']].map(([kind, title]) => {
       const remaining = Math.max(0, this.combat.state.next[kind] - this.playTime);
       return `${title}: ${kind==='freeze'&&!this.trainingSnow&&!canUseSnow(this.services.progress.data)?'bloqueada':remaining ? `${(remaining / 1000).toFixed(1)} s` : kind === 'hat' && this.combat.hat?.active ? 'en vuelo' : 'listo'}`;
@@ -188,11 +201,18 @@ export default class GameScene extends Phaser.Scene {
         levelId: this.level.id,
         mode: this.campaign ? 'campaign' : 'practice',
         coins: this.levelManager?.coins ?? 0,
+        checkpoint: this.levelManager?.checkpoint,
       });
       return;
     }
     if(this.campaign) {
       const manager=this.levelManager, boss=this.combat.boss;
+      if (this.sectionText) {
+        const section = manager.course.sections.findLastIndex(({ start }) => this.player.x >= start);
+        this.sectionText.setText(this.playTime < this.checkpointNoticeUntil
+          ? 'Punto de control guardado'
+          : manager.course.sections[Math.max(0, section)].name);
+      }
       this.notice.setText(`Monedas ${manager.coins}/7 · Regalos ${manager.gifts}/${manager.course.gifts.length}${boss?.active?` · REY DE LA NIEVE ${boss.health}/${boss.maxHealth}`:''}`);
       if(this.player.x>manager.course.goal && !this.finished) {
         if(!manager.canFinish())this.notice.setText('Derrota al Rey de la Nieve para abrir la meta');

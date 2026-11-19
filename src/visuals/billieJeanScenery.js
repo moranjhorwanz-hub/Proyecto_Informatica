@@ -24,7 +24,7 @@ export function drawBillieJeanScenery(scene, courseWidth) {
     const visibleEnd = camera.width + Math.max(0, courseWidth - camera.width) * speed;
     for (let x = 0; x < visibleEnd; x += tileWidth) {
       scene.add.image(x, 95, key).setOrigin(0).setScale(scale)
-        .setScrollFactor(speed, 0).setDepth(index === 4 ? -1 : -3);
+        .setScrollFactor(speed, 0).setDepth(index - layers.length);
     }
   }
 }
@@ -35,6 +35,10 @@ export function styleBillieJeanPlatform(scene, block) {
 
   const { x, y, width, height } = block;
   block.setFillStyle(0x141333);
-  scene.add.tileSprite(x, y, width, height, pavementKey, pavementFrame).setOrigin(0);
+  const surface = scene.add.tileSprite(x, y, width, height, pavementKey, pavementFrame).setOrigin(0);
+  if (scene.campaign) {
+    const frame = texture.get(pavementFrame);
+    surface.setTileScale(48 / frame.width, 24 / frame.height);
+  }
   scene.add.rectangle(x, y, width, 2, 0x818cf1, 0.85).setOrigin(0);
 }
