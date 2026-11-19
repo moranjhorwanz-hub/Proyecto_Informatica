@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
-import { PLAYER_PREFIX } from '../entities/playerSprites.js';
+import { getAppearance } from '../entities/appearance.js';
+import { createPixelMenuCharacter } from '../visuals/menuCharacter.js';
 import { achievementNames } from '../systems/ProgressManager.js';
 import { fitMenuText } from '../ui/menuComponents.js';
 import { cut } from '../ui/settingsMenuFrame.js';
@@ -27,9 +28,8 @@ export default class VictoryScene extends Phaser.Scene {
     this.add.image(640, 360, 'victory-city').setDisplaySize(1280, 720);
     this.add.rectangle(640, 360, 1280, 720, 0x01040d, .28);
     this.add.ellipse(206, 650, 210, 26, 0x020510, .65);
-    const dance = PLAYER_PREFIX + '-dance';
-    const dancer = this.add.sprite(206, 648, dance + '-0').setOrigin(.5, 1).setScale(2.6);
-    if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) dancer.play(dance);
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    createPixelMenuCharacter(this, 206, 648, 2.6, reducedMotion, getAppearance(level, progress.data), 'dance');
 
     const title = this.label(center, 159, 'VICTORIA', 107, '#ffd56f', 'bold italic')
       .setStroke('#a34b1d', 4)

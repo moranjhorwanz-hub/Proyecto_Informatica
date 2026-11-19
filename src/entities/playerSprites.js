@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { createOutfitFrame } from './playerTextures.js';
 
 const moves = {
   idle: ['10_deslizar', 1, 1, false, 7],
@@ -18,6 +19,96 @@ const moves = {
 export const PLAYER_PREFIX = 'player-pixel';
 export const PLAYER_FRAME_WIDTH = 128;
 export const PLAYER_FRAME_HEIGHT = 164;
+
+// Hat center and brim in the normalized frames. Facing is 0 for back views.
+const headPositions = {
+  idle: [[72, 63]],
+  walk: [[68, 61], [69, 61], [72, 61], [67, 61], [70, 61], [71, 61]],
+  hurt: [[76, 62], [76, 62]],
+  dance: [[68, 62], [69, 62], [70, 61], [70, 61], [64, 51, -1]],
+  jump: [[72, 52], [71, 46], [72, 37], [73, 30], [73, 40]],
+  spin: [[62, 48, 0], [62, 48, 0], [61, 46, 0], [56, 53, -1], [59, 46, 0]],
+  crouch: [[72, 89], [73, 88], [75, 86]],
+  run: [[88, 84], [76, 78]],
+  kick: [[47, 69], [62, 69], [51, 67], [53, 66], [48, 65]],
+  hat: [[51, 62, 1, 95], [84, 61, 1, 36]],
+  moonwalk: [[69, 61], [69, 61], [69, 61], [68, 61], [68, 61], [71, 61], [72, 63]],
+  celebrate: [[63, 53, -1], [69, 60, -1], [69, 59, -1]],
+};
+
+export function getPlayerSpritePrefix(scene, appearance, { preview = false } = {}) {
+  if (!appearance.textureId && !preview) return PLAYER_PREFIX;
+  const prefix = appearance.textureId ? `dancer-${appearance.textureId}` : `wardrobe-${appearance.id}`;
+  for (const [move, [, count, frameRate, loop = true]] of Object.entries(moves)) {
+    if (preview && move !== 'idle') continue;
+    const animation = `${prefix}-${move}`;
+    if (!preview && scene.anims.exists(animation)) continue;
+    const frames = Array.from({ length: count }, (_, index) => {
+      const [x, brim, facing = 1, raisedHat] = headPositions[move][index];
+      const key = createOutfitFrame(scene, `${animation}-${index}`, `${PLAYER_PREFIX}-${move}-${index}`,
+        appearance, { x, brim, facing, raisedHat });
+      return { key };
+    });
+    if (!preview) scene.anims.create({ key: animation, frames, frameRate, repeat: loop ? -1 : 0 });
+  }
+  return prefix;
+}
+
+// Crown, ribbon and curled brim at a 2-pixel drawing scale.
+const thrownHatPixels = [
+  '........................',
+  '........#######.........',
+  '......##hhhhhhh##.......',
+  '.....#hhggssggghm#......',
+  '.....#hgmmgghmgms#......',
+  '.....#gmmhmmgmsms#......',
+  '.....#mgmmsmmssss#......',
+  '....#rr+rrrrrrrbb#......',
+  '..##h###bbbbbbb###.###..',
+  '.#hhhgghhhmmmmssssggmh#.',
+  '.#gmmghghmmgmmssssmhh#..',
+  '..##smmmmmsssmggghh##...',
+  '....###sssssssss###.....',
+  '.......#########........',
+];
+
+export function getThrownHatTexture(scene, playerPrefix, appearance) {
+  const key = `combat-hat-${playerPrefix}`;
+  if (scene.textures.exists(key)) return key;
+
+  const texture = scene.textures.createCanvas(key, 48, 28);
+  const context = texture.getContext();
+  const base = Phaser.Display.Color.IntegerToColor(
+    (appearance?.textureId && appearance.hatColor) ?? 0xe8e4db,
+  );
+  const blend = (target, amount) => {
+    const channels = [base.red, base.green, base.blue].map((value, index) =>
+      Math.round(value + (target[index] - value) * amount));
+    return `rgb(${channels.join(',')})`;
+  };
+  const light = [255, 247, 230];
+  const shadow = [10, 12, 23];
+  const palette = {
+    '#': blend(shadow, .91),
+    h: blend(light, .43),
+    g: blend(light, .18),
+    m: base.rgba,
+    s: blend(shadow, .34),
+    r: blend(shadow, .69),
+    b: blend(shadow, .84),
+    '+': blend(light, .68),
+  };
+  thrownHatPixels.forEach((row, y) => {
+    [...row].forEach((pixel, x) => {
+      if (pixel === '.') return;
+      context.fillStyle = palette[pixel];
+      context.fillRect(x * 2, y * 2, 2, 2);
+    });
+  });
+  texture.refresh();
+  texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+  return key;
+}
 
 function sourceKey(group, number) {
   return group + '_' + String(number).padStart(2, '0');
