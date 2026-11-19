@@ -1,10 +1,11 @@
 import { stageMusic } from '../data/stageMusic.js';
 import { validateSettings } from '../data/settings.js';
-// One original procedural track, with independent music and effects buses.
+
 export class AudioManager {
   constructor(settings) {
     this.context = null; this.timer = null; this.level = 1;
     this.menuMusic = null; this.damageBuffer = null; this.damageLoading = null;
+    this.worldMusic = null;
     this.victoryBuffer = null; this.victoryLoading = null;
     this.jumpBuffer = null; this.jumpLoading = null;
     this.coinBuffer = null; this.coinLoading = null; this.inMenu = false;
@@ -22,6 +23,7 @@ export class AudioManager {
       if (this.inMenu && !this.settings.music) this.menuMusic.pause();
       else if (this.inMenu && previous !== this.settings.music) this.menuMusic.play().catch(() => {});
     }
+    if (this.worldMusic) this.worldMusic.volume = this.musicLevel;
     if (!this.context) return;
     this.musicGain.gain.setValueAtTime(this.musicLevel, this.context.currentTime);
     this.sfxGain.gain.setValueAtTime(this.effectsLevel, this.context.currentTime);
@@ -96,12 +98,33 @@ export class AudioManager {
     this.stopMenu();
     this.stopMusic(); this.level = Number.isInteger(level) && level >= 1 && level <= 12 ? level : 1;
     if (!this.context || this.muted) return;
+    if (this.level === 1 && typeof Audio === 'function') {
+      const track = new Audio(`${import.meta.env.BASE_URL}assets/billie-jean-instrumental.mp3`);
+      this.worldMusic = track;
+      track.loop = true;
+      track.volume = this.musicLevel;
+      track.play().catch(() => {
+        if (this.worldMusic !== track) return;
+        this.stopMusic();
+        this.playStagePattern();
+      });
+      return;
+    }
+    this.playStagePattern();
+  }
+  playStagePattern() {
     const {notes, tempo, wave} = stageMusic[this.level - 1];
     let step = 0;
     const beat = () => { const note = notes[step++ % notes.length] / 2; this.voice([note,note,Math.min(.45, tempo / 1100)], wave, this.musicGain, this.musicVoices, .035); };
     beat(); this.timer = setInterval(beat, tempo);
   }
-  stopMusic() { clearInterval(this.timer); this.timer = null; this.stopVoices(this.musicVoices); }
+  stopMusic() {
+    if (this.worldMusic) {
+      this.worldMusic.pause();
+      this.worldMusic = null;
+    }
+    clearInterval(this.timer); this.timer = null; this.stopVoices(this.musicVoices);
+  }
   stopVoices(voices) { for (const voice of voices) { try { voice.stop(); } catch {} } voices.clear(); }
   stop() { this.stopMenu(); this.stopMusic(); this.stopVoices(this.sfxVoices); }
   effect(type) {

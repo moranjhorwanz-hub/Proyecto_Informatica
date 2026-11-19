@@ -26,6 +26,9 @@ export default class GameScene extends Phaser.Scene {
     this.finished = false;
     this.dead = false;
     this.services.audio.play(this.level.id);
+    this.events.once('shutdown', () => {
+      if (this.services.audio.worldMusic) this.services.audio.stopMusic();
+    });
     this.cameras.main.setBackgroundColor(this.level.sky);
     this.backdrop = scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
     this.physics.world.setBounds(0, 0, 2700, 1000);
