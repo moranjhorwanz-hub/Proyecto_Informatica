@@ -1,2 +1,2 @@
-import FeatureScene from './FeatureScene.js';
-export default class CharacterScene extends FeatureScene {constructor(){super('Character','Tu estilo, tu escenario',6);}}
+import ShopScene from './ShopScene.js';
+export default class CharacterScene extends ShopScene { constructor() { super('Character'); } }

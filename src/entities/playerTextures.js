@@ -2,7 +2,7 @@ const poses = { idle: 2, run: 6, jump: 2, crouch: 2, moonwalk: 6, hurt: 2 };
 
 // Original raster frames generated once per outfit and cached by Phaser.
 export function createPlayerTextures(scene, level) {
-  const prefix = `dancer-${level.id}`;
+  const prefix = `dancer-${level.textureId || level.id}`;
   if (scene.textures.exists(`${prefix}-idle-0`)) return prefix;
   const g = scene.make.graphics({ x: 0, y: 0, add: false });
   for (const [pose, count] of Object.entries(poses)) {
@@ -31,20 +31,24 @@ export function createPlayerTextures(scene, level) {
         { x: 32, y: shoulder }, { x: 62, y: shoulder }, { x: 64, y: hip + 6 }, { x: 30, y: hip + 6 },
       ], true);
       g.fillStyle(0xf4e7d2).fillTriangle(40, shoulder, 55, shoulder, 48, shoulder + 29);
-      g.lineStyle(2, 0xd2b17c).lineBetween(33, shoulder + 4, 45, shoulder + 25).lineBetween(60, shoulder + 4, 50, shoulder + 25).lineBetween(31, hip, 63, hip);
+      g.lineStyle(2, level.trimColor ?? 0xd2b17c).lineBetween(33, shoulder + 4, 45, shoulder + 25).lineBetween(60, shoulder + 4, 50, shoulder + 25).lineBetween(31, hip, 63, hip);
       const swing = running ? Math.sin(phase) * 15 : moon ? -12 : 0;
       g.lineStyle(9, level.color).lineBetween(34, shoulder + 5, 24 + swing, shoulder + 22).lineBetween(24 + swing, shoulder + 22, 27 + swing, shoulder + 37);
       g.lineBetween(59, shoulder + 5, 70 - swing, shoulder + 22).lineBetween(70 - swing, shoulder + 22, moon ? 76 : 64 - swing, shoulder + 34);
-      g.fillStyle(0xc88e6c).fillCircle(27 + swing, shoulder + 38, 5);
+      g.fillStyle(level.skinColor ?? 0xc88e6c).fillCircle(27 + swing, shoulder + 38, 5);
       g.fillStyle(0xfff7df).fillCircle(moon ? 76 : 64 - swing, shoulder + 35, 5);
       // Hair, profile and fedora; transparent frame preserves proportions.
-      g.fillStyle(0xc88e6c).fillRect(headX - 4, 39 + bob, 9, 12);
-      g.fillStyle(0x16141d).fillEllipse(headX - 1, 31 + bob, 27, 35);
-      g.fillStyle(0xdba17c).fillEllipse(headX + 5, 32 + bob, 19, 27).fillTriangle(headX + 12, 31 + bob, headX + 17, 35 + bob, headX + 10, 36 + bob);
-      g.fillStyle(0x17151c).fillEllipse(headX - 9, 34 + bob, 13, 30);
-      g.fillStyle(0x0c131e).fillRoundedRect(headX - 16, 10 + bob, 32, 16, 4).fillEllipse(headX + 1, 26 + bob, 51, 7);
+      g.fillStyle(level.skinColor ?? 0xc88e6c).fillRect(headX - 4, 39 + bob, 9, 12);
+      g.fillStyle(level.hairColor ?? 0x16141d).fillEllipse(headX - 1, 31 + bob, 27, 35);
+      g.fillStyle(level.skinColor ?? 0xdba17c).fillEllipse(headX + 5, 32 + bob, 19, 27).fillTriangle(headX + 12, 31 + bob, headX + 17, 35 + bob, headX + 10, 36 + bob);
+      g.fillStyle(level.hairColor ?? 0x17151c).fillEllipse(headX - 9, 34 + bob, 13, 30);
+      g.fillStyle(level.hatColor ?? 0x0c131e).fillRoundedRect(headX - 16, 10 + bob, 32, 16, 4).fillEllipse(headX + 1, 26 + bob, 51, 7);
       g.fillStyle(0xe8dab9).fillRect(headX - 15, 22 + bob, 30, 3);
       g.fillStyle(0x211a20).fillRect(headX + 9, 31 + bob, 3, 2);
+      const detail = level.accessoryColor ?? 0xf5d487;
+      if (level.accessory === 'scarf') g.fillStyle(detail).fillRect(31, 48 + bob, 33, 7).fillRect(33, 53 + bob, 7, 20);
+      if (level.accessory === 'crown') g.fillStyle(detail).fillPoints([{x:headX-15,y:16+bob},{x:headX-16,y:2+bob},{x:headX-6,y:8+bob},{x:headX,y:bob},{x:headX+6,y:8+bob},{x:headX+16,y:2+bob},{x:headX+15,y:16+bob}],true);
+      if (level.accessory === 'glasses') g.fillStyle(detail).fillRect(headX-1, 28+bob, 23, 6).fillStyle(0x212b3b).fillRect(headX+1,29+bob,7,4).fillRect(headX+12,29+bob,7,4);
       if (pose === 'hurt') {
         g.lineStyle(2, 0xffc0ac, .9).strokeCircle(48, 71, 32 + frame * 6);
       }

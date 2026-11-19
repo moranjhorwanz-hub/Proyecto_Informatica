@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { PlayerState, PLAYER_DEFAULTS } from './playerState.js';
 import { createPlayerTextures } from './playerTextures.js';
+import { getCharacter } from '../data/characters.js';
+import { getDifficulty } from '../data/settings.js';
 export { PLAYER_DEFAULTS } from './playerState.js';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
@@ -10,7 +12,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.prefix = prefix;
-    this.state = new PlayerState();
+    this.character = getCharacter(scene.services.progress.data);
+    const difficulty = getDifficulty(scene.services.progress.data.settings);
+    this.state = new PlayerState({ ...this.character.movement, lives: difficulty.lives, invulnerability: difficulty.invulnerability });
     this.setOrigin(.5, 1).setDepth(10).setCollideWorldBounds(true);
     this.body.setMaxVelocity(500, 850);
     this.resizeBody(false);
@@ -33,7 +37,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.resizeBody(this.state.crouched);
     this.setVelocityX(movement.vx);
     if (movement.jump) {
-      this.setVelocityY(PLAYER_DEFAULTS.jumpVelocity);
+      this.setVelocityY(this.state.stats.jumpVelocity);
       this.scene.services.audio.effect('jump');
     }
     this.setFlipX(this.state.facing < 0);

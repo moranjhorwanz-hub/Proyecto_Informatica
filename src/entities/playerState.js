@@ -6,8 +6,9 @@ export const PLAYER_DEFAULTS = Object.freeze({
 });
 
 export class PlayerState {
-  constructor() {
-    this.lives = PLAYER_DEFAULTS.lives;
+  constructor(tuning = {}) {
+    this.stats = Object.freeze({ ...PLAYER_DEFAULTS, ...tuning });
+    this.lives = this.stats.lives;
     this.facing = 1;
     this.pose = 'idle';
     this.crouched = false;
@@ -26,22 +27,22 @@ export class PlayerState {
     }
     if (now < this.moonUntil) {
       this.pose = 'moonwalk';
-      return { vx: -this.facing * PLAYER_DEFAULTS.moonSpeed, jump: false };
+      return { vx: -this.facing * this.stats.moonSpeed, jump: false };
     }
     // Cannot stand through the underside of a platform.
     this.crouched = (grounded && input.down) || (this.crouched && !canStand);
     if (input.moonPressed && grounded && !this.crouched && now >= this.nextMoon) {
-      this.moonUntil = now + PLAYER_DEFAULTS.moonDuration;
-      this.nextMoon = now + PLAYER_DEFAULTS.moonCooldown;
+      this.moonUntil = now + this.stats.moonDuration;
+      this.nextMoon = now + this.stats.moonCooldown;
     }
     if (now < this.moonUntil) {
       this.pose = 'moonwalk';
-      return { vx: -this.facing * PLAYER_DEFAULTS.moonSpeed, jump: false };
+      return { vx: -this.facing * this.stats.moonSpeed, jump: false };
     }
     const direction = Number(Boolean(input.right)) - Number(Boolean(input.left));
     if (direction) this.facing = direction;
     const jump = Boolean(input.jumpPressed && grounded && !this.crouched);
-    const speed = this.crouched ? 75 : input.run ? PLAYER_DEFAULTS.runSpeed : PLAYER_DEFAULTS.speed;
+    const speed = this.crouched ? 75 : input.run ? this.stats.runSpeed : this.stats.speed;
     this.pose = this.crouched ? 'crouch' : jump || !grounded ? 'jump' : direction ? 'run' : 'idle';
     return { vx: direction * speed, jump };
   }
@@ -50,8 +51,8 @@ export class PlayerState {
     if (!this.lives || now < this.invulnerableUntil || now < this.moonUntil) return false;
     this.lives--;
     this.moonUntil = 0;
-    this.hurtUntil = now + PLAYER_DEFAULTS.hurtDuration;
-    this.invulnerableUntil = now + PLAYER_DEFAULTS.invulnerability;
+    this.hurtUntil = now + this.stats.hurtDuration;
+    this.invulnerableUntil = now + this.stats.invulnerability;
     this.knockback = Math.sign(direction) * 170;
     this.pose = 'hurt';
     return true;
@@ -64,6 +65,6 @@ export class PlayerState {
     this.moonUntil = 0;
     this.hurtUntil = 0;
     this.crouched = false;
-    this.invulnerableUntil = now + PLAYER_DEFAULTS.invulnerability;
+    this.invulnerableUntil = now + this.stats.invulnerability;
   }
 }
