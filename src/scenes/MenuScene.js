@@ -24,7 +24,7 @@ export default class MenuScene extends Phaser.Scene {
     this.appearance=getAppearance(this.level,progress);
     this.reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
     this.backdrop=null;
-    const backdropKey={1:'spring-menu',2:'summer-menu'}[this.level.world];
+    const backdropKey={1:'spring-menu',2:'summer-menu',3:'autumn-menu'}[this.level.world];
     if (backdropKey && this.textures.exists(backdropKey)) {
       createImageMenuBackdrop(this,backdropKey);
     } else {
