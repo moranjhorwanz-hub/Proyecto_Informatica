@@ -7,8 +7,9 @@ const tabs = ['Gráficos', 'Audio', 'Controles', 'General'];
 export default class SettingsScene extends Phaser.Scene {
   constructor() { super('Settings'); }
 
-  create({ gameOver } = {}) {
-    this.goBack = () => gameOver ? this.scene.start('GameOver', gameOver) : this.scene.start('Menu');
+  create({ gameOver, victory } = {}) {
+    const returnScene = victory ? 'Victory' : gameOver ? 'GameOver' : 'Menu';
+    this.goBack = () => this.scene.start(returnScene, victory ?? gameOver ?? {});
     this.services = this.registry.get('services');
     this.draft = { ...this.services.progress.data.settings };
     this.tab = 0;

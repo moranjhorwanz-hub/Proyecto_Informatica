@@ -11,6 +11,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('autumn-menu', `${import.meta.env.BASE_URL}assets/backgrounds/autumn-menu.png`);
     this.load.image('christmas-menu', `${import.meta.env.BASE_URL}assets/backgrounds/christmas-menu.png`);
     this.load.image('game-over', `${import.meta.env.BASE_URL}assets/game-over-dance.png`);
+    this.load.image('victory-city', `${import.meta.env.BASE_URL}assets/backgrounds/victory-city.png`);
   }
 
   create() {
