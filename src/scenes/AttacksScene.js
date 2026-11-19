@@ -1,23 +1,132 @@
 import Phaser from 'phaser';
 import { canUseSnow, getCharacter } from '../data/characters.js';
 import { COMBAT_DEFAULTS } from '../systems/combatState.js';
+import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
+
+const tabs = ['Movimientos', 'Personaje'];
+const seconds = value => (value / 1000).toFixed(1).replace('.', ',');
+
 export default class AttacksScene extends Phaser.Scene {
   constructor() { super('Attacks'); }
+
   create() {
-    this.cameras.main.setBackgroundColor('#111e2c');
-    const text = (y, value, size = 24) => this.add.text(100, y, value, { fontFamily: 'Arial', fontSize: `${size}px`, color: '#eed8b1', lineSpacing: 16 });
-    text(100, 'El poder del baile', 48);
-    const data = this.registry.get('services').progress.data;
-    const unlocked = canUseSnow(data), character = getCharacter(data);
-    const combat = { ...COMBAT_DEFAULTS, ...character.combat };
-    const seconds = value => (value / 1000).toFixed(1).replace('.', ',');
-    text(210, `J · Sombrero de retorno — 0,8 s de recarga, uno en vuelo.\nK · Giro — ${character.combat.spinRange || 100} px, recarga ${seconds(combat.spinCooldown)} s.\nL · Copo — congela ${seconds(combat.freezeDuration)} s, recarga ${seconds(combat.freezeCooldown)} s.\nM · Moonwalk — esquiva durante el deslizamiento.`);
-    text(420, `${character.name}: ${character.id==='michael'?'habilidades equilibradas':character.id==='christmas-dancer'?'SHIFT corre más rápido · ESPACIO salta más alto':character.id==='snow-king'?'L congela 2,4 s · recarga 2 s':'K alcanza 125 px · daño 2 · recarga 1,2 s'}.\n${unlocked?'L disponible también en campaña.':'Nieve libre en el ensayo. Copo de campaña: 300 monedas en tienda.'}`, 20);
-    text(540, 'Entrar al ensayo →').setInteractive({ useHandCursor: true }).on('pointerdown', () => this.scene.start('Game', { levelId: this.registry.get('services').progress.data.selectedLevel }));
-    text(610, '← Menú (ESC)', 20).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.scene.start('Menu'));
-    text(660, 'T · Abrir tienda', 20).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.scene.start('Shop', { itemId: 'freeze' }));
-    this.input.keyboard.on('keydown-T', () => this.scene.start('Shop', { itemId: 'freeze' }));
-    this.input.keyboard.on('keydown-ENTER', () => this.scene.start('Game', { levelId: this.registry.get('services').progress.data.selectedLevel }));
-    this.input.keyboard.on('keydown-ESC', () => this.scene.start('Menu'));
+    const progress = this.registry.get('services').progress;
+    this.character = getCharacter(progress.data);
+    this.snowUnlocked = canUseSnow(progress.data);
+    this.tab = 0;
+    this.actions = {
+      practice: () => this.scene.start('Game', { levelId: progress.data.selectedLevel, mode: 'practice' }),
+      shop: () => this.scene.start('Shop', { itemId: 'freeze' }),
+      back: () => this.scene.start('Menu'),
+    };
+    createSettingsMenuFrame(this);
+    this.content = this.add.group();
+    this.renderPage();
+    this.input.keyboard.on('keydown', this.onKey, this);
+    this.events.once('shutdown', () => this.input.keyboard.off('keydown', this.onKey, this));
+  }
+
+  text(x, y, value, size, style = 'normal', color = '#f4f6fd') {
+    const text = this.add.text(x, y, value, {
+      fontFamily: 'Arial, sans-serif', fontSize: size, fontStyle: style, color,
+      wordWrap: { width: 805 },
+    });
+    this.content.add(text);
+    return text;
+  }
+
+  shape(x, y, width, height, color, border, edge = 12) {
+    const graphics = this.add.graphics();
+    this.content.add(graphics);
+    const points = cut(x, y, width, height, edge);
+    graphics.fillStyle(color).fillPoints(points, true);
+    if (border) graphics.lineStyle(1.5, border).strokePoints(points, true);
+    return graphics;
+  }
+
+  button(x, y, width, height, label, action, highlighted = false) {
+    const surface = this.shape(x, y, width, height,
+      highlighted ? 0xba1029 : 0x172335, highlighted ? 0xff6277 : 0x536680);
+    this.text(x + width / 2, y + height / 2, label, 20, 'bold').setOrigin(.5);
+    const hit = this.add.zone(x + width / 2, y + height / 2, width - 12, height)
+      .setInteractive({ useHandCursor: true });
+    this.content.add(hit);
+    hit.on('pointerdown', action);
+    hit.on('pointerover', () => surface.setAlpha(.8));
+    hit.on('pointerout', () => surface.setAlpha(1));
+  }
+
+  selectTab(index) {
+    this.tab = Phaser.Math.Wrap(index, 0, tabs.length);
+    this.renderPage();
+  }
+
+  renderPage() {
+    this.content.clear(true, true);
+    this.text(51, 20, '✦', 36);
+    this.text(106, 19, 'Ataques', 42, 'bold italic');
+    tabs.forEach((label, index) => {
+      this.button(32, 124 + index * 67, 281, 55, label, () => this.selectTab(index), this.tab === index);
+    });
+    this.shape(350, 114, 377, 49, 0x8a1024, null, 23);
+    this.text(380, 123, tabs[this.tab], 27, 'bold italic');
+    if (this.tab === 0) this.renderMoves();
+    else this.renderCharacter();
+
+    this.text(35, 677, 'Tab · Apartados    Enter · Ensayo    T · Tienda    Esc · Volver', 16, 'normal', '#afbfd6');
+    this.button(705, 664, 170, 43, 'Abrir tienda', this.actions.shop);
+    this.button(885, 664, 212, 43, 'Entrar al ensayo', this.actions.practice, true);
+    this.button(1107, 664, 138, 43, 'Volver', this.actions.back);
+  }
+
+  renderMoves() {
+    const combat = { ...COMBAT_DEFAULTS, ...this.character.combat };
+    const moves = [
+      ['J', 'Sombrero de retorno', 'Lanza un sombrero que regresa. Solo uno en vuelo.',
+        `${seconds(combat.hatCooldown)} s`],
+      ['K', 'Giro', `Golpea alrededor de ti en un radio de ${combat.spinRange ?? 100} px.`,
+        `${seconds(combat.spinCooldown)} s`],
+      ['L', 'Copo', `Congela enemigos durante ${seconds(combat.freezeDuration)} s.`,
+        `${seconds(combat.freezeCooldown)} s`],
+      ['M', 'Moonwalk', 'Esquiva mientras te deslizas.', '—'],
+    ];
+    this.text(1188, 181, 'Recarga', 16, 'bold', '#afbfd6').setOrigin(1, 0);
+    const lines = this.add.graphics().lineStyle(1, 0x354560);
+    this.content.add(lines);
+    moves.forEach(([key, name, description, cooldown], index) => {
+      const y = 211 + index * 83;
+      this.shape(378, y + 9, 49, 38, 0x172335, 0x536680, 8);
+      this.text(402, y + 28, key, 20, 'bold').setOrigin(.5);
+      this.text(452, y, name, 24, 'bold');
+      this.text(452, y + 32, description, 18, 'normal', '#afbfd6');
+      this.text(1188, y + 28, cooldown, 21, 'bold').setOrigin(1, .5);
+      lines.lineBetween(377, y + 69, 1209, y + 69);
+    });
+    this.text(379, 574, `Personaje activo · ${this.character.name}`, 18, 'normal', '#afbfd6');
+  }
+
+  renderCharacter() {
+    this.text(379, 209, this.character.name, 32, 'bold');
+    this.text(379, 263, this.character.description, 22);
+    const divider = this.add.graphics().lineStyle(1, 0x354560).lineBetween(377, 341, 1209, 341);
+    this.content.add(divider);
+    this.text(379, 370, 'Copo en campaña', 24, 'bold');
+    this.text(379, 412, this.snowUnlocked
+      ? 'Disponible en campaña y en el ensayo.'
+      : 'Disponible en el ensayo. Desbloquéalo para la campaña por 300 monedas en la tienda.',
+    20, 'normal', '#afbfd6');
+  }
+
+  onKey(event) {
+    if (event.repeat) return;
+    switch (event.key.toLowerCase()) {
+      case 'tab':
+        event.preventDefault();
+        this.selectTab(this.tab + (event.shiftKey ? -1 : 1));
+        break;
+      case 'enter': this.actions.practice(); break;
+      case 't': this.actions.shop(); break;
+      case 'escape': this.actions.back(); break;
+    }
   }
 }

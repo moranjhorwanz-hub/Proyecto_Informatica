@@ -177,6 +177,20 @@ L disponible también en campaña.|L is also available in campaign.|L est aussi 
 Nieve libre en el ensayo. Copo de campaña: 300 monedas en tienda.|Free snow in practice. Campaign snowflake: 300 coins in shop.|Neige libre en entraînement. Flocon de campagne : 300 pièces en boutique.
 Entrar al ensayo|Enter practice|Entrer en entraînement
 Abrir tienda|Open shop|Ouvrir la boutique
+Movimientos|Moves|Mouvements
+Personaje|Character|Personnage
+Recarga|Cooldown|Recharge
+Sombrero de retorno|Returning hat|Chapeau boomerang
+Copo|Snowflake|Flocon
+Lanza un sombrero que regresa. Solo uno en vuelo.|Throw a returning hat. Only one can be in flight.|Lance un chapeau qui revient. Un seul peut être en vol.
+Golpea alrededor de ti en un radio de {range} px.|Hit enemies within {range} px.|Frappe les ennemis dans un rayon de {range} px.
+Congela enemigos durante {duration} s.|Freeze enemies for {duration} s.|Gèle les ennemis pendant {duration} s.
+Esquiva mientras te deslizas.|Dodge while sliding.|Esquive pendant la glissade.
+Personaje activo · {name}|Active character · {name}|Personnage actif · {name}
+Copo en campaña|Campaign snowflake|Flocon en campagne
+Disponible en campaña y en el ensayo.|Available in campaign and practice.|Disponible en campagne et en entraînement.
+Disponible en el ensayo. Desbloquéalo para la campaña por 300 monedas en la tienda.|Available in practice. Unlock it for the campaign for 300 coins in the shop.|Disponible en entraînement. Débloquez-le en campagne pour 300 pièces en boutique.
+Tab · Apartados    Enter · Ensayo    T · Tienda    Esc · Volver|Tab · Sections    Enter · Practice    T · Shop    Esc · Back|Tab · Rubriques    Entrée · Entraînement    T · Boutique    Échap · Retour
 NIVEL|LEVEL|NIVEAU
 ENSAYO|PRACTICE|ENTRAÎNEMENT
 ESPACIO|SPACE|ESPACE
