@@ -28,7 +28,7 @@ export default class GameScene extends Phaser.Scene {
     this.services.audio.play(this.level.id);
     this.cameras.main.setBackgroundColor(this.level.sky);
     const firstChild = this.children.length;
-    scenery(this, this.level);
+    scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
     this.children.list.slice(firstChild).forEach(child => child.setScrollFactor(0));
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);

@@ -467,28 +467,43 @@ try {
   await tap('Escape','Escape');
   for(let i=0;i<5;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Settings')`,'Settings opens from menu');
-  await click(430,225);
+  const settingsShows = title => evaluate(`testGame.scene.getScene('Settings').children.list.some(t=>t.sourceText===${JSON.stringify(title)})`);
+  assert.equal(await settingsShows('Calidad de gráficos'),true);
+  assert.equal(await settingsShows('Volumen general'),false);
+  await click(170,285);
+  assert.equal(await settingsShows('Mover'),true);
+  assert.equal(await settingsShows('Calidad de gráficos'),false);
+  await click(170,350);
+  await click(1180,212);
+  await click(1030,685);
   assert.equal(await evaluate('document.documentElement.lang'),'en');
   assert.ok(await evaluate(`testGame.scene.getScene('Settings').children.list.some(t=>t.text==='Settings')`));
-  await click(380,370);await click(745,440);await click(665,300);
+  await click(170,218);
+  await click(815,280);await click(1180,348);await click(1180,416);
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.settings.musicVolume`),45);
+  await click(1030,685);
   assert.deepEqual(await evaluate(`({music:testGame.registry.get('services').progress.data.settings.music,musicVolume:testGame.registry.get('services').progress.data.settings.musicVolume,sfxVolume:testGame.registry.get('services').progress.data.settings.sfxVolume})`),{music:false,musicVolume:35,sfxVolume:80});
-  await click(1040,470);
+  await click(1040,487);
   assert.ok(await evaluate(`testGame.registry.get('services').audio.sfxVoices.size>0`),'Effects play with music disabled');
   assert.equal(await evaluate(`testGame.registry.get('services').audio.musicGain.gain.value`),0);
   assert.ok(await evaluate(`Math.abs(testGame.registry.get('services').audio.sfxGain.gain.value-.8)<.0001`));
   await evaluate(`window.originalSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw Error('simulated quota');};true`);
-  await click(745,370);
+  await click(1180,280);
+  await click(1030,685);
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.settings.musicVolume`),35);
   assert.ok(await evaluate(`testGame.scene.getScene('Settings').feedback.text.includes('Could not save')`));
   await evaluate('Storage.prototype.setItem=window.originalSetItem;true');
-  await click(670,525); // Hard.
+  await click(815,280); // Restore the draft music level after the rejected save.
+  await click(170,150);
   const fullAvailable=await evaluate(`testGame.scene.getScene('Settings').scale.fullscreen.available`);
-  await click(425,590);
+  await click(1180,280);
   if(fullAvailable) {
     await waitFor(`testGame.scale.isFullscreen`,'Fullscreen enters on user gesture');
-    await click(425,590);await waitFor(`!testGame.scale.isFullscreen`,'Fullscreen exits');
+    await click(1180,280);await waitFor(`!testGame.scale.isFullscreen`,'Fullscreen exits');
   } else assert.ok(await evaluate(`testGame.scene.getScene('Settings').feedback.text.includes('unavailable')`));
-  await click(670,225); // French.
+  await click(170,350);
+  await click(1180,212); // French.
+  await click(1030,685);
   assert.equal(await evaluate('document.documentElement.lang'),'fr');
   const settingsShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase8-settings-fr.png',Buffer.from(settingsShot.data,'base64'));
@@ -520,7 +535,7 @@ try {
   manualFrames=false;await waitFor(`testGame.scene.isActive('Menu')`,'Settings reload menu');
   await evaluate('testGame.loop.stop();window.simTime=performance.now();true');manualFrames=true;
   assert.equal(await evaluate('document.documentElement.lang'),'fr');
-  assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.settings`),{language:'fr',music:false,musicVolume:35,sfxVolume:80,difficulty:'Normal'});
+  assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.settings`),{language:'fr',music:false,musicVolume:35,sfxVolume:80,difficulty:'Normal',masterVolume:100,graphicsQuality:'Alta'});
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),1600,'Settings preserve purchases and balance');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
   console.log(`Settings passed: ES/EN/FR, translated screens and HUD, independent audio gains, disabled music with effects, save rollback, fullscreen ${fullAvailable?'enter/exit':'unsupported feedback'}, all difficulty profiles/restart and reload persistence.`);

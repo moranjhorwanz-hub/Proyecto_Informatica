@@ -10,6 +10,29 @@ Skins|Outfits|Tenues
 Personajes|Characters|Personnages
 Ataques|Attacks|Attaques
 Configuración|Settings|Réglages
+Gráficos|Graphics|Graphismes
+Audio|Audio|Audio
+Controles|Controls|Commandes
+General|General|Général
+Calidad de gráficos|Graphics quality|Qualité graphique
+Modo de pantalla|Display mode|Mode d’affichage
+Ventana|Windowed|Fenêtré
+Baja|Low|Basse
+Media|Medium|Moyenne
+Alta|High|Haute
+Volumen general|Master volume|Volume général
+Restablecer valores|Restore defaults|Rétablir les réglages
+Aplicar|Apply|Appliquer
+Volver|Back|Retour
+Valores restablecidos. Pulsa Aplicar para guardarlos.|Defaults restored. Select Apply to save them.|Réglages rétablis. Sélectionnez Appliquer pour les enregistrer.
+Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar|Tab · Sections    ↑ ↓ · Select    ← → · Adjust|Tab · Sections    ↑ ↓ · Choisir    ← → · Régler
+Sombrero / Giro / Nieve|Hat / Spin / Snow|Chapeau / Rotation / Neige
+Mover|Move|Se déplacer
+Correr|Run|Courir
+Saltar|Jump|Sauter
+Agacharse|Crouch|S’accroupir
+ESPACIO|SPACE|ESPACE
+Pausa / Reiniciar / Menú|Pause / Restart / Menu|Pause / Recommencer / Menu
 Idioma|Language|Langue
 Música|Music|Musique
 Efectos|Sound effects|Effets sonores

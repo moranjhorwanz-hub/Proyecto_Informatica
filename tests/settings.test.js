@@ -15,7 +15,7 @@ test('invalid saved preferences fall back independently without changing progres
   const loaded=validateProgress(data);
   assert.deepEqual(loaded.settings,DEFAULT_SETTINGS);
   assert.equal(loaded.coins,123);assert.equal(loaded.equippedSkin,'thriller');
-  assert.deepEqual(validateSettings({language:'fr',music:false,musicVolume:0,sfxVolume:100,difficulty:'Difícil'}),{language:'fr',music:false,musicVolume:0,sfxVolume:100,difficulty:'Difícil'});
+  assert.deepEqual(validateSettings({language:'fr',music:false,musicVolume:0,sfxVolume:100,difficulty:'Difícil'}),{...DEFAULT_SETTINGS,language:'fr',music:false,musicVolume:0,sfxVolume:100,difficulty:'Difícil'});
 });
 test('settings persist as one validated change; a failed save never changes preferences or audio',()=>{
   const progress={data:defaultProgress()}, applied=[];let stored, fail=false;
@@ -63,6 +63,8 @@ test('audio buses have independent gains; disabling music preserves effects; zer
   const audio=new AudioManager();
   try {
     audio.unlock();assert.equal(audio.musicGain.gain.value,.45);assert.equal(audio.sfxGain.gain.value,.7);
+    audio.configure({...DEFAULT_SETTINGS,masterVolume:50});
+    assert.equal(audio.musicGain.gain.value,.225);assert.equal(audio.sfxGain.gain.value,.35);
     audio.effect('jump');const effects=audio.sfxVoices.size;
     audio.configure({...DEFAULT_SETTINGS,music:false,musicVolume:20,sfxVolume:30});
     assert.equal(audio.musicGain.gain.value,0);assert.equal(audio.sfxGain.gain.value,.3);assert.equal(audio.musicVoices.size,0);assert.equal(audio.sfxVoices.size,effects);

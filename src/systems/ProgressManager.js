@@ -2,8 +2,8 @@ import {levels} from '../data/levels.js';
 import {readStorage,writeStorage} from '../utils/storage.js';
 import { findShopItem, shopItems } from '../data/shopItems.js';
 import { getCharacter } from '../data/characters.js';
-import { validateSettings } from '../data/settings.js';
-export function defaultProgress(){return {version:1,coins:0,unlockedLevels:[1],completedLevels:[],records:{},achievements:[],purchases:[],equippedSkin:null,character:'michael',abilities:['hat','moonwalk'],selectedLevel:1,settings:{language:'es',music:true,musicVolume:45,sfxVolume:70,difficulty:'Normal'}};}
+import { DEFAULT_SETTINGS, validateSettings } from '../data/settings.js';
+export function defaultProgress(){return {version:1,coins:0,unlockedLevels:[1],completedLevels:[],records:{},achievements:[],purchases:[],equippedSkin:null,character:'michael',abilities:['hat','moonwalk'],selectedLevel:1,settings:{...DEFAULT_SETTINGS}};}
 export function validateProgress(raw){
  const base=defaultProgress();
  if(!raw || raw.version!==1) return base;
