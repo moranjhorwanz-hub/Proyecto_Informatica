@@ -18,7 +18,7 @@ export default class SettingsScene extends Phaser.Scene {
     this.draft = { ...this.services.progress.data.settings };
     this.tab = 0;
     this.focus = -1;
-    const level = levels[3];
+    const level = levels.find(stage => stage.world === 4);
     createMenuBackdrop(this, level, true);
     this.add.rectangle(640, 360, 1280, 720, 0x020610, .6);
     const hero = dancer(this, getAppearance(level, this.services.progress.data));

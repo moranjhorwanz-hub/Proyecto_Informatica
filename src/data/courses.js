@@ -1,5 +1,5 @@
 // Platforms are [x, y, width, height]; all mandatory gaps fit the running jump.
-export const courses = {
+const templates = {
   1: { width: 3000, goal: 2840, spawn: [130,600],
     platforms: [[0,620,780,100],[900,620,1000,100],[2020,620,980,100],[330,510,180,24],[600,440,150,24],[1180,500,180,24],[1510,430,170,24],[2220,510,200,24]],
     gaps: [[780,120],[1900,120]], enemies: [[1100,1000,1450],[2370,2130,2600]], hazards: [[1710,612,70,16]],
@@ -19,3 +19,14 @@ export const courses = {
     coins:[[420,460],[1040,570],[1200,440],[1560,350],[2190,450],[2580,400],[2950,570]], gifts:[[660,570],[2390,570],[2900,570]], moving:[], speed:85,
     boss:{x:3460,left:3180,right:3700,health:8} },
 };
+
+// Each world has three course variations, with increasing enemy speed.
+export const courses = Object.fromEntries(Array.from({length:12},(_,i)=>{
+ const world=Math.floor(i/3)+1, stage=i%3, base=templates[world];
+ const gaps=base.gaps.map(([x,w])=>[x,w]);
+ const hazards=[...base.hazards];
+ if(stage>=1) hazards.push([base.platforms[1][0]+250,612,55+stage*10,16]);
+ if(stage>=2) hazards.push([base.platforms[2][0]+300,612,70,16]);
+ const platforms=base.platforms.map((rect,n)=>n>=base.gaps.length+1?[rect[0]+stage*20,rect[1]-stage*12,rect[2],rect[3]]:[...rect]);
+ return [i+1,{...base,gaps,platforms,hazards,gifts:i===11?base.gifts:base.gifts.slice(0,2),speed:base.speed+stage*15, boss:i===11?base.boss:undefined}];
+}));

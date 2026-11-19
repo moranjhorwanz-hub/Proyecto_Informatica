@@ -179,7 +179,7 @@ export default class GameScene extends Phaser.Scene {
         else {
           this.finished=true;
           this.services.audio.effect('victory');
-          const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,time:Math.max(1,Math.round(this.playTime))});
+          const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,time:Math.max(1,Math.round(this.playTime)),lives:state.lives});
           this.scene.start('Victory',{levelId:this.level.id,result}); return;
         }
       }

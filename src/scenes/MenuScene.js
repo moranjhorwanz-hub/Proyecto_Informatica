@@ -75,9 +75,9 @@ export default class MenuScene extends Phaser.Scene {
       fitMenuText(text(this,974,y+19,value,18),236,13);
     }
     text(this,974,450,'PROGRESO',10,menuColors.muted).setLetterSpacing(1.5);
-    text(this,1211,448,`${progress.completedLevels.length} / 4`,18,'#e8cfaa').setOrigin(1,0);
+    text(this,1211,448,`${progress.completedLevels.length} / ${levels.length}`,18,'#e8cfaa').setOrigin(1,0);
     this.add.rectangle(974,483,236,4,0x596d7d,.35).setOrigin(0);
-    this.add.rectangle(974,483,236*progress.completedLevels.length/4,4,this.level.accent,.9).setOrigin(0);
+    this.add.rectangle(974,483,236*progress.completedLevels.length/levels.length,4,this.level.accent,.9).setOrigin(0);
     text(this,974,510,'MEJOR TIEMPO',10,menuColors.muted).setLetterSpacing(1.5);
     const record=progress.records[this.level.id];
     text(this,1211,505,record?`${(record.time/1000).toFixed(1)} s`:'—',18).setOrigin(1,0);
@@ -86,10 +86,10 @@ export default class MenuScene extends Phaser.Scene {
   createSeasons() {
     const line=this.add.graphics();line.lineStyle(1,0xe6cfaa,.2).lineBetween(44,588,1236,588);
     text(this,46,606,'EXPLORA LAS ESTACIONES · VISTA PREVIA',10,'#b5c7d0').setLetterSpacing(1);
-    this.seasonButtons=levels.map((level,index)=>{
-      const x=44+index*222,selected=level.id===this.level.id;
+    this.seasonButtons=[0,3,6,9].map(i=>levels[i]).map((level,index)=>{
+      const x=44+index*222,selected=level.world===this.level.world;
       const box=this.add.rectangle(x+103,651,207,44,selected?0xe4c18b:0x0b1a29,selected?.95:.8).setStrokeStyle(1,0xd9d7c6,selected?.8:.18).setInteractive({useHandCursor:true});
-      const label=fitMenuText(text(this,x+17,641,`${String(level.id).padStart(2,'0')}  ${level.name}`,16,selected?'#14202d':'#e4e9e8'),178);
+      const label=fitMenuText(text(this,x+17,641,`${level.subtitle}`,16,selected?'#14202d':'#e4e9e8'),178);
       box.on('pointerdown',()=>this.select(level.id));
       box.on('pointerover',()=>box.setStrokeStyle(1,0xf0d6a9,.8));
       box.on('pointerout',()=>box.setStrokeStyle(1,0xd9d7c6,selected?.8:.18));
@@ -132,8 +132,8 @@ export default class MenuScene extends Phaser.Scene {
     if(['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Enter',' '].includes(key))event.preventDefault();
     if(key==='ArrowDown'||key==='ArrowUp'){this.focus=Phaser.Math.Wrap(this.focus+(key==='ArrowDown'?1:-1),0,this.buttons.length);this.highlight();}
     if(key==='Enter')this.buttons[this.focus].activate();
-    if(key==='ArrowRight')this.select(this.level.id%4+1);
-    if(key==='ArrowLeft')this.select((this.level.id+2)%4+1);
+    if(key==='ArrowRight')this.select(this.level.id%levels.length+1);
+    if(key==='ArrowLeft')this.select((this.level.id+levels.length-2)%levels.length+1);
     if(key.toLowerCase()==='s')this.toggleMusic();
   }
 

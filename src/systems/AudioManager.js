@@ -93,12 +93,12 @@ export class AudioManager {
   stopMenu() { this.inMenu = false; if (this.menuMusic) { this.menuMusic.pause(); this.menuMusic.currentTime = 0; } }
   play(level) {
     this.stopMenu();
-    this.stopMusic(); this.level = [1,2,3,4].includes(level) ? level : 1;
+    this.stopMusic(); this.level = Number.isInteger(level) && level >= 1 && level <= 12 ? level : 1;
     if (!this.context || this.muted) return;
-    const notes = [[261.63,329.63,392,440],[293.66,369.99,440,493.88],[220,261.63,329.63,392],[261.63,349.23,392,523.25]][this.level - 1];
+    const notes = [[261.63,329.63,392,440],[293.66,369.99,440,493.88],[220,261.63,329.63,392],[261.63,349.23,392,523.25]][Math.floor((this.level - 1) / 3)];
     let step = 0;
     const beat = () => { const note = notes[step++ % notes.length] / 2; this.voice([note,note,.5], 'sine', this.musicGain, this.musicVoices, .045); };
-    beat(); this.timer = setInterval(beat, 430 + this.level * 35);
+    beat(); this.timer = setInterval(beat, 430 + Math.floor((this.level - 1) / 3) * 35);
   }
   stopMusic() { clearInterval(this.timer); this.timer = null; this.stopVoices(this.musicVoices); }
   stopVoices(voices) { for (const voice of voices) { try { voice.stop(); } catch {} } voices.clear(); }

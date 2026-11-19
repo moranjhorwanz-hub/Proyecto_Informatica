@@ -14,7 +14,7 @@ function radialTexture(scene, key, size, stops) {
 }
 
 function skyTexture(scene, level, theme) {
-  const key=`menu-sky-${level.id}`;
+  const key=`menu-sky-${level.world}`;
   if(scene.textures.exists(key))return key;
   const texture=scene.textures.createCanvas(key,1280,720),ctx=texture.context;
   const gradient=ctx.createLinearGradient(0,0,0,720);
@@ -40,9 +40,9 @@ function tree(g, x, y, height, theme, world, variant) {
 }
 
 export function createMenuBackdrop(scene, level, reducedMotion = false) {
-  const theme=themes[level.id], layers=[];
+  const theme=themes[level.world], layers=[];
   scene.add.image(640,360,skyTexture(scene,level,theme));
-  const glow=radialTexture(scene,`menu-haze-${level.id}`,256,[[0,`${['','#d8cab5','#f7c98d','#e6ad82','#b9dcf3'][level.id]}88`],[1,'#ffffff00']]);
+  const glow=radialTexture(scene,`menu-haze-${level.world}`,256,[[0,`${['','#d8cab5','#f7c98d','#e6ad82','#b9dcf3'][level.world]}88`],[1,'#ffffff00']]);
   scene.add.image(674,286,glow).setDisplaySize(980,650).setAlpha(.45);
   const distant=scene.add.graphics();layers.push({object:distant,amount:.18});
   distant.fillStyle(0xf5e3bf,.85).fillCircle(827,137,38);
@@ -50,16 +50,16 @@ export function createMenuBackdrop(scene, level, reducedMotion = false) {
   for(let i=0;i<42;i++)distant.fillStyle(0xe7edee,.15+i%3*.12).fillCircle(i*179%1380-50,40+i*67%260,i%4===0?1.2:.65);
   distant.fillStyle(theme.tree,.38).fillPoints([{x:-80,y:400},{x:100,y:303},{x:340,y:377},{x:570,y:259},{x:830,y:347},{x:1080,y:275},{x:1360,y:385},{x:1360,y:650},{x:-80,y:650}],true);
   const middle=scene.add.graphics();layers.push({object:middle,amount:.45});
-  for(let i=0;i<13;i++)tree(middle,i*120-75,555,135+(i*71%115),theme,level.id,i%2);
+  for(let i=0;i<13;i++)tree(middle,i*120-75,555,135+(i*71%115),theme,level.world,i%2);
   middle.fillStyle(theme.haze,.05).fillEllipse(640,502,1450,75);
-  if(level.id===2){
+  if(level.world===2){
     middle.fillStyle(0x74a6b5,.45).fillRect(-80,486,1440,86);
     for(let i=0;i<24;i++){const w=40+i*9;middle.lineStyle(1,i%2?0xe5c692:0x9ed7e0,.12).lineBetween(824-w/2,492+i*3,824+w/2,492+i*3);}
   }
   const foreground=scene.add.graphics();layers.push({object:foreground,amount:.8});
-  tree(foreground,-35,632,440,theme,level.id,1);tree(foreground,1320,632,450,theme,level.id,1);
+  tree(foreground,-35,632,440,theme,level.world,1);tree(foreground,1320,632,450,theme,level.world,1);
   foreground.fillStyle(theme.tree,.65).fillEllipse(640,674,1570,225);
-  if(level.id===4){foreground.fillStyle(0xb5cad4,.36).fillEllipse(100,634,630,75).fillEllipse(1110,637,600,75);}
+  if(level.world===4){foreground.fillStyle(0xb5cad4,.36).fillEllipse(100,634,630,75).fillEllipse(1110,637,600,75);}
   const stage=scene.add.graphics();
   stage.fillStyle(0x030a13,.6).fillEllipse(650,636,596,85);
   stage.fillStyle(0x203341,.95).fillEllipse(650,618,550,65);
@@ -72,12 +72,12 @@ export function createMenuBackdrop(scene, level, reducedMotion = false) {
   scene.add.image(640,360,vignette).setDisplaySize(1550,960);
   const particles=[];
   for(let i=0;i<26;i++){
-    const particle=scene.add.ellipse(360+i*127%590,160+i*89%450,level.id===4?2:3,level.id===1?2:3,level.id===3?0xe8b469:level.accent,.25+i%3*.12);
+    const particle=scene.add.ellipse(360+i*127%590,160+i*89%450,level.world===4?2:3,level.world===1?2:3,level.world===3?0xe8b469:level.accent,.25+i%3*.12);
     particles.push(particle);
-    if(!reducedMotion)scene.tweens.add({targets:particle,y:particle.y+(level.id===4?90:-45),x:particle.x+18,alpha:.12,duration:4500+i*147,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+    if(!reducedMotion)scene.tweens.add({targets:particle,y:particle.y+(level.world===4?90:-45),x:particle.x+18,alpha:.12,duration:4500+i*147,yoyo:true,repeat:-1,ease:'Sine.inOut'});
   }
   // A few warm lanterns distinguish autumn and Christmas without extra textures.
-  if(level.id===3||level.id===4){
+  if(level.world===3||level.world===4){
     const g=scene.add.graphics();g.lineStyle(1,0xe1c79b,.4).lineBetween(355,148,934,182);
     for(let i=0;i<9;i++){const x=360+i*70,y=149+i*4;g.fillStyle(0xffd98d,.11).fillCircle(x,y,13).fillStyle(0xffdf9e,.9).fillCircle(x,y,2.5);}
   }

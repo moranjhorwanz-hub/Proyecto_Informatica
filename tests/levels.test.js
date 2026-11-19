@@ -21,14 +21,14 @@ test('invalid outcomes cannot alter balance or unlocks',()=>{
   for(const result of [{coins:-1,time:1},{coins:8,time:1},{gifts:3,time:1},{time:0},{time:NaN},{time:1.5}])assert.equal(p.completeLevel(1,result),null);
   assert.deepEqual(p.data,defaultProgress());
 });
-test('all seasons and best records survive validation; final season has no fifth unlock',()=>{
+test('all seasons and best records survive validation; final level has no thirteenth unlock',()=>{
   const p=manager();
-  for(let id=1;id<=4;id++)p.completeLevel(id,{coins:7,gifts:id===4?3:2,time:10000+id});
+  for(let id=1;id<=12;id++)p.completeLevel(id,{coins:7,gifts:id===12?3:2,time:10000+id});
   const loaded=validateProgress(JSON.parse(JSON.stringify(p.data)));
   assert.deepEqual(loaded,p.data);
-  assert.deepEqual(loaded.unlockedLevels,[1,2,3,4]);
-  assert.deepEqual(loaded.completedLevels,[1,2,3,4]);
-  assert.equal(loaded.coins,905);
+  assert.deepEqual(loaded.unlockedLevels,[1,2,3,4,5,6,7,8,9,10,11,12]);
+  assert.deepEqual(loaded.completedLevels,[1,2,3,4,5,6,7,8,9,10,11,12]);
+  assert.equal(loaded.coins,2665);
 });
 test('mandatory gaps fit running jump and patrols stay on ground',()=>{
   // At 340 px/s, a full jump (-570, gravity 1000) covers 387.6 px.

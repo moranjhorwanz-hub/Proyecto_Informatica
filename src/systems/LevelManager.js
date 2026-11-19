@@ -34,10 +34,10 @@ export default class LevelManager {
     // Repeated world decorations make the course readable beyond the fixed backdrop.
     const g = s.add.graphics().setDepth(1);
     for(let x=160;x<c.width;x+=240) {
-      if(s.level.id===1) { g.fillStyle(0x5f9563).fillRect(x,590,4,30); g.fillStyle(s.level.accent).fillCircle(x+2,587,9); }
-      if(s.level.id===2) { g.fillStyle(0xf5d697).fillTriangle(x,560,x+30,515,x+60,560); g.lineStyle(3,0xb98753).lineBetween(x+30,550,x+30,620); }
-      if(s.level.id===3) { g.fillStyle(0x724a38).fillRect(x,535,10,85); g.fillStyle(0xb66a3a,.8).fillCircle(x+5,525,34); }
-      if(s.level.id===4) { g.lineStyle(1,0xcbeaff).lineBetween(x,530,x+170,550); for(let j=0;j<6;j++)g.fillStyle(j%2?0xf7cc71:0xef6b83).fillCircle(x+j*28,530+j*3,4); }
+      if(s.level.world===1) { g.fillStyle(0x5f9563).fillRect(x,590,4,30); g.fillStyle(s.level.accent).fillCircle(x+2,587,9); }
+      if(s.level.world===2) { g.fillStyle(0xf5d697).fillTriangle(x,560,x+30,515,x+60,560); g.lineStyle(3,0xb98753).lineBetween(x+30,550,x+30,620); }
+      if(s.level.world===3) { g.fillStyle(0x724a38).fillRect(x,535,10,85); g.fillStyle(0xb66a3a,.8).fillCircle(x+5,525,34); }
+      if(s.level.world===4) { g.lineStyle(1,0xcbeaff).lineBetween(x,530,x+170,550); for(let j=0;j<6;j++)g.fillStyle(j%2?0xf7cc71:0xef6b83).fillCircle(x+j*28,530+j*3,4); }
     }
   }
   pickup(x,y,kind) {

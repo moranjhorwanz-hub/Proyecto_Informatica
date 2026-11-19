@@ -6,10 +6,10 @@ export function scenery(s,l,quality='Alta'){
  for(let i=0;i<30;i+=detailStep)g.fillStyle(0xffffff,.25).fillCircle(i*173%1280,i*67%380,1.4);
  g.fillStyle(l.land,.5).fillEllipse(240,510,1100,320).fillEllipse(1130,490,1000,330);
  g.fillStyle(l.land,.8).fillEllipse(410,650,1400,420).fillEllipse(1150,630,1050,400);
- for(let i=0;i<13;i+=detailStep){const x=i*112,y=340+i%3*35;g.fillStyle(0x16252b,.7).fillRect(x,y,12,290);g.fillStyle(l.land);if(l.id===2){g.fillEllipse(x-22,y,110,20).fillEllipse(x+29,y-12,100,23).fillTriangle(x,y,x-60,y-50,x-90,y-30);}else{g.fillTriangle(x+6,y-85,x-60,y+100,x+75,y+100).fillTriangle(x+6,y-20,x-75,y+170,x+90,y+170);}if(l.id===4){g.fillStyle(0xe2f6ff,.7).fillTriangle(x+6,y-85,x-12,y-35,x+24,y-35);for(let j=0;j<4;j++)g.fillStyle(j%2?0xffd57d:0xeb6581).fillCircle(x-20+j*14,y+70+j%2*25,3);}}
- g.fillStyle(l.id===4?0xa5c5d2:0x142f35).fillRect(0,627,1280,93);g.fillStyle(0x07131f,.3).fillEllipse(650,655,700,86);
- if(l.id===1)for(let i=0;i<45;i+=detailStep)g.fillStyle(l.accent,.7).fillCircle(i*89%1280,610+i%4*21,3);
- if(l.id===2){g.lineStyle(2,0x96d7d3,.25);for(let i=0;i<5;i++)g.lineBetween(0,564+i*13,1280,564+i*13);}
+ for(let i=0;i<13;i+=detailStep){const x=i*112,y=340+i%3*35;g.fillStyle(0x16252b,.7).fillRect(x,y,12,290);g.fillStyle(l.land);if(l.world===2){g.fillEllipse(x-22,y,110,20).fillEllipse(x+29,y-12,100,23).fillTriangle(x,y,x-60,y-50,x-90,y-30);}else{g.fillTriangle(x+6,y-85,x-60,y+100,x+75,y+100).fillTriangle(x+6,y-20,x-75,y+170,x+90,y+170);}if(l.world===4){g.fillStyle(0xe2f6ff,.7).fillTriangle(x+6,y-85,x-12,y-35,x+24,y-35);for(let j=0;j<4;j++)g.fillStyle(j%2?0xffd57d:0xeb6581).fillCircle(x-20+j*14,y+70+j%2*25,3);}}
+ g.fillStyle(l.world===4?0xa5c5d2:0x142f35).fillRect(0,627,1280,93);g.fillStyle(0x07131f,.3).fillEllipse(650,655,700,86);
+ if(l.world===1)for(let i=0;i<45;i+=detailStep)g.fillStyle(l.accent,.7).fillCircle(i*89%1280,610+i%4*21,3);
+ if(l.world===2){g.lineStyle(2,0x96d7d3,.25);for(let i=0;i<5;i++)g.lineBetween(0,564+i*13,1280,564+i*13);}
 }
 export function dancer(s,l){
  const c=s.add.container(660,375),g=s.add.graphics();c.add(g);
