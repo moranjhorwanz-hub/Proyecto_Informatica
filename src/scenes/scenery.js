@@ -26,4 +26,5 @@ export function dancer(s,l){
  if(l.accessory==='crown')g.fillStyle(detail).fillPoints([{x:-38,y:-170},{x:-40,y:-201},{x:-18,y:-187},{x:0,y:-210},{x:18,y:-187},{x:38,y:-201},{x:36,y:-170}],true);
  if(l.accessory==='glasses')g.fillStyle(detail).fillRect(-2,-141,40,10).fillStyle(0x212b3b).fillRect(0,-139,14,6).fillRect(21,-139,14,6);
  s.tweens.add({targets:c,y:371,angle:1,duration:2100,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+ return c;
 }

@@ -2,6 +2,12 @@
 
 Juego de navegador con JavaScript, Phaser 3 / Arcade y Vite. Entrega local de las fases 1 a 8: menú estacional, combate, cuatro niveles, tienda, personajes, configuración y tres idiomas con progreso guardado.
 
+## Nuevo plan de mejoras: fases 1 y 2
+
+Sobre la entrega anterior se ha analizado la estructura existente y renovado el menú: escenario estacional con capas parallax, iluminación, sombras, partículas limitadas, personaje completo en el centro y paneles semitransparentes. Los botones están ordenados como Jugar, Tienda, Personajes, Skins, Ataques y Configuración. Mantiene mouse, teclado, idiomas, skins, pistas y estadísticas; respeta la preferencia del sistema de reducir movimiento.
+
+Consulta el [nuevo plan adjunto](docs/PLAN_DE_MEJORAS.md), la [auditoría de la fase 1](docs/UPGRADE_PHASE1.md) y los [cambios y validación de la fase 2](docs/UPGRADE_PHASE2.md). Esta entrega conserva los cuatro recorridos actuales; los doce niveles, sus migraciones y los sprites jugables definitivos corresponden a las siguientes fases del nuevo plan. No renumera ni sustituye los documentos de las fases anteriores.
+
 ## Ejecutar
 
 Requiere Node.js 22 y npm (o Node.js 20.19+).

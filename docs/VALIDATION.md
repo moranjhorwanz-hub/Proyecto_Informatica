@@ -1,5 +1,17 @@
 # Registro de validación
 
+## Nuevo plan de mejoras — fases 1 y 2
+
+Se parte del commit integrado `e28fa63`. Auditoría de los 63 archivos propios versionados y organización descritas en `UPGRADE_PHASE1.md`; renovación del menú en `UPGRADE_PHASE2.md`, rama `feature/upgrade-menu-visuals`. Se conserva el plan anterior y el guardado v1.
+
+- Fase 1: `npm test`, 39/39; `npm run build`, aprobado con 44 módulos.
+- Fase 2: `npm test`, 39/39; `npm run build`, aprobado con 47 módulos, sin nuevas dependencias. Permanece la advertencia de tamaño del paquete de Phaser.
+- Chrome: seis destinos de menú con mouse, estaciones/trajes/pistas, personaje completo sobre el selector inferior, texturas reutilizadas tras varios cambios, presupuesto de 26 partículas, escala 16:9 en tres resoluciones, textos en ES/EN/FR y preferencia de movimiento reducido. La regresión anterior de juego, compras, personajes y ajustes también pasó sin errores de consola ni excepciones.
+- Capturas estacionales e idiomas en `.tools/upgrade-menu-*.png`, ignoradas por Git. Inspección visual de Primavera y Navidad; se elevó el personaje para mantener margen inferior.
+- Sintaxis JS/MJS y `git diff --check`: aprobados.
+
+La primera comprobación de encuadre usaba únicamente los bounds de Graphics, que no representaban correctamente el dibujo. Se añadió un marco lógico explícito y se repitió la prueba. No se alteraron colisiones ni sprites de juego. Las pruebas no miden FPS reales, audio perceptual o dispositivos táctiles. Los doce niveles y el resto del nuevo plan no se declaran implementados.
+
 ## Fase 8 — 17 de noviembre de 2026
 
 Implementación en `docs/PHASE8.md`, rama `feature/phase8-settings`, conservando el trabajo anterior y sin crear commits.
