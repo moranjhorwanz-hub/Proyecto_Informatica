@@ -52,7 +52,8 @@ export default class LevelManager {
     s.physics.add.overlap(s.player,this.pickups,(_p,item)=>{
       if(!item.active || !s.player.state.lives)return;
       if(item.kind==='coin')this.coins++; else this.gifts++;
-      item.destroy(); s.services.audio.effect('hat');
+      const sound = item.kind === 'coin' ? 'coin' : 'hat';
+      item.destroy(); s.services.audio.effect(sound);
     });
   }
   update(now) {

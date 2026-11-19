@@ -5,7 +5,8 @@ export class AudioManager {
     this.context = null; this.timer = null; this.level = 1;
     this.menuMusic = null; this.damageBuffer = null; this.damageLoading = null;
     this.victoryBuffer = null; this.victoryLoading = null;
-    this.jumpBuffer = null; this.jumpLoading = null; this.inMenu = false;
+    this.jumpBuffer = null; this.jumpLoading = null;
+    this.coinBuffer = null; this.coinLoading = null; this.inMenu = false;
     this.musicVoices = new Set(); this.sfxVoices = new Set();
     this.settings = validateSettings(settings);
   }
@@ -34,6 +35,7 @@ export class AudioManager {
     this.loadDamageSound();
     this.loadVictorySound();
     this.loadJumpSound();
+    this.loadCoinSound();
     if (this.inMenu) this.playMenu(); else this.play(this.level);
   }
   loadDamageSound() {
@@ -44,6 +46,9 @@ export class AudioManager {
   }
   loadJumpSound() {
     return this.loadClip('jump', 0, 0.7);
+  }
+  loadCoinSound() {
+    return this.loadClip('coin', 0.6, 1.2);
   }
   loadClip(name, startTime, endTime) {
     if (this[`${name}Loading`] || !this.context?.decodeAudioData) return this[`${name}Loading`];
@@ -98,11 +103,12 @@ export class AudioManager {
   stop() { this.stopMenu(); this.stopMusic(); this.stopVoices(this.sfxVoices); }
   effect(type) {
     if (!this.context || this.settings.sfxVolume === 0) return;
-    if (type === 'damage' || type === 'victory' || type === 'jump') {
+    if (type === 'damage' || type === 'victory' || type === 'jump' || type === 'coin') {
       if (!this[`${type}Buffer`]) {
         if (type === 'damage') this.loadDamageSound();
         else if (type === 'victory') this.loadVictorySound();
-        else this.loadJumpSound();
+        else if (type === 'jump') this.loadJumpSound();
+        else this.loadCoinSound();
         return;
       }
       const source = this.context.createBufferSource();
