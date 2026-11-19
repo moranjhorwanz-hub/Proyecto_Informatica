@@ -3,6 +3,7 @@ import SnowEnemy from '../entities/SnowEnemy.js';
 import SnowBoss from '../entities/SnowBoss.js';
 import { canUseSnow } from '../data/characters.js';
 import { CombatState, COMBAT_DEFAULTS } from './combatState.js';
+import { levelEnemyTexture } from '../visuals/levelEnemies.js';
 export { COMBAT_DEFAULTS } from './combatState.js';
 
 export default class CombatSystem {
@@ -13,10 +14,15 @@ export default class CombatSystem {
     this.createTextures();
     this.enemies = scene.physics.add.group({ runChildUpdate: false });
     const course=scene.levelManager?.course;
+    const patrolTexture = course && levelEnemyTexture(scene, scene.level);
     (course?.enemies || [[990, 920, 1150], [1700, 1690, 1760], [2200, 2040, 2340]]).forEach(args => {
-      const enemy=new SnowEnemy(scene,...args); this.enemies.add(enemy); enemy.speed=(course?.speed || 65) * scene.difficulty.enemySpeed;
+      const enemy=new SnowEnemy(scene,...args,patrolTexture); this.enemies.add(enemy); enemy.speed=(course?.speed || 65) * scene.difficulty.enemySpeed;
     });
-    if(course?.boss) { this.boss=new SnowBoss(scene,{...course.boss,health:scene.difficulty.bossHealth}); this.enemies.add(this.boss); }
+    if (course?.boss) {
+      const texture = levelEnemyTexture(scene, scene.level, true);
+      this.boss = new SnowBoss(scene, { ...course.boss, health: scene.difficulty.bossHealth, texture });
+      this.enemies.add(this.boss);
+    }
     scene.physics.add.collider(this.enemies, scene.solids);
     this.snow = scene.physics.add.group({ allowGravity: false });
     scene.physics.add.collider(this.snow, scene.solids, flake => flake.destroy());

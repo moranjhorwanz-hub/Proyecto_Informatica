@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 export const ENEMY_DEFAULTS = Object.freeze({ speed: 65, health: 2 });
 
 export default class SnowEnemy extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, left, right) {
-    super(scene, x, 620, 'combat-snowman');
+  constructor(scene, x, left, right, texture = 'combat-snowman') {
+    super(scene, x, 620, texture);
     scene.add.existing(this); scene.physics.add.existing(this);
     this.setOrigin(.5, 1).setDepth(8);
     this.body.setSize(40, 72).setOffset(12, 12);

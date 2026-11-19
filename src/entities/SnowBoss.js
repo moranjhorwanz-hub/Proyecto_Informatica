@@ -2,7 +2,7 @@ import SnowEnemy from './SnowEnemy.js';
 
 export default class SnowBoss extends SnowEnemy {
   constructor(scene, config) {
-    super(scene, config.x, config.left, config.right);
+    super(scene, config.x, config.left, config.right, config.texture);
     this.health = config.health; this.maxHealth = config.health;
     this.setScale(1.6); this.nextShot = 0; this.hitUntil = 0;
     this.speed = 90 * scene.difficulty.enemySpeed;
@@ -15,7 +15,7 @@ export default class SnowBoss extends SnowEnemy {
   }
   update(now) {
     super.update(now);
-    this.setTint(now<this.frozenUntil?0x72ccff:now<this.hitUntil?0xff9999:0xe3b7ff);
+    this.setTint(now<this.frozenUntil?0x72ccff:now<this.hitUntil?0xff9999:0xffffff);
     this.projectiles.getChildren().slice().forEach(shot=>{if(now>=shot.expires)shot.destroy();});
     if(Math.abs(this.scene.player.x-this.x)>650 || now<this.frozenUntil)return;
     if(now>=this.nextShot) {

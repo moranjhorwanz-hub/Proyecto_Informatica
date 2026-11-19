@@ -31,14 +31,6 @@ export default class LevelManager {
     s.add.rectangle(c.goal,505,5,230,0xf0d298);
     s.add.triangle(c.goal+50,420,0,0,100,25,0,50,s.level.accent);
     s.add.text(c.goal-110,330,'META',{fontSize:'25px',color:'#f0d298'});
-    // Repeated world decorations make the course readable beyond the fixed backdrop.
-    const g = s.add.graphics().setDepth(1);
-    for(let x=160;x<c.width;x+=240) {
-      if(s.level.world===1) { g.fillStyle(0x5f9563).fillRect(x,590,4,30); g.fillStyle(s.level.accent).fillCircle(x+2,587,9); }
-      if(s.level.world===2) { g.fillStyle(0xf5d697).fillTriangle(x,560,x+30,515,x+60,560); g.lineStyle(3,0xb98753).lineBetween(x+30,550,x+30,620); }
-      if(s.level.world===3) { g.fillStyle(0x724a38).fillRect(x,535,10,85); g.fillStyle(0xb66a3a,.8).fillCircle(x+5,525,34); }
-      if(s.level.world===4) { g.lineStyle(1,0xcbeaff).lineBetween(x,530,x+170,550); for(let j=0;j<6;j++)g.fillStyle(j%2?0xf7cc71:0xef6b83).fillCircle(x+j*28,530+j*3,4); }
-    }
   }
   pickup(x,y,kind) {
     const s=this.scene;
