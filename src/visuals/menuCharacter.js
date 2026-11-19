@@ -1,10 +1,14 @@
 import { dancer } from '../scenes/scenery.js';
+import { PLAYER_PREFIX } from '../entities/playerSprites.js';
 
-// The menu keeps the existing character/skin resolver and full-body proportions.
-// Gameplay sprites and their collision frames are deliberately independent.
 export function createMenuCharacter(scene, appearance, reducedMotion = false) {
   const shadow=scene.add.graphics();
   for(let i=8;i>0;i--)shadow.fillStyle(0x020711,.025).fillEllipse(655,618,148+i*16,12+i*2.5);
+  if (!appearance.textureId) {
+    const hero = scene.add.sprite(655, 616, PLAYER_PREFIX + '-idle-0').setOrigin(.5, 1).setScale(2.9);
+    if (!reducedMotion) hero.play(PLAYER_PREFIX + '-dance');
+    return hero;
+  }
   const hero=dancer(scene,appearance);
   scene.tweens.killTweensOf(hero);
   hero.setY(356);

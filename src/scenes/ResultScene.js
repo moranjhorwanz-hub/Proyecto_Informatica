@@ -1,12 +1,18 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { achievementNames } from '../systems/ProgressManager.js';
+import { getAppearance } from '../entities/appearance.js';
+import { PLAYER_PREFIX } from '../entities/playerSprites.js';
 
 export default class ResultScene extends Phaser.Scene {
   constructor(key) { super(key); }
   create({levelId=1,result=null}={}) {
     const won=this.scene.key==='Victory', services=this.registry.get('services');
     this.cameras.main.setBackgroundColor('#111e2c');
+    if (won && !getAppearance(levels[levelId - 1], services.progress.data).textureId) {
+      const dancer = this.add.sprite(1030, 590, PLAYER_PREFIX + '-celebrate-0').setOrigin(.5, 1).setScale(2.5);
+      if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) dancer.play(PLAYER_PREFIX + '-celebrate');
+    }
     const text=(y,value,size=23)=>this.add.text(100,y,value,{fontFamily:'Arial',fontSize:`${size}px`,color:'#ead8b4',lineSpacing:14});
     text(100,won?(levelId===levels.length?'¡Las cuatro estaciones brillan!':'¡Nivel completado!'):'El espectáculo continúa',45);
     text(190,levels[levelId-1].name,30);
