@@ -7,7 +7,7 @@ export default class BootScene extends Phaser.Scene {
   preload() {
     preloadPlayerSprites(this);
     this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);
-    this.load.image('game-over', `${import.meta.env.BASE_URL}assets/game-over.jpg`);
+    this.load.image('game-over', `${import.meta.env.BASE_URL}assets/game-over-dance.png`);
   }
 
   create() {
