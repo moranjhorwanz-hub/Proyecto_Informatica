@@ -235,6 +235,7 @@ Derrota al Rey de la Nieve para abrir la meta|Defeat the Snow King to open the f
 SALTA|JUMP|SAUTEZ
 META|FINISH|ARRIVÉE
 ¡Las cuatro estaciones brillan!|All four seasons shine!|Les quatre saisons brillent !
+VICTORIA|VICTORY|VICTOIRE
 ¡Nivel completado!|Level completed!|Niveau terminé !
 El espectáculo continúa|The show goes on|Le spectacle continue
 Recompensa: {reward} monedas|Reward: {reward} coins|Récompense : {reward} pièces
@@ -248,6 +249,8 @@ No quedan vidas.|No lives remaining.|Il ne reste plus de vies.
 Monedas obtenidas|Coins collected|Pièces obtenues
 Los objetos de este intento no se han abonado.|Items from this attempt were not credited.|Les objets de cet essai n'ont pas été crédités.
 Siguiente estación|Next season|Saison suivante
+Siguiente nivel|Next level|Niveau suivant
+Menú principal|Main menu|Menu principal
 Repetir nivel|Replay level|Rejouer le niveau
 Reintentar|Retry|Réessayer
 Elegir nivel|Choose level|Choisir le niveau
