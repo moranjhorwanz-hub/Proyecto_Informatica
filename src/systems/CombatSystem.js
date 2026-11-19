@@ -40,10 +40,8 @@ export default class CombatSystem {
   }
   createTextures() {
     const scene = this.scene;
-    if (scene.textures.exists('combat-hat')) return;
+    if (scene.textures.exists('combat-flake')) return;
     const g = scene.make.graphics({ x: 0, y: 0, add: false });
-    g.fillStyle(0xf4e7cb).fillEllipse(24, 19, 46, 12).fillRoundedRect(11, 2, 26, 17, 3);
-    g.fillStyle(0x202b42).fillRect(11, 13, 26, 5); g.generateTexture('combat-hat', 48, 28); g.clear();
     g.fillStyle(0xf0faff).fillCircle(32, 59, 24).fillCircle(32, 25, 17);
     g.fillStyle(0x24304a).fillCircle(26, 22, 3).fillCircle(38, 22, 3).fillRect(14, 5, 36, 6).fillRect(22, 0, 20, 8);
     g.fillStyle(0xf89149).fillTriangle(31, 27, 49, 30, 31, 33);

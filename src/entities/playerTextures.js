@@ -33,7 +33,7 @@ function applyOutfitColors(context, width, height, appearance, { x, brim, raised
     const isSkin = skin && red > 90 && red > green * 1.18 && green > blue * 1.16;
     if (!isFabric && !isTrim && !isSkin) continue;
     const onHat = (Math.abs(column - x) <= 16 && row <= brim)
-      || (raisedHat !== undefined && Math.abs(column - raisedHat) <= 13 && row < brim - 13);
+      || (raisedHat !== undefined && Math.abs(column - raisedHat) <= 13 && row < brim - 10);
     const color = isSkin ? skin : isTrim ? trim : onHat ? hat : outfit;
     const light = Math.min(1, isSkin ? red / 188 : isTrim ? blue / 150 : red / 255);
     data[i] = color.red * light;

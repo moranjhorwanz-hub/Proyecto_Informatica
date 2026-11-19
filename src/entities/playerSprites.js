@@ -54,6 +54,62 @@ export function getPlayerSpritePrefix(scene, appearance, { preview = false } = {
   return prefix;
 }
 
+// Crown, ribbon and curled brim at a 2-pixel drawing scale.
+const thrownHatPixels = [
+  '........................',
+  '........#######.........',
+  '......##hhhhhhh##.......',
+  '.....#hhggssggghm#......',
+  '.....#hgmmgghmgms#......',
+  '.....#gmmhmmgmsms#......',
+  '.....#mgmmsmmssss#......',
+  '....#rr+rrrrrrrbb#......',
+  '..##h###bbbbbbb###.###..',
+  '.#hhhgghhhmmmmssssggmh#.',
+  '.#gmmghghmmgmmssssmhh#..',
+  '..##smmmmmsssmggghh##...',
+  '....###sssssssss###.....',
+  '.......#########........',
+];
+
+export function getThrownHatTexture(scene, playerPrefix, appearance) {
+  const key = `combat-hat-${playerPrefix}`;
+  if (scene.textures.exists(key)) return key;
+
+  const texture = scene.textures.createCanvas(key, 48, 28);
+  const context = texture.getContext();
+  const base = Phaser.Display.Color.IntegerToColor(
+    (appearance?.textureId && appearance.hatColor) ?? 0xe8e4db,
+  );
+  const blend = (target, amount) => {
+    const channels = [base.red, base.green, base.blue].map((value, index) =>
+      Math.round(value + (target[index] - value) * amount));
+    return `rgb(${channels.join(',')})`;
+  };
+  const light = [255, 247, 230];
+  const shadow = [10, 12, 23];
+  const palette = {
+    '#': blend(shadow, .91),
+    h: blend(light, .43),
+    g: blend(light, .18),
+    m: base.rgba,
+    s: blend(shadow, .34),
+    r: blend(shadow, .69),
+    b: blend(shadow, .84),
+    '+': blend(light, .68),
+  };
+  thrownHatPixels.forEach((row, y) => {
+    [...row].forEach((pixel, x) => {
+      if (pixel === '.') return;
+      context.fillStyle = palette[pixel];
+      context.fillRect(x * 2, y * 2, 2, 2);
+    });
+  });
+  texture.refresh();
+  texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+  return key;
+}
+
 function sourceKey(group, number) {
   return group + '_' + String(number).padStart(2, '0');
 }
