@@ -1,10 +1,17 @@
-import Phaser from 'phaser';
+﻿import Phaser from 'phaser';
+import { preloadPlayerSprites, registerPlayerSprites } from '../entities/playerSprites.js';
+
 export default class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
 
   preload() {
+    preloadPlayerSprites(this);
+    this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);
     this.load.image('game-over', `${import.meta.env.BASE_URL}assets/game-over.jpg`);
   }
 
-  create() { this.scene.start('Menu'); }
+  create() {
+    registerPlayerSprites(this);
+    this.scene.start('Menu');
+  }
 }

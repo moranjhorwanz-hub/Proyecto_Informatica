@@ -1,31 +1,46 @@
 import Phaser from 'phaser';
 import { PlayerState, PLAYER_DEFAULTS } from './playerState.js';
 import { createPlayerTextures } from './playerTextures.js';
+import { PLAYER_PREFIX, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT } from './playerSprites.js';
 import { getCharacter } from '../data/characters.js';
 import { getDifficulty } from '../data/settings.js';
 export { PLAYER_DEFAULTS } from './playerState.js';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, level) {
-    const prefix = createPlayerTextures(scene, level);
+    const prefix = level.textureId ? createPlayerTextures(scene, level) : PLAYER_PREFIX;
     super(scene, x, y, `${prefix}-idle-0`);
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.prefix = prefix;
+    this.usesNewSprites = prefix === PLAYER_PREFIX;
     this.character = getCharacter(scene.services.progress.data);
     const difficulty = getDifficulty(scene.services.progress.data.settings);
     this.state = new PlayerState({ ...this.character.movement, lives: difficulty.lives, invulnerability: difficulty.invulnerability });
     this.setOrigin(.5, 1).setDepth(10).setCollideWorldBounds(true);
     this.body.setMaxVelocity(500, 850);
     this.resizeBody(false);
+    this.currentPose = 'idle';
     this.anims.play(`${prefix}-idle`);
     this.nextTrail = 0;
   }
 
   resizeBody(crouched) {
     // Bottom remains anchored at the feet, even beneath an overhead obstacle.
-    this.body.setSize(34, crouched ? 70 : 116, false);
-    this.body.setOffset(31, crouched ? 74 : 28);
+    const height = crouched ? 70 : 116;
+    const frameWidth = this.usesNewSprites ? PLAYER_FRAME_WIDTH : 96;
+    const frameHeight = this.usesNewSprites ? PLAYER_FRAME_HEIGHT : 144;
+    this.body.setSize(34, height, false);
+    this.body.setOffset((frameWidth - 34) / 2, frameHeight - height);
+  }
+
+  playAttack(kind, now) {
+    if (!this.usesNewSprites) return;
+    const pose = kind === 'freeze' ? 'kick' : kind;
+    const key = `${this.prefix}-${pose}`;
+    this.attack = { pose, until: now + this.scene.anims.get(key).duration };
+    this.currentPose = pose;
+    this.anims.play(key);
   }
 
   update(input, now) {
@@ -41,7 +56,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.scene.services.audio.effect('jump');
     }
     this.setFlipX(this.state.facing < 0);
-    this.anims.play(`${this.prefix}-${this.state.pose}`, true);
+    let pose = this.state.pose;
+    if (this.usesNewSprites) {
+      if (pose === 'hurt') this.attack = null;
+      if (pose === 'run' && !input.run) pose = 'walk';
+      if (this.attack && now < this.attack.until) pose = this.attack.pose;
+    }
+    if (pose !== this.currentPose) {
+      this.currentPose = pose;
+      this.anims.play(`${this.prefix}-${pose}`);
+    }
     this.setAlpha(now < this.state.invulnerableUntil && Math.floor(now / 90) % 2 ? .35 : 1);
     if (this.state.pose === 'moonwalk') {
       if (!wasMoonwalking) this.scene.services.audio.effect('moonwalk');
@@ -63,6 +87,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   respawn(x, y) {
+    this.attack = null;
     this.state.fall(this.scene.playTime);
     this.resizeBody(false);
     this.body.reset(x, y);
