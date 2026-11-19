@@ -233,12 +233,12 @@ try {
   await writeFile('.tools/phase3-practice.png', Buffer.from(screenshot.data, 'base64'));
   await tap('Escape', 'Escape');
   await waitFor(`testGame.scene.isActive('Menu')`, 'Escape returns to menu');
-  // All four seasonal texture sets must construct successfully after scene restart.
+  // The base pixel sprites must load across seasons after scene restart.
   for (const id of [2, 3, 4]) {
     await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:${id}});true`);
     await waitFor(`testGame.scene.isActive('Game')`, 'Season practice starts');
     await advance(180);
-    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), `dancer-${id}`);
+    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), 'player-pixel');
     await tap('Escape', 'Escape');
   }
   // Campaign integration: locks, collection, rewards, moving platforms and boss.
@@ -405,7 +405,7 @@ try {
   await tap('Escape','Escape');
   await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:2,mode:'campaign'});true`);
   await advance(100);
-  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'dancer-2','Default outfit restored');
+  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'player-pixel','Default outfit restored');
   console.log('Shop passed: insufficient coins, mouse purchase, failed-save rollback, snow unlock, replay earnings, skin equip across seasons, reload persistence and default outfit restore.');
   // Phase 7 uses an explicit isolated save fixture to avoid farming 3400 coins.
   await evaluate(`(()=>{const s=testGame.registry.get('services');s.progress.data={...s.progress.data,coins:5000,character:'michael',equippedSkin:'thriller',purchases:s.progress.data.purchases.filter(id=>id!=='freeze'),abilities:['hat','moonwalk']};localStorage.setItem('mja.save.v1',JSON.stringify(s.progress.data));})()`);
@@ -422,6 +422,10 @@ try {
   await advance(150);
   await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;true`);
   assert.equal(await evaluate('p.prefix'),'dancer-character-christmas-dancer-skin-thriller');
+  assert.deepEqual(await evaluate(`['walk','run','jump','crouch','moonwalk','hurt','spin','kick','hat','dance']
+    .map(pose => p.scene.anims.get(p.prefix + '-' + pose).frames.length)`),
+    [6,2,5,3,7,2,5,5,2,5], 'The equipped outfit uses every pixel animation');
+  assert.deepEqual(await evaluate(`[p.width,p.height]`), [128,164], 'Outfit uses the shared pixel frame size');
   await key('ArrowRight','ArrowRight','keyDown');await key('Shift','ShiftLeft','keyDown');await advance(150);
   assert.equal(await evaluate('p.body.velocity.x'),380,'Agile character runs faster');
   await key('ArrowRight','ArrowRight','keyUp');await key('Shift','ShiftLeft','keyUp');

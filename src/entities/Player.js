@@ -1,19 +1,17 @@
 import Phaser from 'phaser';
 import { PlayerState, PLAYER_DEFAULTS } from './playerState.js';
-import { createPlayerTextures } from './playerTextures.js';
-import { PLAYER_PREFIX, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT } from './playerSprites.js';
+import { getPlayerSpritePrefix, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT } from './playerSprites.js';
 import { getCharacter } from '../data/characters.js';
 import { getDifficulty } from '../data/settings.js';
 export { PLAYER_DEFAULTS } from './playerState.js';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, level) {
-    const prefix = level.textureId ? createPlayerTextures(scene, level) : PLAYER_PREFIX;
+    const prefix = getPlayerSpritePrefix(scene, level);
     super(scene, x, y, `${prefix}-idle-0`);
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.prefix = prefix;
-    this.usesNewSprites = prefix === PLAYER_PREFIX;
     this.character = getCharacter(scene.services.progress.data);
     const difficulty = getDifficulty(scene.services.progress.data.settings);
     this.state = new PlayerState({ ...this.character.movement, lives: difficulty.lives, invulnerability: difficulty.invulnerability });
@@ -28,14 +26,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   resizeBody(crouched) {
     // Bottom remains anchored at the feet, even beneath an overhead obstacle.
     const height = crouched ? 70 : 116;
-    const frameWidth = this.usesNewSprites ? PLAYER_FRAME_WIDTH : 96;
-    const frameHeight = this.usesNewSprites ? PLAYER_FRAME_HEIGHT : 144;
     this.body.setSize(34, height, false);
-    this.body.setOffset((frameWidth - 34) / 2, frameHeight - height);
+    this.body.setOffset((PLAYER_FRAME_WIDTH - 34) / 2, PLAYER_FRAME_HEIGHT - height);
   }
 
   playAttack(kind, now) {
-    if (!this.usesNewSprites) return;
     const pose = kind === 'freeze' || kind === 'note' ? 'kick' : kind;
     const key = `${this.prefix}-${pose}`;
     this.attack = { pose, until: now + this.scene.anims.get(key).duration };
@@ -57,11 +52,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
     this.setFlipX(this.state.facing < 0);
     let pose = this.state.pose;
-    if (this.usesNewSprites) {
-      if (pose === 'hurt') this.attack = null;
-      if (pose === 'run' && !input.run) pose = 'walk';
-      if (this.attack && now < this.attack.until) pose = this.attack.pose;
-    }
+    if (pose === 'hurt') this.attack = null;
+    if (pose === 'run' && !input.run) pose = 'walk';
+    if (this.attack && now < this.attack.until) pose = this.attack.pose;
     if (pose !== this.currentPose) {
       this.currentPose = pose;
       this.anims.play(`${this.prefix}-${pose}`);

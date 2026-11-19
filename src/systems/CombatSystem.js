@@ -98,7 +98,6 @@ export default class CombatSystem {
     const p = this.scene.player, spinning = now < this.state.spinUntil && now >= p.state.hurtUntil;
     this.ring.setPosition(p.x, p.y - 60).setVisible(spinning);
     if (spinning) {
-      if (!p.usesNewSprites) p.setFlipX(Math.floor(now / 55) % 2 === 0);
       this.enemies.getChildren().slice().forEach(enemy => { if (Math.hypot(enemy.x - p.x, enemy.y - p.y) < this.spinRange) this.spinHit(enemy); });
     }
   }
