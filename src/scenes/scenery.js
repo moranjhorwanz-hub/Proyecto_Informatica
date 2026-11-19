@@ -7,6 +7,26 @@ export function scenery(s,l,quality='Alta'){
  g.fillStyle(l.land,.5).fillEllipse(240,510,1100,320).fillEllipse(1130,490,1000,330);
  g.fillStyle(l.land,.8).fillEllipse(410,650,1400,420).fillEllipse(1150,630,1050,400);
  for(let i=0;i<13;i+=detailStep){const x=i*112,y=340+i%3*35;g.fillStyle(0x16252b,.7).fillRect(x,y,12,290);g.fillStyle(l.land);if(l.world===2){g.fillEllipse(x-22,y,110,20).fillEllipse(x+29,y-12,100,23).fillTriangle(x,y,x-60,y-50,x-90,y-30);}else{g.fillTriangle(x+6,y-85,x-60,y+100,x+75,y+100).fillTriangle(x+6,y-20,x-75,y+170,x+90,y+170);}if(l.world===4){g.fillStyle(0xe2f6ff,.7).fillTriangle(x+6,y-85,x-12,y-35,x+24,y-35);for(let j=0;j<4;j++)g.fillStyle(j%2?0xffd57d:0xeb6581).fillCircle(x-20+j*14,y+70+j%2*25,3);}}
+ // A distinct landmark in every stage gives each song-inspired setting its own silhouette.
+ const landmark=s.add.graphics().setDepth(1); landmark.fillStyle(l.accent,.23).lineStyle(4,l.accent,.65);
+ const variant=(l.id-1)%3;
+ if(l.world===1){
+  if(variant===0){for(let x=80;x<1280;x+=150)landmark.strokeRect(x,525,72,70);}
+  if(variant===1){for(let x=70;x<1280;x+=180)landmark.fillCircle(x,180+(x%3)*40,22).lineBetween(x,202,x,340);}
+  if(variant===2){for(let x=80;x<1280;x+=160)landmark.fillTriangle(x,300,x+70,190,x+140,300);}
+ }else if(l.world===2){
+  if(variant===0){for(let x=50;x<1280;x+=145)landmark.strokeRect(x,280,95,250);}
+  if(variant===1){for(let x=80;x<1280;x+=150)landmark.fillCircle(x,230,30).strokeCircle(x,230,45);}
+  if(variant===2){landmark.fillRect(300,280,680,14).lineBetween(300,280,190,510).lineBetween(980,280,1090,510);}
+ }else if(l.world===3){
+  if(variant===0){for(let x=90;x<1280;x+=180)landmark.fillTriangle(x,420,x+35,330,x+70,420);}
+  if(variant===1){for(let x=80;x<1280;x+=200)landmark.strokeRect(x,300,120,220).lineBetween(x,350,x+120,350);}
+  if(variant===2){for(let x=60;x<1280;x+=175)landmark.fillCircle(x,350,45).fillCircle(x+35,320,38);}
+ }else{
+  if(variant===0){for(let x=90;x<1280;x+=200)landmark.fillTriangle(x,390,x+55,320,x+110,390).strokeRect(x+15,390,80,90);}
+  if(variant===1){for(let x=90;x<1280;x+=160)landmark.strokeCircle(x,280,36).lineBetween(x,244,x,316).lineBetween(x-36,280,x+36,280);}
+  if(variant===2){landmark.fillRect(240,300,800,18).lineBetween(240,300,150,470).lineBetween(1040,300,1130,470);for(let x=260;x<1030;x+=75)landmark.fillCircle(x,330,9);}
+ }
  g.fillStyle(l.world===4?0xa5c5d2:0x142f35).fillRect(0,627,1280,93);g.fillStyle(0x07131f,.3).fillEllipse(650,655,700,86);
  if(l.world===1)for(let i=0;i<45;i+=detailStep)g.fillStyle(l.accent,.7).fillCircle(i*89%1280,610+i%4*21,3);
  if(l.world===2){g.lineStyle(2,0x96d7d3,.25);for(let i=0;i<5;i++)g.lineBetween(0,564+i*13,1280,564+i*13);}

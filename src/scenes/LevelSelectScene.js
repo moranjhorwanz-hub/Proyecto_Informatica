@@ -7,7 +7,7 @@ export default class LevelSelectScene extends Phaser.Scene {
   this.services=this.registry.get('services');this.selected=this.services.progress.data.selectedLevel-1;
   this.services.audio.playMenu();this.cameras.main.setBackgroundColor('#111e2c');
   const text=(x,y,v,size=18,color='#e8e9e3')=>this.add.text(x,y,v,{fontFamily:'Arial',fontSize:`${size}px`,color});
-  text(50,35,'ELIGE TU AVENTURA',36);text(52,83,'Completa cada nivel para desbloquear el siguiente',18,'#bdcbd3');
+  text(50,35,'ELIGE TU AVENTURA',36);text(52,83,'Completa cada nivel para desbloquear el siguiente ? M?sica instrumental original',18,'#bdcbd3');
   this.cards=levels.map((l,i)=>{const x=50+(i%3)*400,y=125+Math.floor(i/3)*105, unlocked=this.services.progress.data.unlockedLevels.includes(l.id),done=this.services.progress.data.completedLevels.includes(l.id);
    const bg=this.add.rectangle(x,y,378,94,l.sky,unlocked?1:.4).setOrigin(0).setInteractive({useHandCursor:true});
    text(x+14,y+10,`${String(l.id).padStart(2,'0')} / ${l.subtitle.toUpperCase()} · ${unlocked?(done?'COMPLETADO':'DISPONIBLE'):'BLOQUEADO'}`,13,'#dfc493');
