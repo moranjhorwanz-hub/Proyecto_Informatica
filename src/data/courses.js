@@ -1,32 +1,33 @@
-// Platforms are [x, y, width, height]; all mandatory gaps fit the running jump.
-const templates = {
-  1: { width: 3000, goal: 2840, spawn: [130,600],
-    platforms: [[0,620,780,100],[900,620,1000,100],[2020,620,980,100],[330,510,180,24],[600,440,150,24],[1180,500,180,24],[1510,430,170,24],[2220,510,200,24]],
-    gaps: [[780,120],[1900,120]], enemies: [[1100,1000,1450],[2370,2130,2600]], hazards: [[1710,612,70,16]],
-    coins: [[360,470],[650,400],[1100,570],[1270,460],[1550,390],[2240,470],[2700,570]], gifts: [[560,570],[2450,570]], moving: [], speed:65 },
-  2: { width:3400, goal:3240, spawn:[130,600],
-    platforms:[[0,620,650,100],[790,620,730,100],[1660,620,800,100],[2600,620,800,100],[350,500,170,24],[1070,450,180,24],[1960,490,180,24],[2820,450,180,24]],
-    gaps:[[650,140],[1520,140],[2460,140]], enemies:[[1250,900,1450],[2200,1750,2350],[3000,2700,3140]], hazards:[[2320,612,60,16]],
-    coins:[[390,460],[900,570],[1120,410],[1800,570],[2010,450],[2750,570],[2870,410]], gifts:[[1360,570],[3080,570]],
-    moving:[[680,510,150,24,120,2200],[2490,500,150,24,130,2400]], speed:75 },
-  3: { width:3600, goal:3440, spawn:[130,600],
-    platforms:[[0,620,720,100],[850,620,800,100],[1780,620,780,100],[2690,620,910,100],[360,490,180,24],[1080,480,220,24],[1390,390,160,24],[2040,480,180,24],[2930,470,200,24]],
-    gaps:[[720,130],[1650,130],[2560,130]], enemies:[[1030,920,1500],[2000,1860,2430],[2900,2770,3280]], hazards:[[1550,612,60,16],[2380,612,65,16]],
-    coins:[[410,450],[990,570],[1130,440],[1440,350],[2100,440],[2830,570],[2990,430]], gifts:[[610,570],[3210,570]], moving:[], speed:120 },
-  4: { width:4000, goal:3840, spawn:[130,600],
-    platforms:[[0,620,800,100],[930,620,850,100],[1910,620,2090,100],[380,500,180,24],[1140,480,200,24],[1510,390,160,24],[2120,490,190,24],[2520,440,180,24]],
-    gaps:[[800,130],[1780,130]], enemies:[[1170,1030,1640],[2230,2010,2450],[2680,2480,2850]], hazards:[[1660,612,60,16],[2750,612,60,16]],
-    coins:[[420,460],[1040,570],[1200,440],[1560,350],[2190,450],[2580,400],[2950,570]], gifts:[[660,570],[2390,570],[2900,570]], moving:[], speed:85,
-    boss:{x:3460,left:3180,right:3700,health:8} },
-};
-
-// Each world has three course variations, with increasing enemy speed.
-export const courses = Object.fromEntries(Array.from({length:12},(_,i)=>{
- const world=Math.floor(i/3)+1, stage=i%3, base=templates[world];
- const gaps=base.gaps.map(([x,w])=>[x,w]);
- const hazards=[...base.hazards];
- if(stage>=1) hazards.push([base.platforms[1][0]+250,612,55+stage*10,16]);
- if(stage>=2) hazards.push([base.platforms[2][0]+300,612,70,16]);
- const platforms=base.platforms.map((rect,n)=>n>=base.gaps.length+1?[rect[0]+stage*20,rect[1]-stage*12,rect[2],rect[3]]:[...rect]);
- return [i+1,{...base,gaps,platforms,hazards,gifts:i===11?base.gifts:base.gifts.slice(0,2),speed:base.speed+stage*15, boss:i===11?base.boss:undefined}];
-}));
+﻿// Individually designed gap patterns. Gaps remain short enough for a running jump.
+const designs = [
+ {width:3000,gaps:[[740,105],[1820,115]], ledges:[350,1200,2310], movers:[]},
+ {width:3150,gaps:[[620,110],[1450,120],[2380,115]], ledges:[300,1050,2030,2670], movers:[1]},
+ {width:3300,gaps:[[830,125],[1680,115],[2610,130]], ledges:[380,1190,2100,2800], movers:[0]},
+ {width:3400,gaps:[[670,130],[1390,125],[2240,140]], ledges:[310,980,1870,2770], movers:[2]},
+ {width:3500,gaps:[[810,135],[1650,140],[2510,125]], ledges:[430,1130,2010,2870], movers:[0,2]},
+ {width:3600,gaps:[[590,115],[1320,145],[2100,130],[2920,140]], ledges:[270,920,1690,2520,3200], movers:[1,3]},
+ {width:3700,gaps:[[770,140],[1550,125],[2330,150],[3070,130]], ledges:[350,1150,1920,2710,3300], movers:[]},
+ {width:3800,gaps:[[700,145],[1500,150],[2400,135],[3150,155]], ledges:[320,1100,1960,2760,3400], movers:[0,2]},
+ {width:3900,gaps:[[880,150],[1770,145],[2630,150],[3320,140]], ledges:[420,1280,2160,2950,3550], movers:[1,3]},
+ {width:4000,gaps:[[650,140],[1420,150],[2190,155],[3010,145]], ledges:[300,1040,1820,2610,3380], movers:[0,2]},
+ {width:4100,gaps:[[760,155],[1570,150],[2370,160],[3240,150]], ledges:[380,1160,1960,2780,3550], movers:[1,3]},
+ {width:4400,gaps:[[690,150],[1490,160],[2290,165],[3020,155]], ledges:[300,1050,1850,2650,3380], movers:[0,1,2,3], boss:true}
+];
+function makeCourse(design,index) {
+ const {width,gaps}=design, goal=width-160, ground=[];
+ let edge=0;
+ for(const [x,w] of gaps){ground.push([edge,620,x-edge,100]);edge=x+w;}
+ ground.push([edge,620,width-edge,100]);
+ const platforms=[...ground,...design.ledges.map((x,i)=>[x,500-(i%2)*45-(index%3)*5,145+(i%2)*25,24])];
+ // Patrols and ground hazards stay inside separate sections of solid floor.
+ const enemies=ground.slice(1).map(([x,,w],i)=>[x+Math.round(w*.55),x+80,x+w-80]).filter(([x,left,right])=>right>left&&x>=left&&x<=right);
+ if(design.boss) enemies.pop();
+ const hazards=ground.slice(1, -1).filter((_,i)=>i%2===index%2).map(([x,,w])=>[x+Math.round(w*.25),612,55+Math.min(index*2,25),16]);
+ const safePoint=(n)=>{const segment=ground[n%ground.length], [x,,w]=segment; return x+Math.round(w*(n%2?.68:.38));};
+ const coins=Array.from({length:7},(_,i)=>[safePoint(i),570]);
+ const gifts=Array.from({length:design.boss?3:2},(_,i)=>[safePoint(i+2)+40,570]);
+ const moving=design.movers.map(i=>{const [x,w]=gaps[i];return [x-20,505,130,24,45+index*2,2200-index*35];});
+ return {width,goal,spawn:[130,600],gaps,platforms,enemies,hazards,coins,gifts,moving,speed:65+index*5,
+  ...(design.boss?{boss:{x:width-480,left:width-700,right:width-230,health:8}}:{})};
+}
+export const courses=Object.fromEntries(designs.map((design,i)=>[i+1,makeCourse(design,i)]));

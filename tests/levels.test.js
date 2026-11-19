@@ -53,3 +53,23 @@ test('a living boss, no lives or falling below the flag prevent victory',()=>{
   scene.player.body.bottom=620; scene.player.state.lives=0;
   assert.equal(level.canFinish(),false);
 });
+import {levels} from '../src/data/levels.js';
+import {stageMusic} from '../src/data/stageMusic.js';
+
+test('each level has its own song reference, course and original music pattern',()=>{
+  assert.equal(levels.length,12);
+  assert.equal(new Set(levels.map(level=>level.track)).size,12);
+  assert.equal(new Set(Object.values(courses).map(course=>JSON.stringify(course.gaps))).size,12);
+  assert.equal(new Set(stageMusic.map(track=>JSON.stringify(track.notes))).size,12);
+  assert.ok(courses[12].boss);
+});
+
+test('every collectible and obstacle is positioned over solid ground',()=>{
+  for(const course of Object.values(courses)) {
+    const ground=course.platforms.filter(([,y])=>y===620);
+    for(const [x] of [...course.coins,...course.gifts,...course.hazards])
+      assert.ok(ground.some(([left,,width])=>x>=left&&x<=left+width),`No ground at ${x}`);
+    for(const [x,,width] of course.hazards)
+      assert.ok(ground.some(([left,,w])=>x-width/2>=left&&x+width/2<=left+w));
+  }
+});

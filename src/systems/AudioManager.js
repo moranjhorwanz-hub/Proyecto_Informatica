@@ -1,3 +1,4 @@
+import { stageMusic } from '../data/stageMusic.js';
 import { validateSettings } from '../data/settings.js';
 // One original procedural track, with independent music and effects buses.
 export class AudioManager {
@@ -95,10 +96,10 @@ export class AudioManager {
     this.stopMenu();
     this.stopMusic(); this.level = Number.isInteger(level) && level >= 1 && level <= 12 ? level : 1;
     if (!this.context || this.muted) return;
-    const notes = [[261.63,329.63,392,440],[293.66,369.99,440,493.88],[220,261.63,329.63,392],[261.63,349.23,392,523.25]][Math.floor((this.level - 1) / 3)];
+    const {notes, tempo, wave} = stageMusic[this.level - 1];
     let step = 0;
-    const beat = () => { const note = notes[step++ % notes.length] / 2; this.voice([note,note,.5], 'sine', this.musicGain, this.musicVoices, .045); };
-    beat(); this.timer = setInterval(beat, 430 + Math.floor((this.level - 1) / 3) * 35);
+    const beat = () => { const note = notes[step++ % notes.length] / 2; this.voice([note,note,Math.min(.45, tempo / 1100)], wave, this.musicGain, this.musicVoices, .035); };
+    beat(); this.timer = setInterval(beat, tempo);
   }
   stopMusic() { clearInterval(this.timer); this.timer = null; this.stopVoices(this.musicVoices); }
   stopVoices(voices) { for (const voice of voices) { try { voice.stop(); } catch {} } voices.clear(); }
