@@ -95,7 +95,7 @@ try {
   // Visual upgrade: verify menu geometry, pointer navigation, seasons and aspect ratio.
   const originalProgress=await evaluate(`JSON.stringify(testGame.registry.get('services').progress.data)`);
   for(const id of [1,2,3,4]) {
-    await click(147+(id-1)*222,651);await advance(400);
+    await click(187+(id-1)*302,651);await advance(400);
     assert.equal(await evaluate(`testGame.scene.getScene('Menu').level.id`),id);
     assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.color`),await evaluate(`testGame.scene.getScene('Menu').level.color`));
     assert.equal(await evaluate(`testGame.registry.get('services').audio.level`),id);
@@ -103,7 +103,7 @@ try {
     const shot=await cdp('Page.captureScreenshot',{format:'png'});
     await writeFile(`.tools/upgrade-menu-${id}.png`,Buffer.from(shot.data,'base64'));
   }
-  await click(147,651);await advance(400);
+  await click(187,651);await advance(400);
   const keys=['LevelSelect','Shop','Characters','Character','Attacks','Settings'];
   for(let index=0;index<keys.length;index++) {
     await click(186,228+index*53);await advance(100);

@@ -1,4 +1,4 @@
-export const menuColors = Object.freeze({ ink: 0x0a1522, gold: 0xeac78d, cream: '#f6ecda', muted: '#afc0cb' });
+export const menuColors = Object.freeze({ ink: 0x100b0c, accent: 0xb91f34, border: 0xff8190, accentText: '#ff9ca8', cream: '#fff5f6', muted: '#dfbcc1' });
 
 export function menuText(scene, x, y, value, size = 18, color = menuColors.cream) {
   return scene.add.text(x, y, value, { fontFamily: 'Arial', fontSize: `${size}px`, color });
@@ -8,7 +8,7 @@ export function menuPanel(scene, x, y, width, height) {
   const g = scene.add.graphics();
   g.fillStyle(0x000000, .17).fillRoundedRect(x + 4, y + 7, width, height, 18);
   g.fillStyle(menuColors.ink, .82).fillRoundedRect(x, y, width, height, 18);
-  g.lineStyle(1, 0xc5d8e5, .16).strokeRoundedRect(x, y, width, height, 18);
+  g.lineStyle(1, menuColors.border, .16).strokeRoundedRect(x, y, width, height, 18);
   g.lineStyle(1, 0xffffff, .08).lineBetween(x + 18, y + 1, x + width - 18, y + 1);
   return g;
 }
