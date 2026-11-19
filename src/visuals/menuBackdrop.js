@@ -39,12 +39,12 @@ function tree(g, x, y, height, theme, world, variant) {
   }
 }
 
-export function createSpringMenuBackdrop(scene) {
+export function createImageMenuBackdrop(scene, imageKey) {
   const width = 1280, height = 720;
-  const image = scene.add.image(width / 2, height / 2, 'spring-menu');
+  const image = scene.add.image(width / 2, height / 2, imageKey);
   image.setScale(Math.max(width / image.width, height / image.height));
 
-  const key = 'spring-menu-shade';
+  const key = 'menu-image-shade';
   if (!scene.textures.exists(key)) {
     const texture = scene.textures.createCanvas(key, 1, height);
     const gradient = texture.context.createLinearGradient(0, 0, 0, height);
