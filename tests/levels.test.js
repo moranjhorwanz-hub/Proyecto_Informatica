@@ -42,6 +42,22 @@ test('mandatory gaps fit running jump and patrols stay on ground',()=>{
     }
   }
 });
+test('harder courses are longer and have more patrols with separate lanes', () => {
+  let previousWidth = 3000;
+  let previousPatrols = 3;
+  for (const course of Object.values(courses)) {
+    assert.ok(course.width > previousWidth);
+    assert.ok(course.enemies.length > previousPatrols);
+    let previousRight = course.spawn[0] + 180;
+    for (const [, left, right] of course.enemies) {
+      assert.ok(left > previousRight && right > left);
+      previousRight = right;
+    }
+    if (course.boss) assert.ok(previousRight + 80 < course.boss.left);
+    previousWidth = course.width;
+    previousPatrols = course.enemies.length;
+  }
+});
 test('a living boss, no lives or falling below the flag prevent victory',()=>{
   const scene={level:{id:4},player:{state:{lives:3},body:{bottom:620}},combat:{boss:{active:true}}};
   const level=new LevelManager(scene);

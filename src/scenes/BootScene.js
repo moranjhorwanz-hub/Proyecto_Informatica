@@ -6,6 +6,7 @@ export default class BootScene extends Phaser.Scene {
 
   preload() {
     preloadPlayerSprites(this);
+    this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);
     this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);
     this.load.image('summer-menu', `${import.meta.env.BASE_URL}assets/backgrounds/summer-menu.png`);
     this.load.image('autumn-menu', `${import.meta.env.BASE_URL}assets/backgrounds/autumn-menu.png`);
