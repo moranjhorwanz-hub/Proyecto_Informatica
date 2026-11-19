@@ -3,6 +3,7 @@ import Player from '../entities/Player.js';
 import { PLAYER_DEFAULTS } from '../entities/playerState.js';
 import { levels } from '../data/levels.js';
 import { scenery } from './scenery.js';
+import { achievementNames } from '../systems/ProgressManager.js';
 
 const label = (scene, x, y, value, size = 18, color = '#eceee9') => scene.add.text(x, y, value, {
   fontFamily: 'Arial', fontSize: `${size}px`, color,
@@ -25,38 +26,41 @@ export default class GameScene extends Phaser.Scene {
     this.children.list.slice(firstChild).forEach(child => child.setScrollFactor(0));
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);
-    // Make the gaps visible independently of the screen-fixed scenery floor.
-    [[710, 140], [1800, 150]].forEach(([x, width]) => {
-      this.add.rectangle(x, 620, width, 100, 0x07131f, .95).setOrigin(0);
-    });
+    // Gap positions, widths, platforms and hazards change across the campaign.
+    const difficulty = this.level.difficulty;
+    const gaps = [[650 + (difficulty * 37) % 150, 100 + Math.min(difficulty * 4, 48)],
+      [1550 + (difficulty * 43) % 170, 110 + Math.min(difficulty * 3, 45)],
+      ...(difficulty >= 6 ? [[2110 + (difficulty * 17) % 80, 105 + difficulty * 2]] : [])];
     this.solids = this.physics.add.staticGroup();
-    // Practice geometry only; complete seasonal level data belongs to phase 5.
-    [[0,620,710,100],[850,620,950,100],[1950,620,750,100],
-      [300,510,160,24],[520,420,150,24],[1040,475,180,24],
-      [1430,490,240,50],[1760,475,190,24],[2080,510,150,24],
-    ].forEach(rect => this.addPlatform(...rect));
-    label(this, 70, 568, '01 / Encuentra tu ritmo', 17, '#eed29c');
-    label(this, 290, 460, 'ESPACIO · Salta', 16);
-    label(this, 690, 660, 'Cuidado con el hueco', 15, '#f5c8bd');
-    label(this, 1370, 433, '↓ / S · Agáchate bajo el puente', 17, '#eed29c');
-    label(this, 2020, 570, 'M · Deslízate hacia atrás', 17, '#b7eafa');
-    this.add.rectangle(2455, 505, 5, 230, 0xf0d298);
-    this.add.triangle(2505, 420, 0, 0, 100, 25, 0, 50, this.level.accent);
-    label(this, 2370, 340, 'FIN DEL ENSAYO', 21, '#f0d298');
-    // Visible training tile exercises damage/invulnerability without adding enemies.
-    this.hazard = this.add.rectangle(1290, 612, 86, 16, 0xc64b60).setStrokeStyle(2, 0xffb0a3);
-    this.physics.add.existing(this.hazard, true);
-    label(this, 1225, 666, 'Zona de daño', 15, '#ffb0a3');
+    let edge = 0;
+    gaps.forEach(([x, width]) => {
+      this.addPlatform(edge, 620, x - edge, 100);
+      this.add.rectangle(x, 620, width, 100, 0x07131f, .95).setOrigin(0);
+      edge = x + width;
+    });
+    this.addPlatform(edge, 620, 2700 - edge, 100);
+    gaps.forEach(([x, width], i) => this.addPlatform(x - 180, 500 - (difficulty % 3) * 25 - i * 10, 125, 24));
+    this.addPlatform(1100 + difficulty * 5, 500, 170, 24);
+    this.add.rectangle(2500, 505, 5, 230, 0xf0d298);
+    this.add.triangle(2550, 420, 0, 0, 100, 25, 0, 50, this.level.accent);
+    label(this, 2370, 340, 'META', 21, '#f0d298');
+    this.hazards = this.physics.add.staticGroup();
+    // Place hazards on solid ground, away from the spawn and gap edges.
+    for (let x = 1050; x < 2350; x += Math.max(210, 500 - difficulty * 20)) {
+      if (gaps.some(([gx, width]) => x + 80 > gx - 30 && x < gx + width + 30)) continue;
+      const hazard = this.add.rectangle(x, 612, 50 + difficulty * 2, 16, 0xc64b60).setStrokeStyle(2, 0xffb0a3);
+      this.hazards.add(hazard);
+    }
     this.player = new Player(this, 130, 600, this.level);
     this.physics.add.collider(this.player, this.solids);
-    this.physics.add.overlap(this.player, this.hazard, () => {
-      this.player.takeDamage(this.player.x < this.hazard.x ? -1 : 1);
+    this.physics.add.overlap(this.player, this.hazards, (player, hazard) => {
+      player.takeDamage(player.x < hazard.x ? -1 : 1);
     });
     this.cameras.main.startFollow(this.player, true, .12, .12, -125, 0);
     this.cameras.main.fadeIn(300);
     this.keys = this.input.keyboard.addKeys({
       left: 'LEFT', right: 'RIGHT', a: 'A', d: 'D', down: 'DOWN', s: 'S',
-      jump: 'SPACE', run: 'SHIFT', moon: 'M', restart: 'R', pause: 'P', escape: 'ESC',
+      jump: 'SPACE', run: 'SHIFT', moon: 'M', restart: 'R', pause: 'P', escape: 'ESC', enter: 'ENTER',
     });
     this.input.keyboard.addCapture(['SPACE', 'UP', 'DOWN', 'LEFT', 'RIGHT']);
     this.createHud();
@@ -83,7 +87,7 @@ export default class GameScene extends Phaser.Scene {
 
   createHud() {
     this.add.rectangle(640, 47, 1280, 94, 0x0e1b27, .92).setScrollFactor(0).setDepth(100);
-    label(this, 28, 17, `ENSAYO / ${this.level.name.toUpperCase()}`, 18, '#eed29c').setScrollFactor(0).setDepth(101);
+    label(this, 28, 17, `NIVEL ${this.level.id} / ${this.level.name.toUpperCase()}`, 18, '#eed29c').setScrollFactor(0).setDepth(101);
     this.lifeText = label(this, 28, 48, '♥ ♥ ♥', 22, '#f3b1b8').setScrollFactor(0).setDepth(101);
     this.stateText = label(this, 430, 20, '', 17).setScrollFactor(0).setDepth(101);
     this.moonText = label(this, 430, 51, '', 15, '#b7eafa').setScrollFactor(0).setDepth(101);
@@ -114,8 +118,9 @@ export default class GameScene extends Phaser.Scene {
   update(_time, delta) {
     if (Phaser.Input.Keyboard.JustDown(this.keys.escape)) { this.scene.start('Menu'); return; }
     if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) { this.scene.restart({ levelId: this.level.id }); return; }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.pause) && !this.dead) this.setPaused(!this.paused);
-    if (this.paused || this.dead) return;
+    if (Phaser.Input.Keyboard.JustDown(this.keys.pause) && !this.dead && !this.finished) this.setPaused(!this.paused);
+    if (this.finished && Phaser.Input.Keyboard.JustDown(this.keys.enter)) { this.scene.start('LevelSelect'); return; }
+    if (this.paused || this.dead || this.finished) return;
     this.playTime += delta;
     this.player.update({
       left: this.keys.left.isDown || this.keys.a.isDown,
@@ -138,9 +143,14 @@ export default class GameScene extends Phaser.Scene {
       this.overlayBody.setText('R para reiniciar el ensayo · ESC para volver');
       this.overlay.setVisible(true);
     }
-    if (this.player.x > 2420 && !this.finished) {
+    if (this.player.x > 2460 && !this.finished && state.lives > 0) {
       this.finished = true;
-      this.notice.setText('¡Ensayo completado! R para repetir · ESC para volver');
+      const earned = this.services.progress.completeLevel(this.level.id, this.playTime, state.lives);
+      this.physics.pause(); this.player.anims.pause();
+      this.overlayTitle.setText('Nivel completado!');
+      this.overlayBody.setText(earned.length ? 'Logros: ' + earned.map(id => achievementNames[id]).join(', ') + '\nENTER: niveles - R: repetir' : 'ENTER: niveles - R: repetir');
+      this.overlay.setVisible(true);
     }
+
   }
 }
