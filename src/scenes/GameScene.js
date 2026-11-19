@@ -3,10 +3,12 @@ import Player from '../entities/Player.js';
 import CombatSystem from '../systems/CombatSystem.js';
 import LevelManager from '../systems/LevelManager.js';
 import { levels } from '../data/levels.js';
+import { courses } from '../data/courses.js';
 import { getAppearance } from '../entities/appearance.js';
 import { canUseSnow, getCharacter } from '../data/characters.js';
 import { getDifficulty } from '../data/settings.js';
 import { scenery } from './scenery.js';
+import { drawBillieJeanScenery, styleBillieJeanPlatform } from '../visuals/billieJeanScenery.js';
 
 const label = (scene, x, y, value, size = 18, color = '#eceee9') => scene.add.text(x, y, value, {
   fontFamily: 'Arial', fontSize: `${size}px`, color,
@@ -30,7 +32,12 @@ export default class GameScene extends Phaser.Scene {
       if (this.services.audio.worldMusic) this.services.audio.stopMusic();
     });
     this.cameras.main.setBackgroundColor(this.level.sky);
-    this.backdrop = scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
+    this.backdrop = null;
+    if (this.level.id === 1) {
+      drawBillieJeanScenery(this, this.campaign ? courses[this.level.id].width : 2700);
+    } else {
+      this.backdrop = scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
+    }
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);
     // Make the gaps visible independently of the screen-fixed scenery floor.
@@ -91,6 +98,10 @@ export default class GameScene extends Phaser.Scene {
   addPlatform(x, y, width, height) {
     const block = this.add.rectangle(x, y, width, height, 0x1a303b).setOrigin(0);
     this.solids.add(block);
+    if (this.level.id === 1) {
+      styleBillieJeanPlatform(this, block);
+      return;
+    }
     this.add.rectangle(x, y, width, 5, this.level.accent, .85).setOrigin(0);
   }
 

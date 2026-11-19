@@ -7,7 +7,7 @@ const worlds = [
  {name:'Navidad', outfit:'Traje navideño', color:0xba324b, sky:0x172e50, land:0x577789, accent:0xc1e7ff}
 ];
 const stages = [
- ['Aceras iluminadas','Billie Jean',0x192a49,0xffd78c],
+ ['Billie Jean','Billie Jean',0x050a24,0xffd78c],
  ['Festival del ritmo','Don’t Stop ’Til You Get Enough',0x352459,0xf8a9d6],
  ['Plaza de colores','Black or White',0x36445d,0xf3e9c9],
  ['Avenida de neón','Beat It',0x30233f,0xf17d68],
