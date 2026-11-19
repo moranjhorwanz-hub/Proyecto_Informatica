@@ -27,9 +27,7 @@ export default class GameScene extends Phaser.Scene {
     this.dead = false;
     this.services.audio.play(this.level.id);
     this.cameras.main.setBackgroundColor(this.level.sky);
-    const firstChild = this.children.length;
-    scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
-    this.children.list.slice(firstChild).forEach(child => child.setScrollFactor(0));
+    this.backdrop = scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);
     // Make the gaps visible independently of the screen-fixed scenery floor.
@@ -139,6 +137,12 @@ export default class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
     if (Phaser.Input.Keyboard.JustDown(this.keys.pause) && !this.dead) this.setPaused(!this.paused);
     if (this.paused || this.dead) return;
+    if (this.backdrop) {
+      const camera = this.cameras.main;
+      const width = this.levelManager?.course.width ?? 2700;
+      const travel = Phaser.Math.Clamp(camera.scrollX / (width - camera.width), 0, 1);
+      this.backdrop.x = 720 - travel * 160;
+    }
     this.playTime += delta;
     this.levelManager?.update(this.playTime);
     this.player.update({

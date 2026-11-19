@@ -1,8 +1,31 @@
 import { drawLevelLandmarks } from '../visuals/levelScenery.js';
 
+const atlasColumns = [0, 482, 965, 1447, 1930];
+const atlasRows = [0, 272, 543, 815];
+
+function campaignPhoto(scene, level) {
+  const key = 'campaign-atlas';
+  const texture = scene.textures.get(key);
+  const frame = `level-${level.id}`;
+  const column = (level.id - 1) % 4;
+  const row = Math.floor((level.id - 1) / 4);
+  if (!texture.has(frame)) {
+    texture.add(frame, 0, atlasColumns[column] + 2, atlasRows[row] + 2,
+      atlasColumns[column + 1] - atlasColumns[column] - 4,
+      atlasRows[row + 1] - atlasRows[row] - 4);
+  }
+  const image = scene.add.image(720, 620, key, frame).setOrigin(.5, 1).setScrollFactor(0);
+  image.setScale(1440 / image.width);
+  scene.add.rectangle(0, 0, 1280, 620, 0x0a0d1a, .16).setOrigin(0).setScrollFactor(0);
+  scene.add.rectangle(0, 620, 1280, 100, level.land).setOrigin(0).setScrollFactor(0);
+  return image;
+}
+
 export function scenery(scene, level, quality = 'Alta') {
+  if (scene.textures.exists('campaign-atlas')) return campaignPhoto(scene, level);
+
   const detailStep = quality === 'Baja' ? 3 : quality === 'Media' ? 2 : 1;
-  const g = scene.add.graphics();
+  const g = scene.add.graphics().setScrollFactor(0);
   g.fillStyle(level.sky).fillRect(0, 0, 1280, 720);
   g.fillStyle(level.accent, .18).fillEllipse(640, 377, 1390, 510);
   g.fillStyle(level.land, .5).fillEllipse(240, 519, 1100, 306).fillEllipse(1130, 502, 1000, 309);
@@ -11,6 +34,7 @@ export function scenery(scene, level, quality = 'Alta') {
   }
   drawLevelLandmarks(g, level, detailStep);
   g.fillStyle(level.world === 4 ? 0x789bac : level.land).fillRect(0, 620, 1280, 100);
+  return null;
 }
 
 export function dancer(s,l){
