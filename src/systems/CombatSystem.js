@@ -22,7 +22,6 @@ export default class CombatSystem {
       const speed = (course?.speed || 65) * scene.difficulty.enemySpeed;
       const enemy = spring
         ? new SpringEnemy(scene, { x, left, right, kind,
-          name: { shadow: 'Sombra Urbana', cat: 'Gato Negro', dancer: 'Bailarín Oscuro' }[kind],
           speed: speed * ({ shadow: 1.1, cat: 1.8, dancer: 1.5 }[kind]),
           health: kind === 'cat' ? 2 : 3, shots: this.springProjectiles })
         : new SnowEnemy(scene, x, left, right, patrolTexture);

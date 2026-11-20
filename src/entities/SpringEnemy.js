@@ -23,15 +23,15 @@ const patterns = {
 };
 
 export default class SpringEnemy extends SnowEnemy {
-  constructor(scene, { x, left, right, kind, name, health, speed, shots }) {
+  constructor(scene, { x, left, right, kind, health, speed, shots }) {
     super(scene, x, left, right, springFrame(kind, 'idle'));
     const geometry = springSpriteGeometry[kind];
     const width = geometry.bodyWidth / geometry.scale;
     const height = geometry.bodyHeight / geometry.scale;
-    this.setOrigin(geometry.x / geometry.width, geometry.y / geometry.height).setScale(geometry.scale);
+    this.sizeMultiplier = geometry.sizeMultiplier;
+    this.setOrigin(geometry.x / geometry.width, geometry.y / geometry.height).setScale(geometry.scale * this.sizeMultiplier);
     this.body.setSize(width, height, false).setOffset(geometry.x - width / 2, geometry.y - height);
     this.kind = kind;
-    this.name = name;
     this.health = this.maxHealth = health;
     this.speed = speed;
     this.shots = shots;
@@ -43,14 +43,8 @@ export default class SpringEnemy extends SnowEnemy {
     if (kind === 'mystery') {
       this.eruption = scene.add.image(0, 620, 'spring-eruption-0').setOrigin(.5, 1).setDepth(9).setVisible(false);
     }
-    if (kind !== 'mystery') {
-      this.tag = scene.add.text(x, 529, name, {
-        fontFamily: 'Arial', fontSize: '13px', color: '#f1defd', stroke: '#120e20', strokeThickness: 3,
-      }).setOrigin(.5, 1).setDepth(9).setVisible(false);
-    }
     this.once('destroy', () => {
       this.effect.destroy();
-      this.tag?.destroy();
       this.eruption?.destroy();
     });
   }
@@ -64,7 +58,6 @@ export default class SpringEnemy extends SnowEnemy {
     }
     const { player } = this.scene;
     const dx = player.x - this.x;
-    this.tag?.setPosition(this.x, this.y - (this.kind === 'cat' ? 55 : 80)).setVisible(Math.abs(dx) < 360);
     this.effect.clear();
     this.eruption?.setVisible(false);
     if (now < this.frozenUntil) {
@@ -112,7 +105,8 @@ export default class SpringEnemy extends SnowEnemy {
       this.pose(move, Math.floor((now - starts + spec.windup) / spec.windup * spec.impactFrame));
       this.effect.fillStyle(this.color, .55);
       if (spec.radius) this.effect.fillEllipse(center, 617, spec.radius * 2, 10);
-      else this.effect.fillCircle(this.x + this.direction * 23, this.y - (this.kind === 'cat' ? 24 : 45), 6 + Math.sin(now / 40) * 2);
+      else this.effect.fillCircle(this.x + this.direction * 23 * this.sizeMultiplier,
+        this.y - (this.kind === 'cat' ? 24 : 45) * this.sizeMultiplier, 6 + Math.sin(now / 40) * 2);
       return;
     }
     if (now >= starts + spec.active) {
@@ -145,8 +139,9 @@ export default class SpringEnemy extends SnowEnemy {
       this.hitPlayer(player, center - spec.radius, center + spec.radius, 620 - height, 620);
       return;
     }
-    const tip = this.x + spec.reach * this.direction;
-    this.hitPlayer(player, Math.min(this.x, tip), Math.max(this.x, tip), this.y - spec.height, this.y + 6);
+    const tip = this.x + spec.reach * this.direction * this.sizeMultiplier;
+    this.hitPlayer(player, Math.min(this.x, tip), Math.max(this.x, tip),
+      this.y - spec.height * this.sizeMultiplier, this.y + 6);
   }
 
   hitPlayer(player, left, right, top, bottom) {
@@ -160,7 +155,8 @@ export default class SpringEnemy extends SnowEnemy {
     const boss = move === 'volley';
     const heights = boss && this.health * 2 <= this.maxHealth ? [36, 104] : [58];
     for (const height of heights) {
-      const shot = this.shots.create(this.x + this.direction * 31, this.y - height, boss ? 'spring-mystery-orb' : 'spring-shadow-orb');
+      const shot = this.shots.create(this.x + this.direction * 31 * this.sizeMultiplier,
+        this.y - height, boss ? 'spring-mystery-orb' : 'spring-shadow-orb');
       shot.setDepth(10).setFlipX(this.direction < 0).setScale(boss ? 1.35 : .86);
       shot.body.setSize(28, 24, false).setOffset(11, 4).setAllowGravity(false);
       shot.setVelocityX(this.direction * (boss ? 385 : 300));
@@ -177,7 +173,6 @@ export default class SpringEnemy extends SnowEnemy {
       this.defeatedAt = this.hitAt;
       this.disableBody(true, false).clearTint();
       this.effect.clear();
-      this.tag?.setVisible(false);
       this.eruption?.setVisible(false);
       this.pose('defeat');
     }

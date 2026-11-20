@@ -7,7 +7,7 @@ const layout = [
   { name: 'Calle iluminada', gaps: [[17, 2]], ledges: [[5, 4, 5], [22, 6, 4]], patrol: [24, 33], coins: [[8, 0], [27, 0]] },
   { name: 'Distrito de neón', gaps: [[13, 3], [29, 2]], ledges: [[7, 5, 5], [19, 4, 5], [32, 6, 4]], patrol: [20, 26], coins: [[9, 5], [34, 0]], gift: [24, 0] },
   { name: 'Callejón de las farolas', gaps: [[11, 2], [25, 3]], ledges: [[5, 4, 5], [16, 5, 5], [30, 4, 5]], patrol: [16, 22], coins: [[8, 0], [32, 4]], hazard: 23 },
-  { name: 'Paseo de los reflejos', gaps: [[16, 3], [28, 2]], ledges: [[7, 5, 5], [21, 4, 5], [32, 5, 4]], patrol: [21, 26], coins: [[12, 0]], gift: [34, 5], hazard: 13 },
+  { name: 'Paseo de los reflejos', gaps: [[16, 3], [28, 2]], ledges: [[7, 5, 5], [21, 4, 5], [32, 8, 4]], patrol: [21, 26], coins: [[12, 0]], gift: [34, 8], hazard: 13 },
 ];
 
 const sections = [];

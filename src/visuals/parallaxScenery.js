@@ -87,13 +87,32 @@ export function drawParallaxScenery(scene, courseWidth) {
 }
 
 export function styleParallaxPlatform(scene, block) {
+  const { x, y, width, height } = block;
+  if (scene.level.id === 1 && y < 620) {
+    block.setFillStyle(0x191d3e).setStrokeStyle(1, 0x626baa);
+    scene.add.rectangle(x + 3, y + 5, width - 6, height - 9, 0x2c3a65).setOrigin(0);
+    scene.add.rectangle(x + 3, y + 5, width - 6, 2, 0x526da1).setOrigin(0);
+    scene.add.rectangle(x, y, width, 3, 0xa4edff).setOrigin(0);
+
+    for (let offset = 14; offset < width - 10; offset += 28) {
+      scene.add.rectangle(x + offset, y + height - 4, 10, 2, 0x7287f4).setOrigin(0);
+    }
+
+    const glow = scene.add.rectangle(x - 2, y - 3, width + 4, 9, 0x68dfff, .16).setOrigin(0);
+    if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      scene.tweens.add({
+        targets: glow, alpha: .4, duration: 850, ease: 'Sine.easeInOut', yoyo: true, repeat: -1,
+      });
+    }
+    return;
+  }
+
   const stage = stages[scene.level.id];
   const [layer, ...bounds] = stage.pavement;
   const pavementKey = layerKey(stage, layer);
   const texture = scene.textures.get(pavementKey);
   if (!texture.has(pavementFrame)) texture.add(pavementFrame, 0, ...bounds);
 
-  const { x, y, width, height } = block;
   block.setFillStyle(stage.foundation);
   const surface = scene.add.tileSprite(x, y, width, height, pavementKey, pavementFrame).setOrigin(0);
   if (scene.campaign) {

@@ -6,10 +6,10 @@
 };
 
 export const springSpriteGeometry = {
-  shadow: { width: 240, height: 192, x: 119, y: 181, scale: .64, bodyWidth: 40, bodyHeight: 72 },
-  cat: { width: 256, height: 160, x: 123, y: 152, scale: .69, bodyWidth: 48, bodyHeight: 35 },
-  dancer: { width: 268, height: 204, x: 133, y: 190, scale: .62, bodyWidth: 40, bodyHeight: 72 },
-  mystery: { width: 360, height: 218, x: 175, y: 208, scale: .86, bodyWidth: 58, bodyHeight: 104 },
+  shadow: { width: 240, height: 192, x: 119, y: 181, scale: .64, sizeMultiplier: 1.3, bodyWidth: 40, bodyHeight: 72 },
+  cat: { width: 256, height: 160, x: 123, y: 152, scale: .69, sizeMultiplier: 1, bodyWidth: 48, bodyHeight: 35 },
+  dancer: { width: 268, height: 204, x: 133, y: 190, scale: .62, sizeMultiplier: 1.3, bodyWidth: 40, bodyHeight: 72 },
+  mystery: { width: 360, height: 218, x: 175, y: 208, scale: .86, sizeMultiplier: 1.48, bodyWidth: 58, bodyHeight: 104 },
 };
 
 const clips = {
