@@ -31,7 +31,7 @@ const stages = {
     ],
     rows: [[0, 148], [146, 299], [299, 495], [497, 601], [601, 724]],
     foreground: {
-      top: 497, bottom: 620,
+      top: 505, bottom: 628,
       vents: [
         { x: 473, height: 12, bounds: [449, 646, 0, 110] },
         { x: 1080, height: 12, bounds: [1061, 1194, 17, 111] },
