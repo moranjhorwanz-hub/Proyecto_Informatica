@@ -41,10 +41,11 @@ export default class GameScene extends Phaser.Scene {
     }
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);
-    // Make the gaps visible independently of the screen-fixed scenery floor.
-    (this.campaign?[]:[[710, 140], [1800, 150]]).forEach(([x, width]) => {
-      this.add.rectangle(x, 620, width, 100, 0x07131f, .95).setOrigin(0);
-    });
+    if (!this.campaign && !hasParallaxScenery(this.level.id)) {
+      for (const [x, width] of [[710, 140], [1800, 150]]) {
+        this.add.rectangle(x, 620, width, 100, 0x07131f, .95).setOrigin(0);
+      }
+    }
     this.solids = this.physics.add.staticGroup();
     if(this.campaign) {
       this.levelManager=new LevelManager(this, data.checkpoint); this.levelManager.build();

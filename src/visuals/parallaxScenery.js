@@ -14,7 +14,8 @@ const stages = {
       '01_Cielo_Estrellas_Luna', '02_Rascacielos_Iluminados', '03_Fachadas_Anuncios_Neon',
       '04_Farolas_Escaparates_Aceras', '05_Reflejos_Humo_Detalles',
     ],
-    rows: [[0, 146], [146, 280], [289, 445], [452, 593], [592, 723]],
+    rows: [[0, 146], [146, 280], [289, 445], [452, 593], [592, 717]],
+    facadeBottom: 588,
     atmosphere: [0x06091f, 0x171335, 0x111029],
     pavement: [4, 718, 661, 158, 55],
     foundation: 0x141333,
@@ -26,7 +27,7 @@ const stages = {
       '01_Cielo_Luna_Nubes', '02_Edificios_Antiguos_Chimeneas', '03_Hoteles_Teatro_Club_Jazz',
       '04_Farolas_Puertas_Escaleras', '05_Humo_Carteles_Cables',
     ],
-    rows: [[0, 148], [146, 299], [299, 495], [497, 601], [601, 724]],
+    rows: [[0, 148], [146, 299], [299, 495], [497, 601], [601, 717]],
     atmosphere: [0x091322, 0x252237, 0x161722],
     pavement: [3, 320, 562, 130, 28],
     foundation: 0x21202a,
@@ -69,6 +70,17 @@ export function drawParallaxScenery(scene, courseWidth) {
   scene.add.image(0, 0, atmosphereTexture(scene, stage)).setOrigin(0)
     .setDisplaySize(camera.width, camera.height).setScrollFactor(0).setDepth(-6);
 
+  // The street continues behind gaps in the collision floor.
+  const streetHeight = camera.height - 620;
+  scene.add.rectangle(0, 620, courseWidth, streetHeight, stage.foundation).setOrigin(0).setDepth(-1);
+  const key = getPavementKey(scene, stage);
+  const frame = scene.textures.get(key).get(pavementFrame);
+  const streetSectionWidth = 48 * 32;
+  for (let x = 0; x < courseWidth; x += streetSectionWidth) {
+    scene.add.tileSprite(x, 620, Math.min(streetSectionWidth, courseWidth - x), streetHeight, key, pavementFrame)
+      .setOrigin(0).setDepth(-1).setAlpha(.6).setTileScale(48 / frame.width, 24 / frame.height);
+  }
+
   for (const [index, { speed, scaleX, top, bottom }] of planes.entries()) {
     const key = layerKey(stage, index);
     const texture = scene.textures.get(key);
@@ -78,12 +90,21 @@ export function drawParallaxScenery(scene, courseWidth) {
     const width = texture.get().width - inset * 2;
     if (!texture.has('plane')) texture.add('plane', 0, inset, firstRow, width, height);
     const tileWidth = width * scaleX;
+    const planeBottom = index === 2 ? stage.facadeBottom ?? bottom : bottom;
     const visibleEnd = camera.width + Math.max(0, courseWidth - camera.width) * speed + 1;
     for (let x = 0; x < visibleEnd; x += tileWidth) {
-      scene.add.image(x, top, key, 'plane').setOrigin(0).setScale(scaleX, (bottom - top) / height)
+      scene.add.image(x, top, key, 'plane').setOrigin(0).setScale(scaleX, (planeBottom - top) / height)
         .setScrollFactor(speed, 0).setDepth(index - planes.length);
     }
   }
+}
+
+function getPavementKey(scene, stage) {
+  const [layer, ...bounds] = stage.pavement;
+  const key = layerKey(stage, layer);
+  const texture = scene.textures.get(key);
+  if (!texture.has(pavementFrame)) texture.add(pavementFrame, 0, ...bounds);
+  return key;
 }
 
 export function styleParallaxPlatform(scene, block) {
@@ -108,10 +129,8 @@ export function styleParallaxPlatform(scene, block) {
   }
 
   const stage = stages[scene.level.id];
-  const [layer, ...bounds] = stage.pavement;
-  const pavementKey = layerKey(stage, layer);
+  const pavementKey = getPavementKey(scene, stage);
   const texture = scene.textures.get(pavementKey);
-  if (!texture.has(pavementFrame)) texture.add(pavementFrame, 0, ...bounds);
 
   block.setFillStyle(stage.foundation);
   const surface = scene.add.tileSprite(x, y, width, height, pavementKey, pavementFrame).setOrigin(0);
