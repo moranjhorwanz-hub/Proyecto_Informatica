@@ -42,14 +42,15 @@ test('mandatory gaps fit running jump and patrols stay on ground',()=>{
     }
   }
 });
-test('courses after Billie Jean grow in length and all courses have more patrols with separate lanes', () => {
-  let previousWidth = 3000;
+test('campaign courses grow in length, patrol count and patrol speed', () => {
+  let previousWidth = 8000;
+  let previousSpeed = 65;
   let previousPatrols = 3;
-  for (const [id, course] of Object.entries(courses)) {
-    if (id !== '1') {
-      assert.ok(course.width > previousWidth);
-      previousWidth = course.width;
-    }
+  for (const course of Object.values(courses)) {
+    assert.ok(course.width > previousWidth);
+    previousWidth = course.width;
+    assert.ok(course.speed > previousSpeed);
+    previousSpeed = course.speed;
     assert.ok(course.enemies.length > previousPatrols);
     let previousRight = course.spawn[0] + 180;
     for (const [, left, right] of course.enemies) {
@@ -60,20 +61,20 @@ test('courses after Billie Jean grow in length and all courses have more patrols
     previousPatrols = course.enemies.length;
   }
 });
-test('Billie Jean sections connect and checkpoints have clear ground', () => {
-  const course = courses[1];
-  assert.ok(course.width >= 7000);
-  assert.equal(course.sections.length, 4);
-  let edge = 0;
-  for (const { start, end, spawn: [x] } of course.sections) {
-    assert.equal(start, edge);
-    assert.ok(x > start && x < end);
-    assert.ok(course.platforms.some(([left, y, width]) => y === 620 && x - 48 >= left && x + 48 <= left + width));
-    assert.ok(course.enemies.every(([, left, right]) => x + 100 < left || x - 100 > right));
-    assert.ok(course.hazards.every(([hazardX]) => Math.abs(x - hazardX) > 100));
-    edge = end;
+test('campaign sections connect and checkpoints have clear ground', () => {
+  for (const course of Object.values(courses)) {
+    assert.ok(course.sections.length >= 4);
+    let edge = 0;
+    for (const { start, end, spawn: [x] } of course.sections) {
+      assert.equal(start, edge);
+      assert.ok(x > start && x < end);
+      assert.ok(course.platforms.some(([left, y, width]) => y === 620 && x - 48 >= left && x + 48 <= left + width));
+      assert.ok(course.enemies.every(([, left, right]) => x + 100 < left || x - 100 > right));
+      assert.ok(course.hazards.every(([hazardX]) => Math.abs(x - hazardX) > 100));
+      edge = end;
+    }
+    assert.equal(edge, course.width);
   }
-  assert.equal(edge, course.width);
 });
 test('Billie Jean retries restore the latest checkpoint and its collected items', () => {
   const overlaps = new Map();
@@ -126,6 +127,8 @@ import {stageMusic} from '../src/data/stageMusic.js';
 
 test('each level has its own song reference, course and original music pattern',()=>{
   assert.equal(levels.length,12);
+  assert.equal(levels[1].name,'Smooth Criminal');
+  assert.equal(levels[1].track,'Smooth Criminal');
   assert.equal(new Set(levels.map(level=>level.track)).size,12);
   assert.equal(new Set(Object.values(courses).map(course=>JSON.stringify(course.gaps))).size,12);
   assert.equal(new Set(stageMusic.map(track=>JSON.stringify(track.notes))).size,12);

@@ -8,13 +8,13 @@ const worlds = [
 ];
 const stages = [
  ['Billie Jean','Billie Jean',0x050a24,0xffd78c],
- ['Festival del ritmo','Don’t Stop ’Til You Get Enough',0x352459,0xf8a9d6],
+ ['Smooth Criminal','Smooth Criminal',0x091322,0xffcc8b],
  ['Plaza de colores','Black or White',0x36445d,0xf3e9c9],
  ['Avenida de neón','Beat It',0x30233f,0xf17d68],
  ['Noche de baile','Rock with You',0x20365c,0x9ee3f3],
  ['Gran escenario','Wanna Be Startin’ Somethin’',0x433455,0xffcf72],
  ['Bosque encantado','Thriller',0x24243e,0xf1a057],
- ['Callejón misterioso','Smooth Criminal',0x1b3041,0xc4dfe8],
+ ['Festival del ritmo','Don’t Stop ’Til You Get Enough',0x1b3041,0xc4dfe8],
  ['Tierra y raíces','Earth Song',0x293d35,0x9cd5a1],
  ['Aldea de estrellas','Heal the World',0x193d55,0xbdeaff],
  ['Luces bajo la nieve','Man in the Mirror',0x282e55,0xffd998],

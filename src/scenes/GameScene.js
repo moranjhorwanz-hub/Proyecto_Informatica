@@ -8,7 +8,7 @@ import { getAppearance } from '../entities/appearance.js';
 import { canUseSnow, getCharacter } from '../data/characters.js';
 import { getDifficulty } from '../data/settings.js';
 import { scenery } from './scenery.js';
-import { drawBillieJeanScenery, styleBillieJeanPlatform } from '../visuals/billieJeanScenery.js';
+import { drawParallaxScenery, hasParallaxScenery, styleParallaxPlatform } from '../visuals/parallaxScenery.js';
 
 const label = (scene, x, y, value, size = 18, color = '#eceee9') => scene.add.text(x, y, value, {
   fontFamily: 'Arial', fontSize: `${size}px`, color,
@@ -34,8 +34,8 @@ export default class GameScene extends Phaser.Scene {
     });
     this.cameras.main.setBackgroundColor(this.level.sky);
     this.backdrop = null;
-    if (this.level.id === 1) {
-      drawBillieJeanScenery(this, this.campaign ? courses[this.level.id].width : 2700);
+    if (hasParallaxScenery(this.level.id)) {
+      drawParallaxScenery(this, this.campaign ? courses[this.level.id].width : 2700);
     } else {
       this.backdrop = scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
     }
@@ -101,8 +101,8 @@ export default class GameScene extends Phaser.Scene {
   addPlatform(x, y, width, height) {
     const block = this.add.rectangle(x, y, width, height, 0x1a303b).setOrigin(0);
     this.solids.add(block);
-    if (this.level.id === 1) {
-      styleBillieJeanPlatform(this, block);
+    if (hasParallaxScenery(this.level.id)) {
+      styleParallaxPlatform(this, block);
       return;
     }
     this.add.rectangle(x, y, width, 5, this.level.accent, .85).setOrigin(0);

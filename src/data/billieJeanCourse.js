@@ -1,5 +1,5 @@
 const tile = 48;
-const sectionTiles = 40;
+const sectionTiles = 44;
 const floorY = 620;
 
 // Horizontal positions and sizes are in tiles, relative to each section.
@@ -39,15 +39,18 @@ layout.forEach((section, index) => {
     platforms.push([worldX(column), floorY - rowsUp * 24, columns * tile, 24]);
   }
   const [left, right] = section.patrol.map(worldX);
-  enemies.push([(left + right) / 2, left, right]);
+  const earlyLeft = worldX(8);
+  const earlyRight = worldX(section.gaps[0][0] - 1);
+  enemies.push([(earlyLeft + earlyRight) / 2, earlyLeft, earlyRight], [(left + right) / 2, left, right]);
   coins.push(...section.coins.map(pickup));
   if (section.gift) gifts.push(pickup(section.gift));
   if (section.hazard) hazards.push([worldX(section.hazard), 612, 55, 16]);
+  hazards.push([worldX(38), 612, 55, 16]);
 });
 
 const width = sections.at(-1).end;
 
 export const billieJeanCourse = {
   width, goal: width - 160, spawn: sections[0].spawn, sections,
-  gaps, platforms, enemies, hazards, coins, gifts, moving: [], speed: 65,
+  gaps, platforms, enemies, hazards, coins, gifts, moving: [], speed: 76,
 };

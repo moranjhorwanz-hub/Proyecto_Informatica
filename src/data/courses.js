@@ -14,34 +14,44 @@ const designs = [
  {width:4100,gaps:[[760,155],[1570,150],[2370,160],[3240,150]], ledges:[380,1160,1960,2780,3550], movers:[1,3]},
  {width:4400,gaps:[[690,150],[1490,160],[2290,165],[3020,155]], ledges:[300,1050,1850,2650,3380], movers:[0,1,2,3], boss:true}
 ];
-// Stretch the walkable sections as difficulty increases. Keep the original jump distances.
+const smoothCriminalSections = ['Distrito del hotel', 'Entrada del teatro', 'Club de jazz', 'Callejón de servicio'];
+
+// Stretch walkable ground independently of the gaps so jumps stay within reach.
 function makeCourse(design,index) {
- const stretch=1.30 + index*.055;
+ const stretch=3 + index*.085;
+ const sourceGaps=design.gaps.map(([start,width])=>[start,Math.min(205,width+12+index*3)]);
  const position=x => {
-  const air=design.gaps.reduce((total,[start,width])=>total+Math.min(width,Math.max(0,x-start)),0);
+  const air=sourceGaps.reduce((total,[start,width])=>total+Math.min(width,Math.max(0,x-start)),0);
   return Math.round((x-air)*stretch)+air;
  };
  const width=position(design.width);
- const gaps=design.gaps.map(([x,gapWidth])=>[position(x),gapWidth]);
+ const gaps=sourceGaps.map(([x,gapWidth])=>[position(x),gapWidth]);
  const goal=width-160, ground=[];
  let edge=0;
  for(const [x,w] of gaps){ground.push([edge,620,x-edge,100]);edge=x+w;}
  ground.push([edge,620,width-edge,100]);
+ const sections=ground.map(([start],i)=>({
+  name:(index===1 && smoothCriminalSections[i]) || `Tramo ${i+1}`,
+  start,
+  end:ground[i+1]?.[0] ?? width,
+  spawn:[start+(i===0?130:112),600],
+ }));
  const platforms=[...ground,...design.ledges.map((x,i)=>[position(x),500-(i%2)*45-(index%3)*5,145+(i%2)*25,24])];
- const enemies=patrols(ground,4+index,design.boss ? width-800 : goal-65);
- const hazards=ground.slice(1, -1).filter((_,i)=>i%2===index%2).map(([x,,w])=>[x+Math.round(w*.25),612,55+Math.min(index*2,25),16]);
+ const enemies=patrols(ground,8+index,design.boss ? width-800 : goal-65);
+ const hazards=ground.slice(1,-1).flatMap(([x,,w])=>
+  [.4,.72].map(fraction=>[x+Math.round(w*fraction),612,55+Math.min(index*2,25),16]));
  const coinPositions=collectiblePositions(ground,goal,7);
  const giftPositions=collectiblePositions(ground,goal,design.boss?3:2,.8);
  const coins=coinPositions.map(x=>[x,570]);
  const gifts=giftPositions.map(x=>[x,570]);
- const moving=design.movers.map(i=>{const [x,w]=gaps[i];return [x-20,505,130,24,45+index*2,2200-index*35];});
- return {width,goal,spawn:[130,600],gaps,platforms,enemies,hazards,coins,gifts,moving,speed:65+index*5,
+ const moving=design.movers.map(i=>[gaps[i][0]-20,505,130,24,45+index*2,2200-index*35]);
+ return {width,goal,spawn:sections[0].spawn,sections,gaps,platforms,enemies,hazards,coins,gifts,moving,speed:77+index*5,
   ...(design.boss?{boss:{x:width-480,left:width-700,right:width-230,health:8}}:{})};
 }
 
 function patrols(ground,count,end) {
  const lanes=ground.map(([x,,width])=>({
-  left:Math.max(340,x+70),
+  left:Math.max(340,x+245),
   right:Math.min(end,x+width-70),
   count:0,
  })).filter(({left,right})=>right>left);
