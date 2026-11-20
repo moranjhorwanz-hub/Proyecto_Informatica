@@ -213,9 +213,16 @@ export default class GameScene extends Phaser.Scene {
           ? 'Punto de control guardado'
           : manager.course.sections[Math.max(0, section)].name);
       }
-      this.notice.setText(`Monedas ${manager.coins}/7 · Regalos ${manager.gifts}/${manager.course.gifts.length}${boss?.active?` · REY DE LA NIEVE ${boss.health}/${boss.maxHealth}`:''}`);
+      const bossName = manager.course.boss?.name ?? 'REY DE LA NIEVE';
+      const showBoss = boss?.active && (!manager.course.boss?.name || Math.abs(this.player.x - boss.x) < 900);
+      this.notice.setText(`Monedas ${manager.coins}/7 · Regalos ${manager.gifts}/${manager.course.gifts.length}${showBoss ? ` · ${bossName} ${boss.health}/${boss.maxHealth}` : ''}`);
       if(this.player.x>manager.course.goal && !this.finished) {
-        if(!manager.canFinish())this.notice.setText('Derrota al Rey de la Nieve para abrir la meta');
+        if(!manager.canFinish()) {
+          const undefeatedMessage = manager.course.boss?.name
+            ? 'Derrota al Misterioso del Callejón para abrir la meta'
+            : 'Derrota al Rey de la Nieve para abrir la meta';
+          this.notice.setText(boss?.active ? undefeatedMessage : 'Pisa la plataforma de la meta');
+        }
         else {
           this.finished=true;
           this.services.audio.effect('victory');

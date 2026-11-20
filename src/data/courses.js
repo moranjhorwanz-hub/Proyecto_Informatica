@@ -82,3 +82,40 @@ export const courses = {
   1: billieJeanCourse,
   ...Object.fromEntries(designs.map((design, i) => [i + 2, makeCourse(design, i + 1)])),
 };
+
+const springEnemies = ['shadow', 'cat', 'dancer'];
+
+function springCourse(course, stage) {
+ const stretch = 1.39;
+ const position = x => {
+  const air = course.gaps.reduce((total, [start, width]) => total + Math.min(width, Math.max(0, x - start)), 0);
+  return Math.round((x - air) * stretch) + air;
+ };
+ const width = position(course.width);
+ const goal = width - 160;
+ const boss = stage === 3 ? {
+  kind: 'mystery', name: 'El Misterioso del Callejón', x: width - 590,
+  left: width - 850, right: width - 215, health: 14,
+ } : undefined;
+ return {
+  ...course, width, goal, boss,
+  spawn: [position(course.spawn[0]), course.spawn[1]],
+  sections: course.sections.map(({ name, start, end, spawn: [x, y] }, index) => ({
+   name: boss && index === course.sections.length - 1 ? 'El callejón final' : name,
+   start: position(start), end: position(end), spawn: [position(x), y],
+  })),
+  gaps: course.gaps.map(([x, w]) => [position(x), w]),
+  platforms: course.platforms.map(([x, y, w, h]) => [position(x), y, position(x + w) - position(x), h]),
+  enemies: course.enemies.filter(([, left]) => !boss || position(left) < boss.left - 220)
+   .map(([x, left, right], index) => {
+    const end = Math.min(position(right), boss ? boss.left - 180 : Infinity);
+    return [Math.min(position(x), end), position(left), end, springEnemies[(index + stage - 1) % springEnemies.length]];
+   }),
+  hazards: course.hazards.map(([x, y, w, h]) => [position(x), y, w + 20, h]),
+  coins: course.coins.map(([x, y]) => [position(x), y]),
+  gifts: course.gifts.map(([x, y]) => [position(x), y]),
+  moving: course.moving.map(([x, ...spec]) => [position(x), ...spec]),
+ };
+}
+
+for (let stage = 1; stage <= 3; stage++) courses[stage] = springCourse(courses[stage], stage);

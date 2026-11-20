@@ -42,12 +42,12 @@ test('mandatory gaps fit running jump and patrols stay on ground',()=>{
     }
   }
 });
-test('campaign courses grow in length, patrol count and patrol speed', () => {
+test('courses grow within each world and keep patrols apart', () => {
   let previousWidth = 8000;
   let previousSpeed = 65;
   let previousPatrols = 3;
-  for (const course of Object.values(courses)) {
-    assert.ok(course.width > previousWidth);
+  for (const [id, course] of Object.entries(courses)) {
+    if (Number(id) % 3 !== 1) assert.ok(course.width > previousWidth);
     previousWidth = course.width;
     assert.ok(course.speed > previousSpeed);
     previousSpeed = course.speed;
@@ -60,6 +60,17 @@ test('campaign courses grow in length, patrol count and patrol speed', () => {
     if (course.boss) assert.ok(previousRight + 80 < course.boss.left);
     previousPatrols = course.enemies.length;
   }
+});
+test('world one has three enemy types and a clear arena at the end', () => {
+  const stages = [courses[1], courses[2], courses[3]];
+  const distance = stages.reduce((sum, course) => sum + course.goal - course.spawn[0], 0);
+  assert.ok(distance / 340 > 100 && distance / 230 < 160);
+  for (const course of stages) {
+    assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])), new Set(['shadow', 'cat', 'dancer']));
+  }
+  assert.equal(stages[2].boss.name, 'El Misterioso del Callejón');
+  assert.ok(stages[2].platforms.some(([x, y, width]) =>
+    y === 620 && x < stages[2].boss.left && x + width >= stages[2].goal));
 });
 test('campaign sections connect and checkpoints have clear ground', () => {
   for (const course of Object.values(courses)) {

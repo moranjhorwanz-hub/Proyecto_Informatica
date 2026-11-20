@@ -239,6 +239,13 @@ Monedas {count}/7|Coins {count}/7|Pièces {count}/7
 Regalos {count}/{total}|Gifts {count}/{total}|Cadeaux {count}/{total}
 REY DE LA NIEVE {health}/{max}|SNOW KING {health}/{max}|ROI DES NEIGES {health}/{max}
 Derrota al Rey de la Nieve para abrir la meta|Defeat the Snow King to open the finish|Battez le Roi des Neiges pour ouvrir l'arrivée
+El callejón final|The final alley|La ruelle finale
+El Misterioso del Callejón {health}/{max}|The Alley Stranger {health}/{max}|L'Inconnu de la ruelle {health}/{max}
+Derrota al Misterioso del Callejón para abrir la meta|Defeat the Alley Stranger to open the finish|Battez l'Inconnu de la ruelle pour ouvrir l'arrivée
+Pisa la plataforma de la meta|Land on the finish platform|Atterrissez sur la plateforme d'arrivée
+Sombra Urbana|Urban Shadow|Ombre urbaine
+Gato Negro|Black Cat|Chat noir
+Bailarín Oscuro|Dark Dancer|Danseur obscur
 ¡Ensayo completado! R para repetir|Practice completed! R to replay|Entraînement terminé ! R pour rejouer
 SALTA|JUMP|SAUTEZ
 META|FINISH|ARRIVÉE
