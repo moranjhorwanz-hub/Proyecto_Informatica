@@ -1,6 +1,11 @@
 import { stageMusic } from '../data/stageMusic.js';
 import { validateSettings } from '../data/settings.js';
 
+const worldTracks = {
+  1: 'billie-jean-instrumental.mp3',
+  2: 'smooth-criminal-instrumental.mp3',
+};
+
 export class AudioManager {
   constructor(settings) {
     this.context = null; this.timer = null; this.level = 1;
@@ -98,8 +103,9 @@ export class AudioManager {
     this.stopMenu();
     this.stopMusic(); this.level = Number.isInteger(level) && level >= 1 && level <= 12 ? level : 1;
     if (!this.context || this.muted) return;
-    if (this.level === 1 && typeof Audio === 'function') {
-      const track = new Audio(`${import.meta.env.BASE_URL}assets/billie-jean-instrumental.mp3`);
+    const trackFile = worldTracks[this.level];
+    if (trackFile && typeof Audio === 'function') {
+      const track = new Audio(`${import.meta.env.BASE_URL}assets/${trackFile}`);
       this.worldMusic = track;
       track.loop = true;
       track.volume = this.musicLevel;
