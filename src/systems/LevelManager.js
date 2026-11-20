@@ -23,7 +23,7 @@ export default class LevelManager {
       const lamp = s.add.circle(x, 544, 11, 0x6ca4d6).setStrokeStyle(2, 0xddf3ff);
       s.add.text(x + 20, 531, name, {
         fontSize: '17px', color: '#ddf3ff', backgroundColor: '#101a32', padding: { x: 8, y: 4 },
-      });
+      }).setDepth(2);
       const trigger = s.add.zone(x, 383, 52, 474);
       s.physics.add.existing(trigger, true);
       this.markers.push({ trigger, pole, lamp, section: index + 1 });

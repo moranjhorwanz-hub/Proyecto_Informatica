@@ -27,7 +27,8 @@ const stages = {
       '01_Cielo_Luna_Nubes', '02_Edificios_Antiguos_Chimeneas', '03_Hoteles_Teatro_Club_Jazz',
       '04_Farolas_Puertas_Escaleras', '05_Humo_Carteles_Cables',
     ],
-    rows: [[0, 148], [146, 299], [299, 495], [497, 601], [601, 717]],
+    rows: [[0, 148], [146, 299], [299, 495], [497, 601], [601, 724]],
+    foreground: { top: 522, bottom: 645, smokeSpans: [[498, 642], [1548, 1704]] },
     atmosphere: [0x091322, 0x252237, 0x161722],
     pavement: [3, 320, 562, 130, 28],
     foundation: 0x21202a,
@@ -64,6 +65,36 @@ function atmosphereTexture(scene, stage) {
   return key;
 }
 
+function foregroundTexture(scene, sourceKey, firstRow, height, smokeSpans) {
+  const key = `${sourceKey}-foreground`;
+  if (scene.textures.exists(key)) return key;
+
+  const source = scene.textures.get(sourceKey).getSourceImage();
+  const texture = scene.textures.createCanvas(key, source.width, height);
+  const context = texture.getContext();
+  context.drawImage(source, 0, firstRow, source.width, height, 0, 0, source.width, height);
+
+  // The source art has flat cutoffs where these plumes meet its upper edge.
+  // Fade the light smoke in those areas while retaining the dark cables.
+  const fadeHeight = 28;
+  for (const [left, right] of smokeSpans) {
+    const width = right - left;
+    const pixels = context.getImageData(left, 0, width, fadeHeight);
+    const { data } = pixels;
+    for (let offset = 0; offset < data.length; offset += 4) {
+      const row = Math.floor(offset / 4 / width);
+      const brightness = Math.min(data[offset], data[offset + 1], data[offset + 2]);
+      const smoke = Math.max(0, Math.min(1, (brightness - 45) / 40));
+      const progress = row / (fadeHeight - 1);
+      const opacity = progress * progress * (3 - 2 * progress);
+      data[offset + 3] *= 1 - smoke * (1 - opacity);
+    }
+    context.putImageData(pixels, left, 0);
+  }
+  texture.refresh();
+  return key;
+}
+
 export function drawParallaxScenery(scene, courseWidth) {
   const stage = stages[scene.level.id];
   const camera = scene.cameras.main;
@@ -82,19 +113,23 @@ export function drawParallaxScenery(scene, courseWidth) {
   }
 
   for (const [index, { speed, scaleX, top, bottom }] of planes.entries()) {
-    const key = layerKey(stage, index);
-    const texture = scene.textures.get(key);
     const [firstRow, lastRow] = stage.rows[index];
     const height = lastRow - firstRow;
-    const inset = index === 0 ? 0 : 16;
+    const foreground = index === planes.length - 1 ? stage.foreground : undefined;
+    const sourceKey = layerKey(stage, index);
+    const key = foreground ? foregroundTexture(scene, sourceKey, firstRow, height, foreground.smokeSpans) : sourceKey;
+    const texture = scene.textures.get(key);
+    const inset = index === 0 || foreground ? 0 : 16;
     const width = texture.get().width - inset * 2;
-    if (!texture.has('plane')) texture.add('plane', 0, inset, firstRow, width, height);
+    if (!texture.has('plane')) texture.add('plane', 0, inset, foreground ? 0 : firstRow, width, height);
     const tileWidth = width * scaleX;
-    const planeBottom = index === 2 ? stage.facadeBottom ?? bottom : bottom;
+    const planeTop = foreground?.top ?? top;
+    const planeBottom = foreground?.bottom ?? (index === 2 ? stage.facadeBottom ?? bottom : bottom);
+    const depth = foreground ? 1 : index - planes.length;
     const visibleEnd = camera.width + Math.max(0, courseWidth - camera.width) * speed + 1;
     for (let x = 0; x < visibleEnd; x += tileWidth) {
-      scene.add.image(x, top, key, 'plane').setOrigin(0).setScale(scaleX, (planeBottom - top) / height)
-        .setScrollFactor(speed, 0).setDepth(index - planes.length);
+      scene.add.image(x, planeTop, key, 'plane').setOrigin(0).setScale(scaleX, (planeBottom - planeTop) / height)
+        .setScrollFactor(speed, 0).setDepth(depth);
     }
   }
 }
