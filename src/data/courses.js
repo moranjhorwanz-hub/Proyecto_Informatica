@@ -85,7 +85,7 @@ export const courses = {
 
 const springEnemies = ['shadow', 'cat', 'dancer'];
 
-function springCourse(course, stage) {
+function springCourse(course, urban) {
  const stretch = 1.39;
  const position = x => {
   const air = course.gaps.reduce((total, [start, width]) => total + Math.min(width, Math.max(0, x - start)), 0);
@@ -93,7 +93,7 @@ function springCourse(course, stage) {
  };
  const width = position(course.width);
  const goal = width - 160;
- const boss = stage === 3 ? {
+ const boss = urban ? {
   kind: 'mystery', name: 'El Misterioso del Callejón', x: width - 590,
   left: width - 850, right: width - 215, health: 14,
  } : undefined;
@@ -106,16 +106,15 @@ function springCourse(course, stage) {
   })),
   gaps: course.gaps.map(([x, w]) => [position(x), w]),
   platforms: course.platforms.map(([x, y, w, h]) => [position(x), y, position(x + w) - position(x), h]),
-  enemies: course.enemies.filter(([, left]) => !boss || position(left) < boss.left - 220)
-   .map(([x, left, right], index) => {
-    const end = Math.min(position(right), boss ? boss.left - 180 : Infinity);
-    return [Math.min(position(x), end), position(left), end, springEnemies[(index + stage - 1) % springEnemies.length]];
-   }),
-  hazards: course.hazards.map(([x, y, w, h]) => [position(x), y, w + 20, h]),
+  enemies: course.enemies.map(([x, left, right], index) => [
+   position(x), position(left), position(right), ...(urban ? [springEnemies[index % springEnemies.length]] : []),
+  ]),
+  hazards: course.hazards.map(([x, y, w, h]) => [position(x), y, w + 20, h])
+   .filter(([x,,w]) => !boss || x + w / 2 < boss.left),
   coins: course.coins.map(([x, y]) => [position(x), y]),
   gifts: course.gifts.map(([x, y]) => [position(x), y]),
   moving: course.moving.map(([x, ...spec]) => [position(x), ...spec]),
  };
 }
 
-for (let stage = 1; stage <= 3; stage++) courses[stage] = springCourse(courses[stage], stage);
+for (let stage = 1; stage <= 3; stage++) courses[stage] = springCourse(courses[stage], stage === 1);

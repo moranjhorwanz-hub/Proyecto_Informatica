@@ -61,16 +61,20 @@ test('courses grow within each world and keep patrols apart', () => {
     previousPatrols = course.enemies.length;
   }
 });
-test('world one has three enemy types and a clear arena at the end', () => {
+test('only Billie Jean has the urban enemies and their boss', () => {
   const stages = [courses[1], courses[2], courses[3]];
   const distance = stages.reduce((sum, course) => sum + course.goal - course.spawn[0], 0);
   assert.ok(distance / 340 > 100 && distance / 230 < 160);
-  for (const course of stages) {
-    assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])), new Set(['shadow', 'cat', 'dancer']));
+  const [billieJean] = stages;
+  assert.deepEqual(new Set(billieJean.enemies.map(patrol => patrol[3])), new Set(['shadow', 'cat', 'dancer']));
+  assert.equal(billieJean.boss.name, 'El Misterioso del Callejón');
+  assert.ok(billieJean.platforms.some(([x, y, width]) =>
+    y === 620 && x < billieJean.boss.left && x + width >= billieJean.goal));
+  assert.ok(billieJean.hazards.every(([x,,width]) => x + width / 2 < billieJean.boss.left));
+  for (const course of Object.values(courses).slice(1)) {
+    assert.notEqual(course.boss?.kind, 'mystery');
+    assert.ok(course.enemies.every(patrol => patrol.length === 3));
   }
-  assert.equal(stages[2].boss.name, 'El Misterioso del Callejón');
-  assert.ok(stages[2].platforms.some(([x, y, width]) =>
-    y === 620 && x < stages[2].boss.left && x + width >= stages[2].goal));
 });
 test('campaign sections connect and checkpoints have clear ground', () => {
   for (const course of Object.values(courses)) {

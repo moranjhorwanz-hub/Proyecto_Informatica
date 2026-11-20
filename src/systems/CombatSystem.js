@@ -15,7 +15,7 @@ export default class CombatSystem {
     this.createTextures();
     this.enemies = scene.physics.add.group({ runChildUpdate: false });
     const course=scene.levelManager?.course;
-    const spring = course && scene.level.world === 1;
+    const spring = course?.boss?.kind === 'mystery';
     const patrolTexture = course && !spring ? levelEnemyTexture(scene, scene.level) : undefined;
     if (spring) this.createSpringProjectiles();
     (course?.enemies || [[990, 920, 1150], [1700, 1690, 1760], [2200, 2040, 2340]]).forEach(([x, left, right, kind]) => {
@@ -54,14 +54,6 @@ export default class CombatSystem {
   }
   createSpringProjectiles() {
     const s = this.scene;
-    if (!s.textures.exists('spring-orb')) {
-      const g = s.make.graphics({ add: false });
-      g.fillStyle(0x7929b5).fillTriangle(0, 16, 35, 3, 35, 29).fillCircle(34, 16, 14);
-      g.fillStyle(0xc54dff).fillEllipse(33, 16, 26, 23);
-      g.fillStyle(0xffcbff).fillCircle(38, 15, 8);
-      g.generateTexture('spring-orb', 48, 32);
-      g.destroy();
-    }
     this.springProjectiles = s.physics.add.group({ allowGravity: false });
     s.physics.add.collider(this.springProjectiles, s.solids, shot => shot.destroy());
     s.physics.add.overlap(s.player, this.springProjectiles, (_player, shot) => {

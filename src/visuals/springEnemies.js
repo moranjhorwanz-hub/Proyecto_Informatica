@@ -1,71 +1,76 @@
-const outline = 0x120e20;
-const cloth = 0x373044;
-const violet = 0xd66aff;
-const red = 0xff676e;
+﻿const folders = {
+  shadow: '01_Sombra_Urbana',
+  cat: '02_Gato_Negro',
+  dancer: '03_Bailarin_Oscuro',
+  mystery: '04_Misterioso_del_Callejon_Jefe',
+};
 
-function limb(g, points, color, width = 8) {
-  for (let i = 1; i < points.length; i++) {
-    g.lineStyle(width + 4, outline).lineBetween(...points[i - 1], ...points[i]);
-    g.lineStyle(width, color).lineBetween(...points[i - 1], ...points[i]);
+export const springSpriteGeometry = {
+  shadow: { width: 240, height: 192, x: 119, y: 181, scale: .64, bodyWidth: 40, bodyHeight: 72 },
+  cat: { width: 256, height: 160, x: 123, y: 152, scale: .69, bodyWidth: 48, bodyHeight: 35 },
+  dancer: { width: 268, height: 204, x: 133, y: 190, scale: .62, bodyWidth: 40, bodyHeight: 72 },
+  mystery: { width: 360, height: 218, x: 175, y: 208, scale: .86, bodyWidth: 58, bodyHeight: 104 },
+};
+
+const clips = {
+  shadow: {
+    idle: ['quieto', 4], walk: ['caminar', 6], slash: ['ataque_1_garras', 6],
+    orb: ['ataque_2_sombra', 5], hurt: ['recibir_dano', 3, 2], defeat: ['derrota', 4, 2],
+  },
+  cat: {
+    idle: ['quieto', 4], walk: ['correr', 6], pounce: ['ataque_1_salto', 3],
+    scratch: ['ataque_2_aranazo', 5], hurt: ['recibir_dano', 4, 2], defeat: ['derrota', 5],
+  },
+  dancer: {
+    idle: ['quieto', 4, 1], walk: ['correr', 4], punch: ['ataque_1_golpe', 5],
+    kick: ['ataque_2_patada', 6], sweep: ['ataque_3_deslizar', 5],
+    hurt: ['recibir_dano', 3, 2], defeat: ['derrota', 3, 2],
+  },
+  mystery: {
+    idle: ['quieto', 3, 2], walk: ['caminar', 3, 3], volley: ['ataque_1_proyectil', 5],
+    eruption: ['ataque_2_onda', 3], aura: ['ataque_3_circulo', 6],
+    hurt: ['recibir_dano', 4, 2], defeat: ['derrota', 4, 2],
+  },
+};
+
+const keyFor = (kind, filename, index) => `spring-${kind}-${filename}_${String(index).padStart(2, '0')}`;
+const attacks = [
+  { kind: 'shadow', name: 'ataque_2_sombra', frame: 6, key: 'spring-shadow-orb', crop: [65, 85, 140, 62], size: [48, 32] },
+  { kind: 'mystery', name: 'ataque_1_proyectil', frame: 6, key: 'spring-mystery-orb', crop: [53, 110, 148, 62], size: [48, 32] },
+  ...[[4, 69, 116, 222, 79], [5, 80, 122, 208, 72], [6, 78, 126, 203, 66]]
+    .map(([frame, ...crop]) => ({ kind: 'mystery', name: 'ataque_2_onda', frame, key: `spring-eruption-${frame - 4}`, crop, size: [166, 94] })),
+];
+
+export function preloadSpringSprites(scene) {
+  const load = (kind, name, frame) => {
+    const key = keyFor(kind, name, frame);
+    const filename = key.slice(`spring-${kind}-`.length);
+    scene.load.image(key, `${import.meta.env.BASE_URL}assets/enemies/${folders[kind]}/${filename}.png`);
+  };
+  for (const [kind, sequences] of Object.entries(clips)) {
+    for (const [name, count, start = 1] of Object.values(sequences)) {
+      for (let i = start; i < start + count; i++) load(kind, name, i);
+    }
+  }
+  for (const { kind, name, frame } of attacks) load(kind, name, frame);
+}
+
+export function registerSpringEffects(scene) {
+  for (const { kind, name, frame, key, crop, size } of attacks) {
+    const source = scene.textures.get(keyFor(kind, name, frame)).getSourceImage();
+    const texture = scene.textures.createCanvas(key, ...size);
+    const context = texture.getContext();
+    context.imageSmoothingEnabled = false;
+    context.drawImage(source, ...crop, 0, 0, ...size);
+    texture.refresh();
   }
 }
 
-function drawCat(g, pose) {
-  const leap = pose === 'strike';
-  const crouch = pose === 'windup';
-  const y = crouch ? 65 : leap ? 44 : 61;
-  const step = pose === 'step' ? 9 : 0;
-  limb(g, [[20, y], [9, y - 8], [8, y - 17], [14, y - 22]], cloth, 4);
-  limb(g, [[24, y + 6], [18 + step, 80]], cloth, 6);
-  limb(g, [[42, y + 5], [leap ? 60 : 46 - step, leap ? y + 4 : 80]], cloth, 6);
-  g.fillStyle(outline).fillEllipse(32, y, 38, 24).fillRect(41, y - 19, 19, 23);
-  g.fillStyle(cloth).fillEllipse(31, y - 2, 30, 16).fillRect(43, y - 17, 15, 16);
-  g.fillStyle(outline).fillTriangle(42, y - 16, 43, y - 26, 50, y - 16)
-    .fillTriangle(51, y - 17, 58, y - 26, 59, y - 15);
-  g.fillStyle(0xffd36a).fillRect(53, y - 10, 5, 3);
+export function springFrameCount(kind, clip) {
+  return clips[kind][clip][1];
 }
 
-function drawHuman(g, kind, pose) {
-  const shadow = kind === 'shadow';
-  const boss = kind === 'mystery';
-  const accent = kind === 'dancer' ? red : violet;
-  const windup = pose === 'windup';
-  const strike = pose === 'strike';
-  const sweep = pose === 'sweep';
-  const step = pose === 'step' ? 10 : 0;
-  const lean = strike || windup ? 7 : 0;
-  const top = windup ? 30 : sweep ? 45 : 23;
-  const x = 29 + lean;
-  const hip = top + 33;
-
-  if (boss) g.fillStyle(0x572981).fillTriangle(x - 9, top + 10, x - 25, 79, x + 12, 75);
-  limb(g, [[x - 4, hip], [x - 11 + step, 68], [x - 18 + step, 79]], cloth);
-  limb(g, [[x + 3, hip], [x + 12, sweep ? 69 : 67], [sweep ? 61 : x + 12 - step, sweep ? 69 : 79]], 0x484157);
-  limb(g, [[x - 4, top + 14], [x - 13, top + 28], [x - 12, top + 34]], cloth, 6);
-  g.fillStyle(outline).fillRoundedRect(x - 10, top + 7, 22, 31, 4);
-  g.fillStyle(cloth).fillRect(x - 7, top + 9, 16, 24);
-  if (!shadow) g.fillStyle(accent).fillRect(x + 1, top + 10, 4, 21);
-  g.fillStyle(outline).fillEllipse(x + 2, top, 25, 23);
-  g.fillStyle(shadow ? 0x2b2039 : 0x9a7370).fillRect(x + 1, top - 1, 11, 8);
-  if (shadow) {
-    g.fillStyle(accent).fillRect(x + 6, top - 2, 6, 4);
-    g.fillStyle(cloth).fillTriangle(x - 7, top - 5, x - 21, top + 2, x - 5, top + 4);
-  } else {
-    g.fillStyle(outline).fillRect(x - 9, top - 12, 21, 10).fillRect(x - 14, top - 4, 32, 4);
-    g.fillStyle(0x655971).fillRect(x - 7, top - 6, 18, 2);
-  }
-  const hand = strike ? [60, top + 17] : windup ? [x + 13, top + 8] : [x + 12, top + 31];
-  limb(g, [[x + 5, top + 14], [x + 12, top + 23], hand], 0x4b4258, 6);
-  g.fillStyle(shadow || windup ? accent : 0xe0bbb0).fillCircle(...hand, 4);
-}
-
-export function springEnemyTexture(scene, kind, pose = 'idle') {
-  const key = `spring-${kind}-${pose}`;
-  if (scene.textures.exists(key)) return key;
-  const g = scene.make.graphics({ add: false });
-  if (kind === 'cat') drawCat(g, pose);
-  else drawHuman(g, kind, pose);
-  g.generateTexture(key, 64, 84);
-  g.destroy();
-  return key;
+export function springFrame(kind, clip, index = 0) {
+  const [name, count, start = 1] = clips[kind][clip];
+  return keyFor(kind, name, start + Math.min(index, count - 1));
 }
