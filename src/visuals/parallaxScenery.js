@@ -1,3 +1,5 @@
+import { addPixelSmoke } from './pixelSmoke.js';
+
 // Each plane has its own crop and screen-space placement. The silhouettes
 // overlap vertically so nearer scenery hides the base of the layer behind it.
 const planes = [
@@ -28,7 +30,14 @@ const stages = {
       '04_Farolas_Puertas_Escaleras', '05_Humo_Carteles_Cables',
     ],
     rows: [[0, 148], [146, 299], [299, 495], [497, 601], [601, 724]],
-    foreground: { top: 522, bottom: 645, smokeSpans: [[498, 642], [1548, 1704]] },
+    foreground: {
+      top: 497, bottom: 620,
+      vents: [
+        { x: 473, height: 12, bounds: [449, 646, 0, 110] },
+        { x: 1080, height: 12, bounds: [1061, 1194, 17, 111] },
+        { x: 1549, height: 35, bounds: [1528, 1707, 0, 85] },
+      ],
+    },
     atmosphere: [0x091322, 0x252237, 0x161722],
     pavement: [3, 320, 562, 130, 28],
     foundation: 0x21202a,
@@ -65,7 +74,7 @@ function atmosphereTexture(scene, stage) {
   return key;
 }
 
-function foregroundTexture(scene, sourceKey, firstRow, height, smokeSpans) {
+function foregroundTexture(scene, sourceKey, firstRow, height, vents) {
   const key = `${sourceKey}-foreground`;
   if (scene.textures.exists(key)) return key;
 
@@ -74,22 +83,17 @@ function foregroundTexture(scene, sourceKey, firstRow, height, smokeSpans) {
   const context = texture.getContext();
   context.drawImage(source, 0, firstRow, source.width, height, 0, 0, source.width, height);
 
-  // The source art has flat cutoffs where these plumes meet its upper edge.
-  // Fade the light smoke in those areas while retaining the dark cables.
-  const fadeHeight = 28;
-  for (const [left, right] of smokeSpans) {
+  // Clear the baked smoke while retaining the dark cables and vent bases.
+  for (const { bounds: [left, right, top, bottom] } of vents) {
     const width = right - left;
-    const pixels = context.getImageData(left, 0, width, fadeHeight);
+    const pixels = context.getImageData(left, top, width, bottom - top);
     const { data } = pixels;
     for (let offset = 0; offset < data.length; offset += 4) {
-      const row = Math.floor(offset / 4 / width);
       const brightness = Math.min(data[offset], data[offset + 1], data[offset + 2]);
-      const smoke = Math.max(0, Math.min(1, (brightness - 45) / 40));
-      const progress = row / (fadeHeight - 1);
-      const opacity = progress * progress * (3 - 2 * progress);
-      data[offset + 3] *= 1 - smoke * (1 - opacity);
+      const smoke = Math.max(0, Math.min(1, (brightness - 32) / 30));
+      data[offset + 3] *= 1 - smoke;
     }
-    context.putImageData(pixels, left, 0);
+    context.putImageData(pixels, left, top);
   }
   texture.refresh();
   return key;
@@ -117,7 +121,7 @@ export function drawParallaxScenery(scene, courseWidth) {
     const height = lastRow - firstRow;
     const foreground = index === planes.length - 1 ? stage.foreground : undefined;
     const sourceKey = layerKey(stage, index);
-    const key = foreground ? foregroundTexture(scene, sourceKey, firstRow, height, foreground.smokeSpans) : sourceKey;
+    const key = foreground ? foregroundTexture(scene, sourceKey, firstRow, height, foreground.vents) : sourceKey;
     const texture = scene.textures.get(key);
     const inset = index === 0 || foreground ? 0 : 16;
     const width = texture.get().width - inset * 2;
@@ -125,11 +129,14 @@ export function drawParallaxScenery(scene, courseWidth) {
     const tileWidth = width * scaleX;
     const planeTop = foreground?.top ?? top;
     const planeBottom = foreground?.bottom ?? (index === 2 ? stage.facadeBottom ?? bottom : bottom);
-    const depth = foreground ? 1 : index - planes.length;
+    const depth = index - planes.length;
     const visibleEnd = camera.width + Math.max(0, courseWidth - camera.width) * speed + 1;
     for (let x = 0; x < visibleEnd; x += tileWidth) {
       scene.add.image(x, planeTop, key, 'plane').setOrigin(0).setScale(scaleX, (planeBottom - planeTop) / height)
         .setScrollFactor(speed, 0).setDepth(depth);
+      foreground?.vents.forEach((vent, ventIndex) => {
+        addPixelSmoke(scene, x + vent.x * scaleX, planeBottom - vent.height, speed, depth, ventIndex);
+      });
     }
   }
 }
