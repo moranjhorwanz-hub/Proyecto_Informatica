@@ -6,6 +6,7 @@ import { canUseSnow } from '../data/characters.js';
 import { CombatState, COMBAT_DEFAULTS } from './combatState.js';
 import { levelEnemyTexture } from '../visuals/levelEnemies.js';
 import { clubShotFrame } from '../visuals/clubEnemies.js';
+import { spritesTouch, spriteTouchesCircle } from './combatHitboxes.js';
 export { COMBAT_DEFAULTS } from './combatState.js';
 
 export default class CombatSystem {
@@ -40,27 +41,12 @@ export default class CombatSystem {
     scene.physics.add.collider(this.enemies, scene.solids);
     this.projectiles = scene.physics.add.group({ allowGravity: false });
     scene.physics.add.collider(this.projectiles, scene.solids, shot => shot.destroy());
-    scene.physics.add.overlap(this.projectiles, this.enemies, (shot, enemy) => {
-      if (!shot.active || !enemy.active) return;
-      if (shot.texture.key === 'combat-flake') enemy.freeze(this.state.settings.freezeDuration);
-      enemy.takeDamage();
-      shot.destroy();
-    });
-    scene.physics.add.overlap(scene.player, this.enemies, (_player, enemy) => {
-      if (scene.playTime < this.state.spinUntil) this.spinHit(enemy);
-      else if (scene.playTime >= enemy.frozenUntil) this.damagePlayer(scene.player.x < enemy.x ? -1 : 1);
-    });
     this.ring = scene.add.circle(0, 0, this.spinRange - 18, 0xffd588, .15).setStrokeStyle(3, 0xffd588).setDepth(11).setVisible(false);
   }
   createEnemyProjectiles() {
     const s = this.scene;
     this.enemyProjectiles = s.physics.add.group({ allowGravity: false });
     s.physics.add.collider(this.enemyProjectiles, s.solids, shot => shot.destroy());
-    s.physics.add.overlap(s.player, this.enemyProjectiles, (_player, shot) => {
-      if (!shot.active) return;
-      this.damagePlayer(shot.body.velocity.x < 0 ? -1 : 1);
-      shot.destroy();
-    });
   }
   createTextures() {
     const scene = this.scene;
@@ -91,11 +77,6 @@ export default class CombatSystem {
     p.playAttack(kind, s.playTime);
     if (kind === 'hat') {
       this.hat = new Hat(s, p);
-      const collider = s.physics.add.overlap(this.hat, this.enemies, (hat, enemy) => {
-        if (!hat.hit.has(enemy)) { hat.hit.add(enemy); enemy.takeDamage(); }
-      });
-      // Remove the per-projectile collider when the hat returns.
-      this.hat.once('destroy', () => collider?.destroy());
     } else if (kind === 'spin') this.spinHits.clear();
     else {
       const isNote = kind === 'note';
@@ -118,17 +99,43 @@ export default class CombatSystem {
     if (this.hat?.active) this.hat.update(now, delta);
     this.projectiles.getChildren().slice().forEach(shot => { if (now >= shot.expires) shot.destroy(); });
     this.enemyProjectiles?.getChildren().slice().forEach(shot => {
-      if (now >= shot.expires) shot.destroy();
+      if (now >= shot.expires || shot.body.right >= shot.stopAtX) shot.destroy();
       else if (shot.clubAnimation) {
         const { type, count, start } = shot.clubAnimation;
         const key = clubShotFrame(type, Math.floor((now - start) / 85) % count);
         if (shot.texture.key !== key) shot.setTexture(key, 'shot');
       }
     });
+    this.checkCombatHits(now);
+  }
+  checkCombatHits(now) {
     const p = this.scene.player, spinning = now < this.state.spinUntil && now >= p.state.hurtUntil;
     this.ring.setPosition(p.x, p.y - 60).setVisible(spinning);
-    if (spinning) {
-      this.enemies.getChildren().slice().forEach(enemy => { if (Math.hypot(enemy.x - p.x, enemy.y - p.y) < this.spinRange) this.spinHit(enemy); });
+    const shots = this.projectiles.getChildren().slice();
+    const hat = this.hat;
+    for (const enemy of this.enemies.getChildren().slice()) {
+      if (!enemy.active) continue;
+      if (spinning && spriteTouchesCircle(enemy, this.ring.x, this.ring.y, this.ring.radius)) this.spinHit(enemy);
+      if (enemy.active && hat?.active && !hat.hit.has(enemy) && spritesTouch(hat, enemy)) {
+        hat.hit.add(enemy);
+        enemy.takeDamage();
+      }
+      for (const shot of shots) {
+        if (!enemy.active || !shot.active || !spritesTouch(shot, enemy)) continue;
+        if (shot.texture.key === 'combat-flake') enemy.freeze(this.state.settings.freezeDuration);
+        enemy.takeDamage();
+        shot.destroy();
+      }
+      if (!spinning && enemy.active && !enemy.attack && now >= enemy.frozenUntil && spritesTouch(p, enemy)) {
+        this.damagePlayer(p.x < enemy.x ? -1 : 1);
+      }
+    }
+    for (const group of [this.enemyProjectiles, this.boss?.projectiles]) {
+      for (const shot of group?.getChildren().slice() ?? []) {
+        if (!shot.active || p.x >= shot.stopAtX || !spritesTouch(p, shot)) continue;
+        this.damagePlayer(shot.body.velocity.x < 0 ? -1 : 1);
+        shot.destroy();
+      }
     }
   }
   resetProjectiles() {

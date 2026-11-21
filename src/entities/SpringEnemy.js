@@ -1,29 +1,30 @@
 import SnowEnemy from './SnowEnemy.js';
 import { springFrame, springFrameCount, springSpriteGeometry } from '../visuals/springEnemies.js';
 import { clubFrame, clubFrameCount, clubSpriteGeometry, clubProjectiles, clubShotFrame } from '../visuals/clubEnemies.js';
+import { spritesTouch } from '../systems/combatHitboxes.js';
 
 const violet = 0xd66aff;
 const red = 0xff676e;
 const moves = {
-  slash: { range: 108, windup: 320, active: 180, impactFrame: 3, reach: 58, height: 74 },
+  slash: { range: 108, windup: 320, active: 180, impactFrame: 3 },
   orb: { range: 400, windup: 450, active: 160, impactFrame: 4, projectile: true },
-  pounce: { range: 218, windup: 340, active: 420, impactFrame: 1, velocity: 345, reach: 53, height: 43 },
-  scratch: { range: 100, windup: 270, active: 220, impactFrame: 2, reach: 76, height: 48 },
-  kick: { range: 147, windup: 310, active: 220, impactFrame: 3, velocity: 155, reach: 76, height: 74 },
-  sweep: { range: 178, windup: 430, active: 340, impactFrame: 1, velocity: 280, reach: 67, height: 30 },
-  punch: { range: 105, windup: 280, active: 210, impactFrame: 2, velocity: 135, reach: 51, height: 70 },
+  pounce: { range: 218, windup: 340, active: 420, impactFrame: 1, velocity: 345 },
+  scratch: { range: 100, windup: 270, active: 220, impactFrame: 2 },
+  kick: { range: 147, windup: 310, active: 220, impactFrame: 3, velocity: 155 },
+  sweep: { range: 178, windup: 430, active: 340, impactFrame: 1, velocity: 280 },
+  punch: { range: 105, windup: 280, active: 210, impactFrame: 2, velocity: 135 },
   volley: { range: 600, windup: 480, active: 180, impactFrame: 4, projectile: true },
   eruption: { range: 580, windup: 630, active: 350, impactFrame: 3, radius: 83 },
   aura: { range: 245, windup: 510, active: 410, impactFrame: 2, radius: 80 },
-  direct: { range: 85, windup: 280, active: 170, impactFrame: 2, reach: 69, height: 95 },
-  roundhouse: { range: 115, windup: 365, active: 220, impactFrame: 2, reach: 97, height: 75 },
-  rush: { range: 210, windup: 470, active: 390, impactFrame: 2, velocity: 335, reach: 74, height: 105 },
-  heavy: { range: 108, windup: 420, active: 240, impactFrame: 3, reach: 94, height: 107 },
+  direct: { range: 85, windup: 280, active: 170, impactFrame: 2 },
+  roundhouse: { range: 115, windup: 365, active: 220, impactFrame: 2 },
+  rush: { range: 210, windup: 470, active: 390, impactFrame: 2, velocity: 335 },
+  heavy: { range: 108, windup: 420, active: 240, impactFrame: 3 },
   throw: { range: 480, windup: 420, active: 230, impactFrame: 3, projectile: 'knife', heights: [72] },
   doubleThrow: { range: 530, windup: 500, active: 300, impactFrame: 3, projectile: 'knife', heights: [39, 99] },
-  combo: { range: 126, windup: 360, active: 285, impactFrame: 2, velocity: 115, reach: 107, height: 115 },
-  wave: { range: 625, windup: 550, active: 260, impactFrame: 3, projectile: 'wave', heights: [25] },
-  bossRush: { range: 245, windup: 510, active: 415, impactFrame: 2, velocity: 390, reach: 90, height: 122 },
+  combo: { range: 155, windup: 280, active: 750, impactFrame: 0, velocity: 92 },
+  wave: { range: 625, windup: 550, active: 260, impactFrame: 3, projectile: 'wave', heights: [25, 115] },
+  bossRush: { range: 425, windup: 510, active: 790, impactFrame: 2, velocity: 465 },
 };
 const patterns = {
   shadow: ['orb', 'slash'],
@@ -33,7 +34,7 @@ const patterns = {
   gangster: ['direct', 'roundhouse'],
   bruiser: ['rush', 'heavy'],
   knife: ['throw', 'doubleThrow'],
-  club: ['wave', 'bossRush', 'combo'],
+  club: ['combo', 'wave', 'bossRush'],
 };
 
 export default class SpringEnemy extends SnowEnemy {
@@ -58,6 +59,11 @@ export default class SpringEnemy extends SnowEnemy {
     this.shots = shots;
     this.nextAttack = 0;
     this.patternIndex = 0;
+    this.waveIndex = 0;
+    if (club) {
+      const course = scene.levelManager.course;
+      this.clubArenaStart = course.sections[course.boss.arenaSection].start;
+    }
     this.hitUntil = 0;
     this.color = club || kind === 'dancer' ? red : violet;
     this.effect = scene.add.graphics().setDepth(9);
@@ -101,6 +107,7 @@ export default class SpringEnemy extends SnowEnemy {
     if (!player.state.lives || now < this.nextAttack || Math.abs(player.y - this.y) > 145) return;
     const pattern = patterns[this.kind];
     if (this.clubEnemy) {
+      if ((player.x >= this.clubArenaStart) !== this.isBoss) return;
       const distance = Math.abs(dx);
       for (let offset = 0; offset < pattern.length; offset++) {
         const index = (this.patternIndex + offset) % pattern.length;
@@ -125,7 +132,7 @@ export default class SpringEnemy extends SnowEnemy {
     this.direction = dx < 0 ? -1 : 1;
     this.setFlipX(this.direction < 0).setVelocityX(0);
     this.attack = { move, starts: now + moves[move].windup, target: this.scene.player.x, fired: false, hit: false };
-    this.pose(move);
+    this.pose(move === 'combo' ? 'idle' : move);
   }
 
   pose(clip, frame) {
@@ -139,7 +146,8 @@ export default class SpringEnemy extends SnowEnemy {
     const spec = moves[move];
     const center = move === 'eruption' ? target : this.x;
     if (now < starts) {
-      this.pose(move, Math.floor((now - starts + spec.windup) / spec.windup * spec.impactFrame));
+      this.pose(move === 'combo' ? 'idle' : move,
+        Math.floor((now - starts + spec.windup) / spec.windup * spec.impactFrame));
       this.effect.fillStyle(this.color, .55);
       if (spec.radius) this.effect.fillEllipse(center, 617, spec.radius * 2, 10);
       else this.effect.fillCircle(this.x + this.direction * 23 * this.sizeMultiplier,
@@ -159,46 +167,47 @@ export default class SpringEnemy extends SnowEnemy {
       if (move === 'pounce') this.setVelocityY(-210);
     }
     const progress = (now - starts) / spec.active;
+    const remainingFrames = this.frameCount(this.kind, move) - spec.impactFrame;
+    const frame = spec.impactFrame + Math.floor(progress * remainingFrames);
     if (move === 'eruption') {
       this.pose('idle');
       this.eruption.setPosition(target, 620).setTexture(`spring-eruption-${Math.floor(progress * 3)}`).setVisible(true);
     } else {
-      const remainingFrames = this.frameCount(this.kind, move) - spec.impactFrame;
-      this.pose(move, spec.impactFrame + Math.floor(progress * remainingFrames));
+      this.pose(move, frame);
     }
     if (spec.velocity) {
       const room = this.direction > 0 ? this.right - this.x : this.x - this.left;
       this.setVelocityX(room > 0 ? Math.min(spec.velocity, room * 20) * this.direction : 0);
     }
     if (spec.projectile) return;
-    if (spec.radius) {
-      const height = move === 'eruption' ? 90 : 65;
-      this.hitPlayer(player, center - spec.radius, center + spec.radius, 620 - height, 620);
-      return;
+    if (move === 'combo') {
+      // Each extended punch has its own hit window.
+      if (frame % 2 !== 0) return;
+      if (attack.strikeFrame !== frame) {
+        attack.strikeFrame = frame;
+        attack.hit = false;
+      }
     }
-    const tip = this.x + spec.reach * this.direction * this.sizeMultiplier;
-    this.hitPlayer(player, Math.min(this.x, tip), Math.max(this.x, tip),
-      this.y - spec.height * this.sizeMultiplier, this.y + 6);
-  }
-
-  hitPlayer(player, left, right, top, bottom) {
-    const body = player.body;
-    if (this.attack.hit || body.right <= left || body.left >= right || body.bottom <= top || body.top >= bottom) return;
-    this.attack.hit = true;
-    this.scene.combat.damagePlayer(player.x < (left + right) / 2 ? -1 : 1);
+    const impact = move === 'eruption' ? this.eruption : this;
+    if (!attack.hit && spritesTouch(impact, player)) {
+      attack.hit = true;
+      this.scene.combat.damagePlayer(player.x < impact.x ? -1 : 1);
+    }
   }
 
   fire(now, move) {
     const { projectile, heights: clubHeights } = moves[move];
     if (clubHeights) {
       const { count, width, height, scale } = clubProjectiles[projectile];
-      for (const [index, elevation] of clubHeights.entries()) {
+      const elevations = projectile === 'wave' ? [clubHeights[this.waveIndex++ % clubHeights.length]] : clubHeights;
+      for (const [index, elevation] of elevations.entries()) {
         const shot = this.shots.create(this.x + this.direction * 48, this.y - elevation,
           clubShotFrame(projectile, index % count), 'shot');
         shot.setDepth(10).setFlipX(this.direction < 0).setScale(scale);
         shot.body.setSize(width * .7, height * .55);
         shot.setVelocityX(this.direction * (projectile === 'wave' ? 335 : 400 - index * 75));
         if (count > 1) shot.clubAnimation = { type: projectile, count, start: now - index * 85 };
+        if (!this.isBoss) shot.stopAtX = this.clubArenaStart;
         shot.expires = now + 1850;
       }
       return;

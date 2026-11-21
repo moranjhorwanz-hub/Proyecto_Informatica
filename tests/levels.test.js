@@ -64,7 +64,7 @@ test('courses grow within each world and keep patrols apart', () => {
 test('only Billie Jean has the urban enemies and their boss', () => {
   const stages = [courses[1], courses[2], courses[3]];
   const distance = stages.reduce((sum, course) => sum + course.goal - course.spawn[0], 0);
-  assert.ok(distance / 340 > 100 && distance / 230 < 160);
+  assert.ok(distance / 340 > 100 && distance / 230 < 165);
   const [billieJean] = stages;
   assert.deepEqual(new Set(billieJean.enemies.map(patrol => patrol[3])), new Set(['shadow', 'cat', 'dancer']));
   assert.equal(billieJean.boss.name, 'El Misterioso del Callejón');
@@ -90,6 +90,9 @@ test('Only Smooth Criminal uses the club enemies and boss', () => {
   const { kind, x, left, right, arenaSection } = course.boss;
   const arena = course.sections[arenaSection];
   assert.equal(kind, 'club');
+  assert.ok(arena.end - arena.start >= 1800);
+  assert.equal(arena.spawn[0] - arena.start, 26);
+  assert.ok(course.enemies.every(([, , patrolEnd]) => patrolEnd < arena.start));
   assert.ok(arena.start < left && left < x && x < course.goal && course.goal < right && right < arena.end);
   assert.ok(course.platforms.some(([px, y, width]) => y === 620 && px <= arena.start && px + width === arena.end));
   assert.ok(course.platforms.every(([px, y, width]) => y === 620 || px + width <= arena.start));

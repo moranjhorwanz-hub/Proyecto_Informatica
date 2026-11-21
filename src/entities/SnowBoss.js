@@ -8,9 +8,6 @@ export default class SnowBoss extends SnowEnemy {
     this.speed = 90 * scene.difficulty.enemySpeed;
     this.projectiles = scene.physics.add.group({allowGravity:false});
     scene.physics.add.collider(this.projectiles, scene.solids, shot=>shot.destroy());
-    scene.physics.add.overlap(scene.player,this.projectiles,(_p,shot)=>{
-      scene.combat.damagePlayer(scene.player.x<shot.x?-1:1); shot.destroy();
-    });
     this.once('destroy',()=>this.projectiles.clear(true,true));
   }
   update(now) {
