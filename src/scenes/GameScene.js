@@ -9,6 +9,7 @@ import { canUseSnow, getCharacter } from '../data/characters.js';
 import { getDifficulty } from '../data/settings.js';
 import { scenery } from './scenery.js';
 import { drawParallaxScenery, hasParallaxScenery, styleParallaxPlatform } from '../visuals/parallaxScenery.js';
+import { createBossHealthBar, updateBossHealthBar } from '../visuals/bossHealthBar.js';
 
 const label = (scene, x, y, value, size = 18, color = '#eceee9') => scene.add.text(x, y, value, {
   fontFamily: 'Arial', fontSize: `${size}px`, color,
@@ -91,6 +92,7 @@ export default class GameScene extends Phaser.Scene {
     });
     this.input.keyboard.addCapture(['SPACE', 'UP', 'DOWN', 'LEFT', 'RIGHT']);
     this.createHud();
+    this.bossHealthBar = this.levelManager?.course.boss?.kind === 'mystery' ? createBossHealthBar(this) : null;
     this.onBlur = () => { this.input.keyboard.resetKeys(); if (!this.dead&&!this.finished) this.setPaused(true); };
     this.game.events.on(Phaser.Core.Events.BLUR, this.onBlur);
     this.events.once('shutdown', () => {
@@ -208,6 +210,11 @@ export default class GameScene extends Phaser.Scene {
     }
     if(this.campaign) {
       const manager=this.levelManager, boss=this.combat.boss;
+      if (this.bossHealthBar) {
+        const arena = manager.course.boss.arenaSection;
+        const entered = manager.checkpoint?.section === arena && this.player.x >= manager.course.sections[arena].start;
+        updateBossHealthBar(this.bossHealthBar, boss, entered);
+      }
       if (this.sectionText) {
         const section = manager.course.sections.findLastIndex(({ start }) => this.player.x >= start);
         this.sectionText.setText(this.playTime < this.checkpointNoticeUntil
@@ -215,7 +222,7 @@ export default class GameScene extends Phaser.Scene {
           : manager.course.sections[Math.max(0, section)].name);
       }
       const bossName = manager.course.boss?.name ?? 'REY DE LA NIEVE';
-      const showBoss = boss?.active && (!manager.course.boss?.name || Math.abs(this.player.x - boss.x) < 900);
+      const showBoss = boss?.active && !this.bossHealthBar;
       this.notice.setText(`Monedas ${manager.coins}/7 · Regalos ${manager.gifts}/${manager.course.gifts.length}${showBoss ? ` · ${bossName} ${boss.health}/${boss.maxHealth}` : ''}`);
       if(this.player.x>manager.course.goal && !this.finished) {
         if(!manager.canFinish()) {

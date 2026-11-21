@@ -91,21 +91,34 @@ function springCourse(course, urban) {
   const air = course.gaps.reduce((total, [start, width]) => total + Math.min(width, Math.max(0, x - start)), 0);
   return Math.round((x - air) * stretch) + air;
  };
- const width = position(course.width);
+ const courseEnd = position(course.width);
+ const width = courseEnd + (urban ? 768 : 0);
+ const arenaStart = width - 1056;
  const goal = width - 160;
  const boss = urban ? {
-  kind: 'mystery', name: 'El Misterioso del Callejón', x: width - 590,
-  left: width - 850, right: width - 215, health: 14,
+  kind: 'mystery', name: 'El Misterioso del Callejón', x: arenaStart + 540,
+  left: arenaStart + 130, right: width - 100, health: 14,
+  arenaSection: course.sections.length,
  } : undefined;
+ const sections = course.sections.map(({ name, start, end, spawn: [x, y] }) => ({
+  name, start: position(start), end: position(end), spawn: [position(x), y],
+ }));
+ if (urban) {
+  sections.at(-1).end = arenaStart;
+  sections.push({
+   name: 'El callejón final', start: arenaStart, end: width, spawn: [arenaStart + 64, 600],
+  });
+ }
  return {
   ...course, width, goal, boss,
   spawn: [position(course.spawn[0]), course.spawn[1]],
-  sections: course.sections.map(({ name, start, end, spawn: [x, y] }, index) => ({
-   name: boss && index === course.sections.length - 1 ? 'El callejón final' : name,
-   start: position(start), end: position(end), spawn: [position(x), y],
-  })),
+  sections,
   gaps: course.gaps.map(([x, w]) => [position(x), w]),
-  platforms: course.platforms.map(([x, y, w, h]) => [position(x), y, position(x + w) - position(x), h]),
+  platforms: course.platforms.map(([x, y, w, h]) => {
+   const start = position(x);
+   const end = y === 620 && x + w === course.width ? width : position(x + w);
+   return [start, y, end - start, h];
+  }),
   enemies: course.enemies.map(([x, left, right], index) => [
    position(x), position(left), position(right), ...(urban ? [springEnemies[index % springEnemies.length]] : []),
   ]),

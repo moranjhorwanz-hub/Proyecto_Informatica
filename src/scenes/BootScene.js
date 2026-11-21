@@ -2,6 +2,7 @@
 import { preloadPlayerSprites, registerPlayerSprites } from '../entities/playerSprites.js';
 import { preloadParallaxScenery } from '../visuals/parallaxScenery.js';
 import { preloadSpringSprites, registerSpringEffects } from '../visuals/springEnemies.js';
+import { preloadBossHealthBar } from '../visuals/bossHealthBar.js';
 
 export default class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
@@ -10,6 +11,7 @@ export default class BootScene extends Phaser.Scene {
     preloadPlayerSprites(this);
     preloadParallaxScenery(this);
     preloadSpringSprites(this);
+    preloadBossHealthBar(this);
     this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);
     this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);
     this.load.image('summer-menu', `${import.meta.env.BASE_URL}assets/backgrounds/summer-menu.png`);

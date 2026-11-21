@@ -71,6 +71,11 @@ test('only Billie Jean has the urban enemies and their boss', () => {
   assert.ok(billieJean.platforms.some(([x, y, width]) =>
     y === 620 && x < billieJean.boss.left && x + width >= billieJean.goal));
   assert.ok(billieJean.hazards.every(([x,,width]) => x + width / 2 < billieJean.boss.left));
+  const arena = billieJean.sections[billieJean.boss.arenaSection];
+  assert.ok(arena.end - arena.start >= 1000);
+  assert.ok(arena.spawn[0] - arena.start <= 96);
+  assert.ok(billieJean.platforms.every(([x, y, width]) => y === 620 || x + width <= arena.start));
+  assert.ok(billieJean.gaps.every(([x, width]) => x + width <= arena.start));
   for (const course of Object.values(courses).slice(1)) {
     assert.notEqual(course.boss?.kind, 'mystery');
     assert.ok(course.enemies.every(patrol => patrol.length === 3));
