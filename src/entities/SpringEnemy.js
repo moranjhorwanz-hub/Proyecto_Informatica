@@ -46,6 +46,7 @@ export default class SpringEnemy extends SnowEnemy {
     const height = geometry.bodyHeight / geometry.scale;
     this.frameKey = frameKey;
     this.frameCount = club ? clubFrameCount : springFrameCount;
+    this.clubEnemy = Boolean(club);
     this.isBoss = kind === 'club' || kind === 'mystery';
     this.sizeMultiplier = geometry.sizeMultiplier ?? 1;
     this.setOrigin(geometry.x / (geometry.width ?? 256), geometry.y / (geometry.height ?? 256))
@@ -99,15 +100,31 @@ export default class SpringEnemy extends SnowEnemy {
     this.pose(clip, frame);
     if (!player.state.lives || now < this.nextAttack || Math.abs(player.y - this.y) > 145) return;
     const pattern = patterns[this.kind];
+    if (this.clubEnemy) {
+      const distance = Math.abs(dx);
+      for (let offset = 0; offset < pattern.length; offset++) {
+        const index = (this.patternIndex + offset) % pattern.length;
+        const move = pattern[index];
+        if (distance > moves[move].range) continue;
+        this.patternIndex = (index + 1) % pattern.length;
+        this.startAttack(now, dx, move);
+        break;
+      }
+      return;
+    }
     const preferred = pattern[this.patternIndex % pattern.length];
     const move = this.kind === 'shadow' && Math.abs(dx) <= moves.slash.range ? 'slash'
       : Math.abs(dx) <= moves[preferred].range ? preferred
       : this.kind === 'mystery' && Math.abs(dx) > moves.aura.range ? 'eruption' : pattern[0];
     if (Math.abs(dx) > moves[move].range) return;
     this.patternIndex++;
+    this.startAttack(now, dx, move);
+  }
+
+  startAttack(now, dx, move) {
     this.direction = dx < 0 ? -1 : 1;
     this.setFlipX(this.direction < 0).setVelocityX(0);
-    this.attack = { move, starts: now + moves[move].windup, target: player.x, fired: false, hit: false };
+    this.attack = { move, starts: now + moves[move].windup, target: this.scene.player.x, fired: false, hit: false };
     this.pose(move);
   }
 

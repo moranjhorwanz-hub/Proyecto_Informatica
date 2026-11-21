@@ -76,18 +76,17 @@ test('only Billie Jean has the urban enemies and their boss', () => {
   assert.ok(arena.spawn[0] - arena.start <= 96);
   assert.ok(billieJean.platforms.every(([x, y, width]) => y === 620 || x + width <= arena.start));
   assert.ok(billieJean.gaps.every(([x, width]) => x + width <= arena.start));
-  for (const course of [courses[2], courses[3], ...Object.values(courses).slice(6)]) {
+  for (const course of Object.values(courses).slice(1)) {
     assert.notEqual(course.boss?.kind, 'mystery');
-    assert.ok(course.enemies.every(patrol => patrol.length === 3));
   }
 });
-test('World 2 uses the club sprites and ends with a checkpoint and a boss arena', () => {
-  for (const id of [4, 5, 6]) {
-    assert.deepEqual(new Set(courses[id].enemies.map(patrol => patrol[3])), new Set(['gangster', 'bruiser', 'knife']));
+test('Only Smooth Criminal uses the club enemies and boss', () => {
+  for (const other of Object.values(courses).slice(2)) {
+    assert.ok(other.enemies.every(patrol => patrol.length === 3));
+    assert.notEqual(other.boss?.kind, 'club');
   }
-  assert.equal(courses[4].boss, undefined);
-  assert.equal(courses[5].boss, undefined);
-  const course = courses[6];
+  const course = courses[2];
+  assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])), new Set(['gangster', 'bruiser', 'knife']));
   const { kind, x, left, right, arenaSection } = course.boss;
   const arena = course.sections[arenaSection];
   assert.equal(kind, 'club');
