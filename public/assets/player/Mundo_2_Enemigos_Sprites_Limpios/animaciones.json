@@ -1,0 +1,181 @@
+{
+  "01_Ganster": {
+    "01_Quieto": [
+      "quieto_01.png",
+      "quieto_02.png",
+      "quieto_03.png",
+      "quieto_04.png"
+    ],
+    "02_Caminar": [
+      "caminar_01.png",
+      "caminar_02.png",
+      "caminar_03.png",
+      "caminar_04.png"
+    ],
+    "03_Ataque_1_Golpe_Directo": [
+      "ataque_1_golpe_directo_01.png",
+      "ataque_1_golpe_directo_02.png",
+      "ataque_1_golpe_directo_03.png",
+      "ataque_1_golpe_directo_04.png"
+    ],
+    "04_Ataque_2_Patada": [
+      "ataque_2_patada_01.png",
+      "ataque_2_patada_02.png",
+      "ataque_2_patada_03.png",
+      "ataque_2_patada_04.png"
+    ],
+    "05_Recibir_Dano": [
+      "recibir_dano_01.png",
+      "recibir_dano_02.png",
+      "recibir_dano_03.png",
+      "recibir_dano_04.png"
+    ],
+    "06_Derrota": [
+      "derrota_01.png",
+      "derrota_02.png",
+      "derrota_03.png",
+      "derrota_04.png"
+    ]
+  },
+  "02_Maton": {
+    "01_Quieto": [
+      "quieto_01.png",
+      "quieto_02.png",
+      "quieto_03.png",
+      "quieto_04.png"
+    ],
+    "02_Caminar": [
+      "caminar_01.png",
+      "caminar_02.png",
+      "caminar_03.png",
+      "caminar_04.png",
+      "caminar_05.png",
+      "caminar_06.png"
+    ],
+    "03_Embestida": [
+      "embestida_01.png",
+      "embestida_02.png",
+      "embestida_03.png",
+      "embestida_04.png",
+      "embestida_05.png"
+    ],
+    "04_Golpe_Fuerte": [
+      "golpe_fuerte_01.png",
+      "golpe_fuerte_02.png",
+      "golpe_fuerte_03.png",
+      "golpe_fuerte_04.png",
+      "golpe_fuerte_05.png"
+    ],
+    "05_Recibir_Dano": [
+      "recibir_dano_01.png",
+      "recibir_dano_02.png",
+      "recibir_dano_03.png"
+    ],
+    "06_Derrota": [
+      "derrota_01.png",
+      "derrota_02.png",
+      "derrota_03.png",
+      "derrota_04.png"
+    ]
+  },
+  "03_Lanzador_de_Cuchillos": {
+    "01_Quieto": [
+      "quieto_01.png",
+      "quieto_02.png",
+      "quieto_03.png",
+      "quieto_04.png"
+    ],
+    "02_Caminar": [
+      "caminar_01.png",
+      "caminar_02.png",
+      "caminar_03.png",
+      "caminar_04.png",
+      "caminar_05.png",
+      "caminar_06.png"
+    ],
+    "03_Ataque_1_Lanzamiento": [
+      "ataque_1_lanzamiento_01.png",
+      "ataque_1_lanzamiento_02.png",
+      "ataque_1_lanzamiento_03.png",
+      "ataque_1_lanzamiento_04.png",
+      "ataque_1_lanzamiento_05.png"
+    ],
+    "04_Ataque_2_Lanzamiento_Doble": [
+      "ataque_2_lanzamiento_doble_01.png",
+      "ataque_2_lanzamiento_doble_02.png",
+      "ataque_2_lanzamiento_doble_03.png",
+      "ataque_2_lanzamiento_doble_04.png",
+      "ataque_2_lanzamiento_doble_05.png",
+      "ataque_2_lanzamiento_doble_06.png",
+      "ataque_2_lanzamiento_doble_07.png"
+    ],
+    "05_Recibir_Dano": [
+      "recibir_dano_01.png",
+      "recibir_dano_02.png",
+      "recibir_dano_03.png"
+    ],
+    "06_Derrota": [
+      "derrota_01.png",
+      "derrota_02.png",
+      "derrota_03.png",
+      "derrota_04.png"
+    ],
+    "07_Proyectiles": [
+      "cuchillo_01.png",
+      "cuchillo_02.png",
+      "cuchillo_03.png"
+    ]
+  },
+  "04_Jefe_del_Club": {
+    "01_Quieto": [
+      "quieto_01.png",
+      "quieto_02.png",
+      "quieto_03.png",
+      "quieto_04.png"
+    ],
+    "02_Caminar": [
+      "caminar_01.png",
+      "caminar_02.png",
+      "caminar_03.png",
+      "caminar_04.png",
+      "caminar_05.png",
+      "caminar_06.png"
+    ],
+    "03_Ataque_1_Combo": [
+      "ataque_1_combo_01.png",
+      "ataque_1_combo_02.png",
+      "ataque_1_combo_03.png",
+      "ataque_1_combo_04.png",
+      "ataque_1_combo_05.png"
+    ],
+    "04_Ataque_2_Onda_Energia": [
+      "ataque_2_onda_energia_01.png",
+      "ataque_2_onda_energia_02.png",
+      "ataque_2_onda_energia_03.png",
+      "ataque_2_onda_energia_04.png",
+      "ataque_2_onda_energia_05.png",
+      "ataque_2_onda_energia_06.png"
+    ],
+    "05_Ataque_3_Embestida": [
+      "ataque_3_embestida_01.png",
+      "ataque_3_embestida_02.png",
+      "ataque_3_embestida_03.png",
+      "ataque_3_embestida_04.png",
+      "ataque_3_embestida_05.png"
+    ],
+    "06_Recibir_Dano": [
+      "recibir_dano_01.png",
+      "recibir_dano_02.png",
+      "recibir_dano_03.png"
+    ],
+    "07_Derrota": [
+      "derrota_01.png",
+      "derrota_02.png",
+      "derrota_03.png",
+      "derrota_04.png"
+    ],
+    "08_Proyectiles": [
+      "onda_01.png"
+    ]
+  }
+}

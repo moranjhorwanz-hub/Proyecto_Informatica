@@ -1,5 +1,6 @@
 import SnowEnemy from './SnowEnemy.js';
 import { springFrame, springFrameCount, springSpriteGeometry } from '../visuals/springEnemies.js';
+import { clubFrame, clubFrameCount, clubSpriteGeometry, clubProjectiles, clubShotFrame } from '../visuals/clubEnemies.js';
 
 const violet = 0xd66aff;
 const red = 0xff676e;
@@ -14,22 +15,41 @@ const moves = {
   volley: { range: 600, windup: 480, active: 180, impactFrame: 4, projectile: true },
   eruption: { range: 580, windup: 630, active: 350, impactFrame: 3, radius: 83 },
   aura: { range: 245, windup: 510, active: 410, impactFrame: 2, radius: 80 },
+  direct: { range: 85, windup: 280, active: 170, impactFrame: 2, reach: 69, height: 95 },
+  roundhouse: { range: 115, windup: 365, active: 220, impactFrame: 2, reach: 97, height: 75 },
+  rush: { range: 210, windup: 470, active: 390, impactFrame: 2, velocity: 335, reach: 74, height: 105 },
+  heavy: { range: 108, windup: 420, active: 240, impactFrame: 3, reach: 94, height: 107 },
+  throw: { range: 480, windup: 420, active: 230, impactFrame: 3, projectile: 'knife', heights: [72] },
+  doubleThrow: { range: 530, windup: 500, active: 300, impactFrame: 3, projectile: 'knife', heights: [39, 99] },
+  combo: { range: 126, windup: 360, active: 285, impactFrame: 2, velocity: 115, reach: 107, height: 115 },
+  wave: { range: 625, windup: 550, active: 260, impactFrame: 3, projectile: 'wave', heights: [25] },
+  bossRush: { range: 245, windup: 510, active: 415, impactFrame: 2, velocity: 390, reach: 90, height: 122 },
 };
 const patterns = {
   shadow: ['orb', 'slash'],
   cat: ['pounce', 'scratch'],
   dancer: ['kick', 'sweep', 'punch'],
   mystery: ['volley', 'eruption', 'aura'],
+  gangster: ['direct', 'roundhouse'],
+  bruiser: ['rush', 'heavy'],
+  knife: ['throw', 'doubleThrow'],
+  club: ['wave', 'bossRush', 'combo'],
 };
 
 export default class SpringEnemy extends SnowEnemy {
   constructor(scene, { x, left, right, kind, health, speed, shots }) {
-    super(scene, x, left, right, springFrame(kind, 'idle'));
-    const geometry = springSpriteGeometry[kind];
+    const club = clubSpriteGeometry[kind];
+    const frameKey = club ? clubFrame : springFrame;
+    super(scene, x, left, right, frameKey(kind, 'idle'));
+    const geometry = club ?? springSpriteGeometry[kind];
     const width = geometry.bodyWidth / geometry.scale;
     const height = geometry.bodyHeight / geometry.scale;
-    this.sizeMultiplier = geometry.sizeMultiplier;
-    this.setOrigin(geometry.x / geometry.width, geometry.y / geometry.height).setScale(geometry.scale * this.sizeMultiplier);
+    this.frameKey = frameKey;
+    this.frameCount = club ? clubFrameCount : springFrameCount;
+    this.isBoss = kind === 'club' || kind === 'mystery';
+    this.sizeMultiplier = geometry.sizeMultiplier ?? 1;
+    this.setOrigin(geometry.x / (geometry.width ?? 256), geometry.y / (geometry.height ?? 256))
+      .setScale(geometry.scale * this.sizeMultiplier);
     this.body.setSize(width, height, false).setOffset(geometry.x - width / 2, geometry.y - height);
     this.kind = kind;
     this.health = this.maxHealth = health;
@@ -38,7 +58,7 @@ export default class SpringEnemy extends SnowEnemy {
     this.nextAttack = 0;
     this.patternIndex = 0;
     this.hitUntil = 0;
-    this.color = kind === 'dancer' ? red : violet;
+    this.color = club || kind === 'dancer' ? red : violet;
     this.effect = scene.add.graphics().setDepth(9);
     if (kind === 'mystery') {
       this.eruption = scene.add.image(0, 620, 'spring-eruption-0').setOrigin(.5, 1).setDepth(9).setVisible(false);
@@ -52,7 +72,7 @@ export default class SpringEnemy extends SnowEnemy {
   update(now) {
     if (this.defeatedAt !== undefined) {
       const frame = Math.floor((now - this.defeatedAt) / 110);
-      if (frame >= springFrameCount(this.kind, 'defeat')) this.destroy();
+      if (frame >= this.frameCount(this.kind, 'defeat')) this.destroy();
       else this.pose('defeat', frame);
       return;
     }
@@ -63,7 +83,7 @@ export default class SpringEnemy extends SnowEnemy {
     if (now < this.frozenUntil) {
       this.attack = null;
       super.update(now);
-      this.pose('idle', Math.floor(now / 220) % springFrameCount(this.kind, 'idle'));
+      this.pose('idle', Math.floor(now / 220) % this.frameCount(this.kind, 'idle'));
       return;
     }
     this.setTint(now < this.hitUntil ? 0xffaaaa : 0xffffff);
@@ -75,7 +95,7 @@ export default class SpringEnemy extends SnowEnemy {
     if (now < this.hitUntil) this.setTint(0xffaaaa);
     const clip = now < this.hitUntil ? 'hurt' : 'walk';
     const frame = clip === 'hurt' ? Math.floor((now - this.hitAt) / 65)
-      : Math.floor(now / 115) % springFrameCount(this.kind, clip);
+      : Math.floor(now / 115) % this.frameCount(this.kind, clip);
     this.pose(clip, frame);
     if (!player.state.lives || now < this.nextAttack || Math.abs(player.y - this.y) > 145) return;
     const pattern = patterns[this.kind];
@@ -92,7 +112,7 @@ export default class SpringEnemy extends SnowEnemy {
   }
 
   pose(clip, frame) {
-    const key = springFrame(this.kind, clip, frame);
+    const key = this.frameKey(this.kind, clip, frame);
     if (this.texture.key !== key) this.setTexture(key);
   }
 
@@ -111,7 +131,7 @@ export default class SpringEnemy extends SnowEnemy {
     }
     if (now >= starts + spec.active) {
       this.attack = null;
-      this.nextAttack = now + (this.kind === 'mystery' ? (this.health * 2 <= this.maxHealth ? 510 : 780) : 650)
+      this.nextAttack = now + (this.isBoss ? (this.health * 2 <= this.maxHealth ? 510 : 780) : 650)
         * this.scene.difficulty.shotInterval;
       this.setVelocityX(0);
       return;
@@ -126,7 +146,7 @@ export default class SpringEnemy extends SnowEnemy {
       this.pose('idle');
       this.eruption.setPosition(target, 620).setTexture(`spring-eruption-${Math.floor(progress * 3)}`).setVisible(true);
     } else {
-      const remainingFrames = springFrameCount(this.kind, move) - spec.impactFrame;
+      const remainingFrames = this.frameCount(this.kind, move) - spec.impactFrame;
       this.pose(move, spec.impactFrame + Math.floor(progress * remainingFrames));
     }
     if (spec.velocity) {
@@ -152,6 +172,20 @@ export default class SpringEnemy extends SnowEnemy {
   }
 
   fire(now, move) {
+    const { projectile, heights: clubHeights } = moves[move];
+    if (clubHeights) {
+      const { count, width, height, scale } = clubProjectiles[projectile];
+      for (const [index, elevation] of clubHeights.entries()) {
+        const shot = this.shots.create(this.x + this.direction * 48, this.y - elevation,
+          clubShotFrame(projectile, index % count), 'shot');
+        shot.setDepth(10).setFlipX(this.direction < 0).setScale(scale);
+        shot.body.setSize(width * .7, height * .55);
+        shot.setVelocityX(this.direction * (projectile === 'wave' ? 335 : 400 - index * 75));
+        if (count > 1) shot.clubAnimation = { type: projectile, count, start: now - index * 85 };
+        shot.expires = now + 1850;
+      }
+      return;
+    }
     const boss = move === 'volley';
     const heights = boss && this.health * 2 <= this.maxHealth ? [36, 104] : [58];
     for (const height of heights) {
@@ -167,7 +201,7 @@ export default class SpringEnemy extends SnowEnemy {
   takeDamage(amount = 1) {
     if (!this.active || this.scene.playTime < this.hitUntil) return false;
     this.hitAt = this.scene.playTime;
-    this.hitUntil = this.hitAt + (this.kind === 'mystery' ? 330 : 130);
+    this.hitUntil = this.hitAt + (this.isBoss ? 330 : 130);
     this.health = Math.max(0, this.health - amount);
     if (!this.health) {
       this.defeatedAt = this.hitAt;
@@ -180,6 +214,6 @@ export default class SpringEnemy extends SnowEnemy {
   }
 
   freeze(duration) {
-    super.freeze(this.kind === 'mystery' ? Math.min(duration, 500) : duration);
+    super.freeze(this.isBoss ? Math.min(duration, 500) : duration);
   }
 }

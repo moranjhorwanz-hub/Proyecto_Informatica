@@ -131,3 +131,23 @@ function springCourse(course, urban) {
 }
 
 for (let stage = 1; stage <= 3; stage++) courses[stage] = springCourse(courses[stage], stage === 1);
+
+const clubPatrols = ['gangster', 'bruiser', 'knife'];
+for (let stage = 4; stage <= 6; stage++) {
+ const course = courses[stage];
+ course.enemies = course.enemies.map((patrol, i) => [...patrol, clubPatrols[i % clubPatrols.length]]);
+}
+
+const clubCourse = courses[6];
+const clubArenaStart = clubCourse.width;
+clubCourse.width += 1056;
+clubCourse.goal = clubCourse.width - 160;
+clubCourse.sections.push({
+ name: 'El club', start: clubArenaStart, end: clubCourse.width, spawn: [clubArenaStart + 64, 600],
+});
+const clubFloor = clubCourse.platforms.find(([x, y, width]) => y === 620 && x + width === clubArenaStart);
+clubFloor[2] += clubCourse.width - clubArenaStart;
+clubCourse.boss = {
+ kind: 'club', name: 'Jefe del Club', x: clubArenaStart + 545, left: clubArenaStart + 125,
+ right: clubCourse.width - 110, health: 16, arenaSection: clubCourse.sections.length - 1,
+};

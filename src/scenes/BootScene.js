@@ -2,6 +2,7 @@
 import { preloadPlayerSprites, registerPlayerSprites } from '../entities/playerSprites.js';
 import { preloadParallaxScenery } from '../visuals/parallaxScenery.js';
 import { preloadSpringSprites, registerSpringEffects } from '../visuals/springEnemies.js';
+import { preloadClubSprites, registerClubTextures } from '../visuals/clubEnemies.js';
 import { preloadBossHealthBar } from '../visuals/bossHealthBar.js';
 
 export default class BootScene extends Phaser.Scene {
@@ -11,6 +12,7 @@ export default class BootScene extends Phaser.Scene {
     preloadPlayerSprites(this);
     preloadParallaxScenery(this);
     preloadSpringSprites(this);
+    preloadClubSprites(this);
     preloadBossHealthBar(this);
     this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);
     this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);
@@ -25,6 +27,7 @@ export default class BootScene extends Phaser.Scene {
   create() {
     registerPlayerSprites(this);
     registerSpringEffects(this);
+    registerClubTextures(this, Phaser.Textures.FilterMode.NEAREST);
     this.scene.start('Menu');
   }
 }

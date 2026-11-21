@@ -92,7 +92,7 @@ export default class GameScene extends Phaser.Scene {
     });
     this.input.keyboard.addCapture(['SPACE', 'UP', 'DOWN', 'LEFT', 'RIGHT']);
     this.createHud();
-    this.bossHealthBar = this.levelManager?.course.boss?.kind === 'mystery' ? createBossHealthBar(this) : null;
+    this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
     this.onBlur = () => { this.input.keyboard.resetKeys(); if (!this.dead&&!this.finished) this.setPaused(true); };
     this.game.events.on(Phaser.Core.Events.BLUR, this.onBlur);
     this.events.once('shutdown', () => {
@@ -226,9 +226,11 @@ export default class GameScene extends Phaser.Scene {
       this.notice.setText(`Monedas ${manager.coins}/7 · Regalos ${manager.gifts}/${manager.course.gifts.length}${showBoss ? ` · ${bossName} ${boss.health}/${boss.maxHealth}` : ''}`);
       if(this.player.x>manager.course.goal && !this.finished) {
         if(!manager.canFinish()) {
-          const undefeatedMessage = manager.course.boss?.name
-            ? 'Derrota al Misterioso del Callejón para abrir la meta'
-            : 'Derrota al Rey de la Nieve para abrir la meta';
+          const undefeatedMessage = manager.course.boss?.kind === 'club'
+            ? 'Derrota al Jefe del Club para abrir la meta'
+            : manager.course.boss?.name
+              ? 'Derrota al Misterioso del Callejón para abrir la meta'
+              : 'Derrota al Rey de la Nieve para abrir la meta';
           this.notice.setText(boss?.active ? undefeatedMessage : 'Pisa la plataforma de la meta');
         }
         else {

@@ -242,6 +242,8 @@ Derrota al Rey de la Nieve para abrir la meta|Defeat the Snow King to open the f
 El callejón final|The final alley|La ruelle finale
 El Misterioso del Callejón {health}/{max}|The Alley Stranger {health}/{max}|L'Inconnu de la ruelle {health}/{max}
 Derrota al Misterioso del Callejón para abrir la meta|Defeat the Alley Stranger to open the finish|Battez l'Inconnu de la ruelle pour ouvrir l'arrivée
+Derrota al Jefe del Club para abrir la meta|Defeat the Club Boss to unlock the finish|Battez le chef du club pour accéder à l'arrivée
+El club|The club|Le club
 Pisa la plataforma de la meta|Land on the finish platform|Atterrissez sur la plateforme d'arrivée
 Sombra Urbana|Urban Shadow|Ombre urbaine
 Gato Negro|Black Cat|Chat noir

@@ -1,0 +1,21 @@
+MUNDO 2 — ENEMIGOS | SPRITES LIMPIOS
+
+Los sprites están organizados en carpetas independientes para cada enemigo.
+Cada animación tiene su carpeta y cada archivo PNG es un fotograma diferente.
+Resolución del lienzo por fotograma: 256 × 256 px, RGBA transparente.
+
+01_Ganster — 24 fotogramas (original aprobado, sin modificaciones)
+  Quieto, Caminar, Golpe Directo, Patada, Recibir Daño, Derrota
+02_Maton — 27 fotogramas, limpiados
+  Quieto, Caminar, Embestida, Golpe Fuerte, Recibir Daño, Derrota
+03_Lanzador_de_Cuchillos — 32 fotogramas, limpiados
+  Quieto, Caminar, Lanzamiento, Lanzamiento Doble, Recibir Daño, Derrota, Proyectiles
+04_Jefe_del_Club — 34 fotogramas, limpiados
+  Quieto, Caminar, Combo, Onda de Energía, Embestida, Recibir Daño, Derrota, Proyectiles
+
+Se eliminaron fragmentos del borde gris/blanquecino y los halos de recorte en
+los enemigos 2–4 mediante limpieza de píxeles exteriores. Los diseños y
+las animaciones originales se conservan (no son personajes rediseñados).
+
+SUGERENCIA PARA CODEX: cargue los archivos de cada carpeta en orden
+numérico y use el canal alfa de cada PNG. Mantenga la escala con image-rendering: pixelated.

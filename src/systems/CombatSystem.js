@@ -5,6 +5,7 @@ import SpringEnemy from '../entities/SpringEnemy.js';
 import { canUseSnow } from '../data/characters.js';
 import { CombatState, COMBAT_DEFAULTS } from './combatState.js';
 import { levelEnemyTexture } from '../visuals/levelEnemies.js';
+import { clubShotFrame } from '../visuals/clubEnemies.js';
 export { COMBAT_DEFAULTS } from './combatState.js';
 
 export default class CombatSystem {
@@ -15,23 +16,23 @@ export default class CombatSystem {
     this.createTextures();
     this.enemies = scene.physics.add.group({ runChildUpdate: false });
     const course=scene.levelManager?.course;
-    const spring = course?.boss?.kind === 'mystery';
-    const patrolTexture = course && !spring ? levelEnemyTexture(scene, scene.level) : undefined;
-    if (spring) this.createSpringProjectiles();
+    const animated = Boolean(course?.enemies[0]?.[3]);
+    const patrolTexture = course && !animated ? levelEnemyTexture(scene, scene.level) : undefined;
+    if (animated) this.createEnemyProjectiles();
     (course?.enemies || [[990, 920, 1150], [1700, 1690, 1760], [2200, 2040, 2340]]).forEach(([x, left, right, kind]) => {
       const speed = (course?.speed || 65) * scene.difficulty.enemySpeed;
-      const enemy = spring
+      const enemy = kind
         ? new SpringEnemy(scene, { x, left, right, kind,
-          speed: speed * ({ shadow: 1.1, cat: 1.8, dancer: 1.5 }[kind]),
-          health: kind === 'cat' ? 2 : 3, shots: this.springProjectiles })
+          speed: speed * ({ shadow: 1.1, cat: 1.8, dancer: 1.5, bruiser: .85, knife: .92 }[kind] ?? 1),
+          health: { cat: 2, bruiser: 4 }[kind] ?? 3, shots: this.enemyProjectiles })
         : new SnowEnemy(scene, x, left, right, patrolTexture);
-      if (!spring) enemy.speed = speed;
+      if (!kind) enemy.speed = speed;
       this.enemies.add(enemy);
     });
     if (course?.boss) {
-      this.boss = spring
+      this.boss = course.boss.kind
         ? new SpringEnemy(scene, { ...course.boss, health: course.boss.health + scene.difficulty.bossHealth - 8,
-          speed: 118 * scene.difficulty.enemySpeed, shots: this.springProjectiles })
+          speed: 118 * scene.difficulty.enemySpeed, shots: this.enemyProjectiles })
         : new SnowBoss(scene, { ...course.boss, health: scene.difficulty.bossHealth,
           texture: levelEnemyTexture(scene, scene.level, true) });
       this.enemies.add(this.boss);
@@ -51,11 +52,11 @@ export default class CombatSystem {
     });
     this.ring = scene.add.circle(0, 0, this.spinRange - 18, 0xffd588, .15).setStrokeStyle(3, 0xffd588).setDepth(11).setVisible(false);
   }
-  createSpringProjectiles() {
+  createEnemyProjectiles() {
     const s = this.scene;
-    this.springProjectiles = s.physics.add.group({ allowGravity: false });
-    s.physics.add.collider(this.springProjectiles, s.solids, shot => shot.destroy());
-    s.physics.add.overlap(s.player, this.springProjectiles, (_player, shot) => {
+    this.enemyProjectiles = s.physics.add.group({ allowGravity: false });
+    s.physics.add.collider(this.enemyProjectiles, s.solids, shot => shot.destroy());
+    s.physics.add.overlap(s.player, this.enemyProjectiles, (_player, shot) => {
       if (!shot.active) return;
       this.damagePlayer(shot.body.velocity.x < 0 ? -1 : 1);
       shot.destroy();
@@ -116,7 +117,14 @@ export default class CombatSystem {
     this.enemies.getChildren().slice().forEach(enemy => enemy.update(now));
     if (this.hat?.active) this.hat.update(now, delta);
     this.projectiles.getChildren().slice().forEach(shot => { if (now >= shot.expires) shot.destroy(); });
-    this.springProjectiles?.getChildren().slice().forEach(shot => { if (now >= shot.expires) shot.destroy(); });
+    this.enemyProjectiles?.getChildren().slice().forEach(shot => {
+      if (now >= shot.expires) shot.destroy();
+      else if (shot.clubAnimation) {
+        const { type, count, start } = shot.clubAnimation;
+        const key = clubShotFrame(type, Math.floor((now - start) / 85) % count);
+        if (shot.texture.key !== key) shot.setTexture(key, 'shot');
+      }
+    });
     const p = this.scene.player, spinning = now < this.state.spinUntil && now >= p.state.hurtUntil;
     this.ring.setPosition(p.x, p.y - 60).setVisible(spinning);
     if (spinning) {
@@ -125,6 +133,6 @@ export default class CombatSystem {
   }
   resetProjectiles() {
     this.hat?.destroy(); this.projectiles.clear(true, true); this.state.spinUntil = 0;
-    this.springProjectiles?.clear(true, true);
+    this.enemyProjectiles?.clear(true, true);
   }
 }

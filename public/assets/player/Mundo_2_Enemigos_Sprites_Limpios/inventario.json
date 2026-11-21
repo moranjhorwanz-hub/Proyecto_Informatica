@@ -1,0 +1,479 @@
+{
+  "total": 117,
+  "por_enemigo": {
+    "01_Ganster": 24,
+    "02_Maton": 27,
+    "03_Lanzador_de_Cuchillos": 32,
+    "04_Jefe_del_Club": 34
+  },
+  "archivos": [
+    {
+      "path": "01_Ganster/01_Quieto/quieto_01.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/01_Quieto/quieto_02.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/01_Quieto/quieto_03.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/01_Quieto/quieto_04.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/02_Caminar/caminar_01.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/02_Caminar/caminar_02.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/02_Caminar/caminar_03.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/02_Caminar/caminar_04.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/03_Ataque_1_Golpe_Directo/ataque_1_golpe_directo_01.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/03_Ataque_1_Golpe_Directo/ataque_1_golpe_directo_02.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/03_Ataque_1_Golpe_Directo/ataque_1_golpe_directo_03.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/03_Ataque_1_Golpe_Directo/ataque_1_golpe_directo_04.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/04_Ataque_2_Patada/ataque_2_patada_01.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/04_Ataque_2_Patada/ataque_2_patada_02.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/04_Ataque_2_Patada/ataque_2_patada_03.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/04_Ataque_2_Patada/ataque_2_patada_04.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/05_Recibir_Dano/recibir_dano_01.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/05_Recibir_Dano/recibir_dano_02.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/05_Recibir_Dano/recibir_dano_03.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/05_Recibir_Dano/recibir_dano_04.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/06_Derrota/derrota_01.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/06_Derrota/derrota_02.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/06_Derrota/derrota_03.png",
+      "cleaned": false
+    },
+    {
+      "path": "01_Ganster/06_Derrota/derrota_04.png",
+      "cleaned": false
+    },
+    {
+      "path": "02_Maton/01_Quieto/quieto_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/01_Quieto/quieto_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/01_Quieto/quieto_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/01_Quieto/quieto_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/02_Caminar/caminar_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/02_Caminar/caminar_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/02_Caminar/caminar_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/02_Caminar/caminar_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/02_Caminar/caminar_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/02_Caminar/caminar_06.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/03_Embestida/embestida_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/03_Embestida/embestida_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/03_Embestida/embestida_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/03_Embestida/embestida_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/03_Embestida/embestida_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/04_Golpe_Fuerte/golpe_fuerte_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/04_Golpe_Fuerte/golpe_fuerte_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/04_Golpe_Fuerte/golpe_fuerte_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/04_Golpe_Fuerte/golpe_fuerte_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/04_Golpe_Fuerte/golpe_fuerte_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/05_Recibir_Dano/recibir_dano_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/05_Recibir_Dano/recibir_dano_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/05_Recibir_Dano/recibir_dano_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/06_Derrota/derrota_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/06_Derrota/derrota_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/06_Derrota/derrota_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "02_Maton/06_Derrota/derrota_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/01_Quieto/quieto_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/01_Quieto/quieto_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/01_Quieto/quieto_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/01_Quieto/quieto_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/02_Caminar/caminar_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/02_Caminar/caminar_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/02_Caminar/caminar_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/02_Caminar/caminar_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/02_Caminar/caminar_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/02_Caminar/caminar_06.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/03_Ataque_1_Lanzamiento/ataque_1_lanzamiento_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/03_Ataque_1_Lanzamiento/ataque_1_lanzamiento_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/03_Ataque_1_Lanzamiento/ataque_1_lanzamiento_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/03_Ataque_1_Lanzamiento/ataque_1_lanzamiento_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/03_Ataque_1_Lanzamiento/ataque_1_lanzamiento_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/04_Ataque_2_Lanzamiento_Doble/ataque_2_lanzamiento_doble_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/04_Ataque_2_Lanzamiento_Doble/ataque_2_lanzamiento_doble_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/04_Ataque_2_Lanzamiento_Doble/ataque_2_lanzamiento_doble_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/04_Ataque_2_Lanzamiento_Doble/ataque_2_lanzamiento_doble_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/04_Ataque_2_Lanzamiento_Doble/ataque_2_lanzamiento_doble_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/04_Ataque_2_Lanzamiento_Doble/ataque_2_lanzamiento_doble_06.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/04_Ataque_2_Lanzamiento_Doble/ataque_2_lanzamiento_doble_07.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/05_Recibir_Dano/recibir_dano_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/05_Recibir_Dano/recibir_dano_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/05_Recibir_Dano/recibir_dano_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/06_Derrota/derrota_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/06_Derrota/derrota_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/06_Derrota/derrota_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/06_Derrota/derrota_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/07_Proyectiles/cuchillo_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/07_Proyectiles/cuchillo_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "03_Lanzador_de_Cuchillos/07_Proyectiles/cuchillo_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/01_Quieto/quieto_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/01_Quieto/quieto_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/01_Quieto/quieto_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/01_Quieto/quieto_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/02_Caminar/caminar_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/02_Caminar/caminar_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/02_Caminar/caminar_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/02_Caminar/caminar_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/02_Caminar/caminar_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/02_Caminar/caminar_06.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/03_Ataque_1_Combo/ataque_1_combo_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/03_Ataque_1_Combo/ataque_1_combo_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/03_Ataque_1_Combo/ataque_1_combo_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/03_Ataque_1_Combo/ataque_1_combo_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/03_Ataque_1_Combo/ataque_1_combo_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/04_Ataque_2_Onda_Energia/ataque_2_onda_energia_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/04_Ataque_2_Onda_Energia/ataque_2_onda_energia_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/04_Ataque_2_Onda_Energia/ataque_2_onda_energia_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/04_Ataque_2_Onda_Energia/ataque_2_onda_energia_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/04_Ataque_2_Onda_Energia/ataque_2_onda_energia_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/04_Ataque_2_Onda_Energia/ataque_2_onda_energia_06.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/05_Ataque_3_Embestida/ataque_3_embestida_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/05_Ataque_3_Embestida/ataque_3_embestida_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/05_Ataque_3_Embestida/ataque_3_embestida_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/05_Ataque_3_Embestida/ataque_3_embestida_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/05_Ataque_3_Embestida/ataque_3_embestida_05.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/06_Recibir_Dano/recibir_dano_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/06_Recibir_Dano/recibir_dano_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/06_Recibir_Dano/recibir_dano_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/07_Derrota/derrota_01.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/07_Derrota/derrota_02.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/07_Derrota/derrota_03.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/07_Derrota/derrota_04.png",
+      "cleaned": true
+    },
+    {
+      "path": "04_Jefe_del_Club/08_Proyectiles/onda_01.png",
+      "cleaned": true
+    }
+  ]
+}
