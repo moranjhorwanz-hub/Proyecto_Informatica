@@ -70,7 +70,7 @@ export default class CombatSystem {
     context.fillText('♪', 24, 24);
     note.refresh();
   }
-  damagePlayer(direction) { return this.scene.player.takeDamage(direction); }
+  damagePlayer(direction) { return this.scene.player.takeEnemyDamage(direction); }
   damageEnemy(enemy, amount) {
     if (enemy.takeDamage(amount)) this.scene.services.audio.effect('enemy-hit');
   }
@@ -93,6 +93,10 @@ export default class CombatSystem {
     s.services.audio.effect(kind);
     return true;
   }
+  activateHatPower() {
+    const s = this.scene, p = s.player;
+    return this.state.activateHatPower(s.playTime, { unlocked: s.services.progress.data.abilities.includes('hat-power'), alive: p.state.lives > 0, hurt: s.playTime < p.state.hurtUntil });
+  }
   spinHit(enemy) {
     if (!enemy.active || this.spinHits.has(enemy)) return;
     this.spinHits.add(enemy);
@@ -101,6 +105,7 @@ export default class CombatSystem {
   update(now, delta) {
     this.enemies.getChildren().slice().forEach(enemy => enemy.update(now));
     if (this.hat?.active) this.hat.update(now, delta);
+    if (this.hat?.active) this.hat.setTint(now < this.state.hatPowerUntil ? 0xffd55a : 0xffffff);
     this.projectiles.getChildren().slice().forEach(shot => { if (now >= shot.expires) shot.destroy(); });
     this.enemyProjectiles?.getChildren().slice().forEach(shot => {
       if (now >= shot.expires || shot.body.right >= shot.stopAtX) shot.destroy();
@@ -122,7 +127,7 @@ export default class CombatSystem {
       if (spinning && spriteTouchesCircle(enemy, this.ring.x, this.ring.y, this.ring.radius)) this.spinHit(enemy);
       if (enemy.active && hat?.active && !hat.hit.has(enemy) && spritesTouch(hat, enemy)) {
         hat.hit.add(enemy);
-        this.damageEnemy(enemy, HAT_DEFAULTS.damage);
+        this.damageEnemy(enemy, this.state.hatDamage(now, HAT_DEFAULTS.damage));
       }
       for (const shot of shots) {
         if (!enemy.active || !shot.active || !spritesTouch(shot, enemy)) continue;

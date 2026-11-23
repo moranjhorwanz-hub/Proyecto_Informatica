@@ -83,9 +83,11 @@ export default class GameScene extends Phaser.Scene {
     const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
     this.appearance = getAppearance(this.level, this.services.progress.data);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
+    this.player.state.shieldHits = this.services.progress.data.abilities.includes('shield') ? 3 : 0;
+    this.shieldAura = this.add.ellipse(0, 0, 84, 136, 0x52d9ff, .14).setStrokeStyle(3, 0x85edff, .85).setDepth(9).setVisible(false);
     this.physics.add.collider(this.player, this.solids);
     if(!this.campaign)this.physics.add.overlap(this.player, this.hazard, () => {
-      this.combat.damagePlayer(this.player.x < this.hazard.x ? -1 : 1);
+      this.player.takeDamage(this.player.x < this.hazard.x ? -1 : 1);
     });
     if (!this.campaign) {
       const microphone = createMicrophonePickup(this, 1380, 600, 0);
@@ -135,7 +137,7 @@ export default class GameScene extends Phaser.Scene {
     keyboard.resetKeys();
     keyboard.removeCapture(this.keyCaptures);
     this.controls = this.services.progress.data.settings.controls;
-    const bindings = { ...this.controls, escape: [menuKey], ...pauseNavigation };
+    const bindings = { ...this.controls, hatPower: ['B'], escape: [menuKey], ...pauseNavigation };
     const existingCaptures = new Set(keyboard.getCaptures());
     this.keyCaptures = [...new Set(Object.values(bindings).flat())].filter(code => !existingCaptures.has(code));
     this.keys = Object.fromEntries(Object.entries(bindings)
@@ -189,6 +191,8 @@ export default class GameScene extends Phaser.Scene {
     this.lifeBar = this.add.rectangle(74, 22, lifeBarWidth, 14, 0xe62940)
       .setOrigin(0).setScrollFactor(0).setDepth(101);
     this.lifeBar.setScale(this.player.state.lives / this.player.state.stats.lives, 1);
+    this.hatPowerText = menuText(this, 24, 48, '', 16, menuColors.accentText).setScrollFactor(0).setDepth(101);
+    this.shieldText = menuText(this, 24, 70, '', 16, '#85edff').setScrollFactor(0).setDepth(101);
   }
 
   setPaused(value) {
@@ -232,10 +236,19 @@ export default class GameScene extends Phaser.Scene {
       jumpPressed: justPressed('jump'),
       moonPressed: justPressed('moon'),
     }, this.playTime);
+    if (justPressed('hatPower')) this.combat.activateHatPower();
     for (const kind of ['hat', 'spin', 'freeze', 'note']) {
       if (justPressed(kind)) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
+    this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
+    if (this.services.progress.data.abilities.includes('shield')) this.shieldText.setText(`Escudo: ${this.player.state.shieldHits} / 3 golpes`);
+    if (this.services.progress.data.abilities.includes('hat-power')) {
+      const combat = this.combat.state;
+      const active = Math.ceil((combat.hatPowerUntil - this.playTime) / 1000);
+      const cooldown = Math.ceil((combat.nextHatPower - this.playTime) / 1000);
+      this.hatPowerText.setText(active > 0 ? `Sombrero estelar: ${active} s` : cooldown > 0 ? `Sombrero estelar: recarga ${cooldown} s` : 'B / LT: Sombrero estelar listo');
+    }
     if (this.player.y > 850) {
       this.player.respawn(...(this.levelManager?.spawn || [130,600]));
       this.centerCameraOnPlayer();

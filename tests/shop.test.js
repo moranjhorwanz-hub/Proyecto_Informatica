@@ -9,6 +9,14 @@ const setup = (coins = 1000, save = () => true) => {
   const progress = { data: { ...defaultProgress(), coins } };
   return { progress, shop: new ShopManager(progress, save) };
 };
+test('shield purchase costs coins and persists', () => {
+  const { progress, shop } = setup(300);
+  assert.equal(shop.buy('shield').ok, true);
+  assert.equal(progress.data.coins, 0);
+  assert.ok(validateProgress(JSON.parse(JSON.stringify(progress.data))).abilities.includes('shield'));
+  assert.equal(shop.buy('shield').reason, 'already-owned');
+  assert.equal(setup(299).shop.buy('shield').reason, 'insufficient-coins');
+});
 test('all four skins can be claimed once with zero coins and equipped separately', () => {
   let saves = 0;
   const { progress, shop } = setup(0, () => { saves++; return true; });
@@ -97,4 +105,13 @@ test('equipped skins override outfits across seasons without changing level iden
     assert.deepEqual(getAppearance(level, { equippedSkin: 'white', purchases: [] }), seasonal);
     assert.deepEqual(getAppearance(level, { equippedSkin: null, purchases: ['white'] }), seasonal);
   }
+});
+
+test('hat power purchase persists and requires sufficient coins', () => {
+  const { progress, shop } = setup(300);
+  assert.equal(shop.buy('hat-power').ok, true);
+  assert.equal(progress.data.coins, 0);
+  assert.ok(validateProgress(JSON.parse(JSON.stringify(progress.data))).abilities.includes('hat-power'));
+  assert.equal(shop.buy('hat-power').reason, 'already-owned');
+  assert.equal(setup(299).shop.buy('hat-power').reason, 'insufficient-coins');
 });

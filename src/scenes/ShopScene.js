@@ -61,6 +61,14 @@ export default class ShopScene extends Phaser.Scene {
       const a = i * Math.PI / 3;
       this.snowPreview.lineBetween(792 - Math.cos(a) * 52, 398 - Math.sin(a) * 52, 792 + Math.cos(a) * 52, 398 + Math.sin(a) * 52);
     }
+    this.hatPreview = this.add.graphics().setVisible(false);
+    this.hatPreview.fillStyle(0xf3f2ea).fillEllipse(792, 430, 180, 34).fillRoundedRect(738, 350, 108, 78, 22);
+    this.hatPreview.fillStyle(0xe5b83d).fillRect(738, 405, 108, 12);
+    this.hatPreview.lineStyle(4, 0xffd45b);
+    for (const [x, y] of [[714, 354], [865, 370], [810, 320]]) { this.hatPreview.lineBetween(x - 12, y, x + 12, y); this.hatPreview.lineBetween(x, y - 12, x, y + 12); }
+    this.shieldPreview = this.add.graphics().setVisible(false);
+    this.shieldPreview.fillStyle(0x72e7f1).fillPoints([{x:792,y:315},{x:861,y:348},{x:850,y:425},{x:792,y:470},{x:734,y:425},{x:723,y:348}], true);
+    this.shieldPreview.lineStyle(8, 0xe7a8ff).strokePoints([{x:792,y:315},{x:861,y:348},{x:850,y:425},{x:792,y:470},{x:734,y:425},{x:723,y:348}], true, true);
     this.actionText = this.button(580, 531, 424, 48, '', () => this.activate(), true);
     this.feedback = this.text(380, 590, '', 16, '#c3ecdd').setWordWrapWidth(820);
     this.text(35, 659, '↑ ↓ Elegir    Enter · Confirmar    Esc · Volver', 14, muted);
@@ -97,12 +105,12 @@ export default class ShopScene extends Phaser.Scene {
       const focused = index === this.focus;
       surface.clear().fillStyle(focused ? 0xba1029 : 0x172335).fillPoints(points, true)
         .lineStyle(1.5, focused ? 0xff6277 : 0x536680).strokePoints(points, true);
-      status.setText(equipped ? this.characters ? 'Seleccionado' : 'Equipada' : owned ? item.type === 'ability' ? 'Desbloqueado · L en campaña' : 'En tu inventario' : `${item.price === 0 ? 'Gratis' : `${item.price} monedas`}${this.wardrobe ? ' · Disponible en tienda' : data.coins < item.price ? ` · Faltan ${item.price - data.coins}` : ''}`);
+      status.setText(equipped ? this.characters ? 'Seleccionado' : 'Equipada' : owned ? item.type === 'ability' ? 'Desbloqueado' : 'En tu inventario' : `${item.price === 0 ? 'Gratis' : `${item.price} monedas`}${this.wardrobe ? ' · Disponible en tienda' : data.coins < item.price ? ` · Faltan ${item.price - data.coins}` : ''}`);
     });
     this.previewTitle.setText(selected.name);
     this.previewBody.setText(selected.description);
     const isSkin = selected.type !== 'ability';
-    this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin);
+    this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin && selected.id === 'freeze'); this.hatPreview.setVisible(selected.id === 'hat-power'); this.shieldPreview.setVisible(selected.id === 'shield');
     if (isSkin) {
       const level = levels[data.selectedLevel - 1];
       const purchases = [...data.purchases, ...(selected.id ? [selected.id] : [])];
@@ -132,7 +140,7 @@ export default class ShopScene extends Phaser.Scene {
     if (owned && this.services.progress.data.equippedSkin === item.id) { this.scene.start('LevelSelect'); return; }
     const result = owned ? this.shop.equip(item.id) : this.shop.buy(item.id);
     this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
-    this.feedback.setText(result.ok ? owned ? 'Vestuario guardado. Se aplicará al menú y a cualquier nivel.' : item.type === 'ability' ? 'Nieve desbloqueada y guardada. Ya puedes usar L en campaña.' : 'Traje guardado. Pulsa de nuevo para equiparlo.' : messages[result.reason]);
+    this.feedback.setText(result.ok ? owned ? 'Vestuario guardado. Se aplicará al menú y a cualquier nivel.' : item.type === 'ability' ? 'Habilidad desbloqueada y guardada.' : 'Traje guardado. Pulsa de nuevo para equiparlo.' : messages[result.reason]);
     this.refresh();
   }
   onKey(event) {

@@ -4,6 +4,7 @@ import { preloadParallaxScenery } from '../visuals/parallaxScenery.js';
 import { preloadSpringSprites, registerSpringEffects } from '../visuals/springEnemies.js';
 import { preloadClubSprites, registerClubTextures } from '../visuals/clubEnemies.js';
 import { preloadBossHealthBar } from '../visuals/bossHealthBar.js';
+import { preloadThrillerSprites } from '../visuals/thrillerEnemies.js';
 import { preloadMicrophones, registerMicrophones } from '../visuals/microphonePickups.js';
 import { registerVinylPickup } from '../visuals/vinylPickup.js';
 
@@ -15,6 +16,7 @@ export default class BootScene extends Phaser.Scene {
     preloadParallaxScenery(this);
     preloadSpringSprites(this);
     preloadClubSprites(this);
+    preloadThrillerSprites(this);
     preloadBossHealthBar(this);
     preloadMicrophones(this);
     this.load.image('neon-spikes', `${import.meta.env.BASE_URL}assets/neon-spikes.png`);

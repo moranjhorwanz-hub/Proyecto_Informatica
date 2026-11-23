@@ -79,6 +79,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     return true;
   }
 
+  takeEnemyDamage(direction) {
+    const lives = this.state.lives;
+    if (!this.state.takeEnemyDamage(this.scene.playTime, direction)) return false;
+    if (this.state.lives < lives) this.setVelocityY(-210);
+    this.scene.services.audio.effect('damage');
+    this.scene.cameras.main.shake(110, .003);
+    return true;
+  }
+
   respawn(x, y) {
     this.attack = null;
     this.state.fall(this.scene.playTime);

@@ -1,5 +1,14 @@
 // Spanish source phrases are stable localization keys. Placeholders preserve live values.
 const rows = `
+Sombrero estelar|Star hat|Chapeau étoilé
+Pulsa B para duplicar el daño del sombrero durante 10 s. Recarga de 30 s.|Press B to double hat damage for 10 s. Cooldown: 30 s.|Appuyez sur B pour doubler les dégâts du chapeau pendant 10 s. Recharge : 30 s.
+Escudo estelar|Star shield|Bouclier étoilé
+Protege de tres golpes enemigos. Se recupera al comenzar cada partida.|Blocks three enemy hits. Restored at the start of each game.|Protège contre trois coups ennemis. Restauré au début de chaque partie.
+Habilidad desbloqueada y guardada.|Ability unlocked and saved.|Capacité débloquée et enregistrée.
+Desbloqueado|Unlocked|Débloqué
+Desbloqueado ? B / LT|Unlocked ? B / LT|D?bloqu? ? B / LT
+Sombrero estelar desbloqueado. Act?valo con B o LT.|Star hat unlocked. Activate with B or LT.|Chapeau ?toil? d?bloqu?. Activez avec B ou LT.
+Duplica el da?o del sombrero durante 10 s. Se compra en la tienda.|Doubles hat damage for 10 s. Buy it in the shop.|Double les d?g?ts du chapeau pendant 10 s. ? acheter en boutique.
 Calle iluminada|Lit Street|Rue illuminée
 Distrito de neón|Neon District|Quartier néon
 Callejón de las farolas|Lamplit Alley|Ruelle des réverbères
@@ -190,7 +199,7 @@ Chaqueta roja con detalles negros. Solo cambia el aspecto.|Red jacket with black
 Traje y sombrero claros con detalles azules. Solo cambia el aspecto.|Light suit and hat with blue details. Appearance only.|Costume et chapeau clairs, détails bleus. Aspect uniquement.
 Traje verde y sombrero rojo para cualquier estación. Solo cambia el aspecto.|Green suit and red hat for any season. Appearance only.|Costume vert et chapeau rouge pour toute saison. Aspect uniquement.
 Chaqueta y sombrero dorados. Solo cambia el aspecto.|Golden jacket and hat. Appearance only.|Veste et chapeau dorés. Aspect uniquement.
-Desbloquea L en campaña: inflige daño y congela. Recarga de 3 s. No necesita equiparse.|Unlocks L in campaign: damage and freeze. 3 s cooldown. No equipment needed.|Débloque L en campagne : dégâts et gel. Recharge de 3 s. Aucun équipement requis.
+Desbloquea L en campaña: inflige daño y congela. Recarga de 2 s. No necesita equiparse.|Unlocks L in campaign: damage and freeze. 2 s cooldown. No equipment needed.|Débloque L en campagne : dégâts et gel. Recharge de 2 s. Aucun équipement requis.
 Bailarín navideño|Christmas dancer|Danseur de Noël
 Rey de la Nieve|Snow King|Roi des Neiges
 Bailarín dorado|Golden dancer|Danseur doré
@@ -200,11 +209,11 @@ Estrella dorada|Golden star|Étoile dorée
 Traje de la estación|Season outfit|Tenue de saison
 Equilibrado. Camina a 230, corre a 340 px/s y usa los ataques básicos. El vestuario cambia con la estación.|Balanced. Walks at 230, runs at 340 px/s and uses basic attacks. Outfit follows the season.|Équilibré. Marche à 230, court à 340 px/s et utilise les attaques de base. Tenue selon la saison.
 Ágil: corre a 380 px/s con SHIFT y salta más alto con ESPACIO. Mantiene los ataques básicos.|Agile: runs at 380 px/s with SHIFT and jumps higher with SPACE. Uses basic attacks.|Agile : court à 380 px/s avec MAJ et saute plus haut avec ESPACE. Attaques de base.
-L lanza nieve sin comprar el copo: congela 2,4 s y recarga en 2 s. El jefe limita la congelación a 0,6 s.|L throws snow without buying the snowflake: freezes for 2.4 s, cooldown 2 s. Boss freeze is capped at 0.6 s.|L lance la neige sans achat du flocon : gel de 2,4 s, recharge de 2 s. Gel du boss limité à 0,6 s.
-K activa un giro de 125 px y dos puntos de daño. Recarga en 1,2 s. El sombrero y la nieve mantienen su daño normal.|K spins across 125 px for two damage. Cooldown 1.2 s. Hat and snow keep normal damage.|K déclenche une rotation de 125 px et deux dégâts. Recharge de 1,2 s. Chapeau et neige : dégâts normaux.
+L lanza nieve sin comprar el copo: congela 2,4 s y recarga en 1,4 s. El jefe limita la congelación a 0,6 s.|L throws snow without buying the snowflake: freezes for 2.4 s, cooldown 1.4 s. Boss freeze is capped at 0.6 s.|L lance la neige sans achat du flocon : gel de 2,4 s, recharge de 1,4 s. Gel du boss limité à 0,6 s.
+K activa un giro de 125 px y dos puntos de daño. Recarga en 0,8 s. El sombrero y la nieve mantienen su daño normal.|K spins across 125 px for two damage. Cooldown 0.8 s. Hat and snow keep normal damage.|K déclenche une rotation de 125 px et deux dégâts. Recharge de 0,8 s. Chapeau et neige : dégâts normaux.
 El poder del baile|The power of dance|Le pouvoir de la danse
 J|J|J
-Sombrero de retorno — 0,8 s de recarga, uno en vuelo.|Returning hat — 0.8 s cooldown, one in flight.|Chapeau boomerang — recharge de 0,8 s, un seul en vol.
+Sombrero de retorno — 0,5 s de recarga, uno en vuelo.|Returning hat — 0.5 s cooldown, one in flight.|Chapeau boomerang — recharge de 0,5 s, un seul en vol.
 Giro — {range} px, recarga {seconds} s.|Spin — {range} px, cooldown {seconds} s.|Rotation — {range} px, recharge de {seconds} s.
 Copo — congela {duration} s, recarga {seconds} s.|Snowflake — freezes {duration} s, cooldown {seconds} s.|Flocon — gel de {duration} s, recharge de {seconds} s.
 Moonwalk — esquiva durante el deslizamiento.|Moonwalk — dodge while sliding.|Moonwalk — esquive pendant la glissade.

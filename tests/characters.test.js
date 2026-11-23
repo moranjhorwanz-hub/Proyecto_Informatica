@@ -60,8 +60,8 @@ test('innate snow only belongs to selected owned king; purchased snow remains av
   const state=new CombatState(getCharacter(progress).combat);
   assert.equal(state.settings.freezeDuration,2400);
   assert.equal(state.activate('freeze',0,{snowUnlocked:canUseSnow(progress)}),true);
-  assert.equal(state.activate('freeze',1999,{snowUnlocked:true}),false);
-  assert.equal(state.activate('freeze',2000,{snowUnlocked:true}),true);
+  assert.equal(state.activate('freeze',1399,{snowUnlocked:true}),false);
+  assert.equal(state.activate('freeze',1400,{snowUnlocked:true}),true);
   progress.character='michael';
   assert.equal(canUseSnow(progress),false);
   progress.abilities.push('freeze');
@@ -72,10 +72,10 @@ test('golden spin has its own cooldown and damage profile without affecting ordi
   assert.equal(gold.combat.spinDamage,2);
   assert.equal(gold.combat.spinRange,125);
   assert.equal(state.activate('spin',0),true);
-  assert.equal(state.activate('spin',1199),false);
-  assert.equal(state.activate('spin',1200),true);
+  assert.equal(state.activate('spin',799),false);
+  assert.equal(state.activate('spin',800),true);
   assert.equal(state.activate('hat',0),true);
-  assert.equal(state.next.hat,800);
+  assert.equal(state.next.hat,500);
 });
 test('skins preserve character identity, have separate texture keys and never grant or erase abilities',()=>{
   for(const character of characters.slice(1)) {

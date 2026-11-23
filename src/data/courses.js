@@ -151,3 +151,25 @@ clubCourse.boss = {
  kind: 'club', name: 'Jefe del Club', x: clubArenaStart + 860, left: clubArenaStart + 125,
  right: clubCourse.width - 110, health: 16, arenaSection: clubCourse.sections.length - 1,
 };
+
+const thriller = courses[3];
+const thrillerPatrols = ['zombie', 'werewolf', 'zombieDancer'];
+const cryptStart = thriller.width - 900;
+const cryptFloor = thriller.platforms.find(([x, y, width]) => y === 620 && x + width === thriller.width);
+cryptFloor[2] += 600;
+thriller.width += 600;
+thriller.goal = thriller.width - 160;
+thriller.enemies = thriller.enemies.filter(([, left]) => left < cryptStart - 140)
+ .map(([x, left, right], index) => {
+  const end = Math.min(right, cryptStart - 140);
+  return [Math.min(x, (left + end) / 2), left, end, thrillerPatrols[index % thrillerPatrols.length]];
+ });
+thriller.sections.at(-1).end = cryptStart;
+thriller.sections.push({
+ name: 'La cripta', start: cryptStart, end: thriller.width, spawn: [cryptStart + 64, 600],
+});
+thriller.boss = {
+ kind: 'deadKing', name: 'El Rey de los Muertos', x: cryptStart + 760,
+ left: cryptStart + 125, right: thriller.width - 110, health: 18,
+ arenaSection: thriller.sections.length - 1,
+};

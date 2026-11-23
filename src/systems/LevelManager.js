@@ -81,7 +81,7 @@ export default class LevelManager {
         lightMarker();
       });
     }
-    s.physics.add.overlap(s.player,this.hazards,(_p,h)=>s.combat.damagePlayer(s.player.x<h.x?-1:1));
+    s.physics.add.overlap(s.player,this.hazards,(_p,h)=>s.player.takeDamage(s.player.x<h.x?-1:1));
     s.physics.add.overlap(s.player,this.pickups,(_p,item)=>{
       if(!item.active || !s.player.state.lives)return;
       this.collected.add(item.pickupKey);

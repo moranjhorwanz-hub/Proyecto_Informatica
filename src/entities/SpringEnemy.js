@@ -2,6 +2,7 @@ import SnowEnemy from './SnowEnemy.js';
 import { springFrame, springFrameCount, springSpriteGeometry } from '../visuals/springEnemies.js';
 import { clubFrame, clubFrameCount, clubSpriteGeometry, clubProjectiles, clubShotFrame } from '../visuals/clubEnemies.js';
 import { spritesTouch } from '../systems/combatHitboxes.js';
+import { thrillerFrame, thrillerFrameCount, thrillerFrameDuration, thrillerSprites } from '../visuals/thrillerEnemies.js';
 
 const violet = 0xd66aff;
 const red = 0xff676e;
@@ -25,6 +26,15 @@ const moves = {
   combo: { range: 195, windup: 330, active: 900, impactFrame: 0, velocity: 135 },
   wave: { range: 625, windup: 550, active: 260, impactFrame: 3, projectile: 'wave', heights: [25, 112] },
   bossRush: { range: 425, windup: 510, active: 790, impactFrame: 2, velocity: 465 },
+  claw: { range: 82, windup: 300, active: 190, impactFrame: 2 },
+  bite: { range: 103, windup: 390, active: 190, impactFrame: 2, velocity: 115 },
+  swipe: { range: 100, windup: 290, active: 200, impactFrame: 2 },
+  wolfJump: { range: 228, windup: 410, active: 440, impactFrame: 1, velocity: 360, jump: true },
+  danceSpin: { range: 140, windup: 330, active: 320, impactFrame: 2, velocity: 180 },
+  danceStrike: { range: 102, windup: 470, active: 230, impactFrame: 2 },
+  summon: { range: 555, windup: 620, active: 260, impactFrame: 2, projectile: true },
+  groundSlam: { range: 155, windup: 620, active: 250, impactFrame: 2, groundRadius: 108 },
+  kingSpin: { range: 270, windup: 510, active: 510, impactFrame: 2, velocity: 310 },
 };
 const patterns = {
   shadow: ['orb', 'slash'],
@@ -35,20 +45,24 @@ const patterns = {
   bruiser: ['rush', 'heavy'],
   knife: ['throw', 'doubleThrow'],
   club: ['combo', 'wave', 'bossRush'],
+  zombie: ['claw', 'bite'],
+  werewolf: ['swipe', 'wolfJump'],
+  zombieDancer: ['danceSpin', 'danceStrike'],
+  deadKing: ['summon', 'groundSlam', 'kingSpin'],
 };
 
 export default class SpringEnemy extends SnowEnemy {
   constructor(scene, { x, left, right, kind, health, speed, shots }) {
     const club = clubSpriteGeometry[kind];
-    const frameKey = club ? clubFrame : springFrame;
+    const thriller = thrillerSprites[kind];
+    const frameKey = thriller ? thrillerFrame : club ? clubFrame : springFrame;
     super(scene, x, left, right, frameKey(kind, 'idle'));
-    const geometry = club ?? springSpriteGeometry[kind];
+    const geometry = thriller ?? club ?? springSpriteGeometry[kind];
     const width = geometry.bodyWidth / geometry.scale;
     const height = geometry.bodyHeight / geometry.scale;
     this.frameKey = frameKey;
-    this.frameCount = club ? clubFrameCount : springFrameCount;
-    this.clubEnemy = Boolean(club);
-    this.isBoss = kind === 'club' || kind === 'mystery';
+    this.frameCount = thriller ? thrillerFrameCount : club ? clubFrameCount : springFrameCount;
+    this.isBoss = ['club', 'mystery', 'deadKing'].includes(kind);
     this.sizeMultiplier = geometry.sizeMultiplier ?? 1;
     this.setOrigin(geometry.x / (geometry.width ?? 256), geometry.y / (geometry.height ?? 256))
       .setScale(geometry.scale * this.sizeMultiplier);
@@ -60,9 +74,9 @@ export default class SpringEnemy extends SnowEnemy {
     this.nextAttack = 0;
     this.patternIndex = 0;
     this.waveIndex = 0;
-    if (club) {
+    if (club || thriller) {
       const course = scene.levelManager.course;
-      this.clubArenaStart = course.sections[course.boss.arenaSection].start;
+      this.arenaStart = course.sections[course.boss.arenaSection].start;
     }
     this.hitUntil = 0;
     this.color = club || kind === 'dancer' ? red : violet;
@@ -78,7 +92,7 @@ export default class SpringEnemy extends SnowEnemy {
 
   update(now) {
     if (this.defeatedAt !== undefined) {
-      const frame = Math.floor((now - this.defeatedAt) / 110);
+      const frame = Math.floor((now - this.defeatedAt) / (thrillerFrameDuration(this.kind, 'defeat') ?? 110));
       if (frame >= this.frameCount(this.kind, 'defeat')) this.destroy();
       else this.pose('defeat', frame);
       return;
@@ -99,7 +113,7 @@ export default class SpringEnemy extends SnowEnemy {
       return;
     }
     super.update(now);
-    if (this.kind === 'club' && player.x >= this.clubArenaStart && player.state.lives) {
+    if (this.isBoss && this.arenaStart !== undefined && player.x >= this.arenaStart && player.state.lives) {
       this.direction = dx < 0 ? -1 : 1;
       const room = this.direction > 0 ? this.right - this.x : this.x - this.left;
       const approachSpeed = Math.max(0, Math.min(this.speed, room * 20, (Math.abs(dx) - 105) * 6));
@@ -108,14 +122,14 @@ export default class SpringEnemy extends SnowEnemy {
     if (now < this.hitUntil) this.setTint(0xffaaaa);
     const clip = now < this.hitUntil ? 'hurt' : 'walk';
     const frame = clip === 'hurt' ? Math.floor((now - this.hitAt) / 65)
-      : Math.floor(now / 115) % this.frameCount(this.kind, clip);
+      : Math.floor(now / (thrillerFrameDuration(this.kind, clip) ?? 115)) % this.frameCount(this.kind, clip);
     this.pose(clip, frame);
     if (!player.state.lives || now < this.nextAttack || Math.abs(player.y - this.y) > 145) return;
     const pattern = patterns[this.kind];
-    if (this.clubEnemy) {
-      if ((player.x >= this.clubArenaStart) !== this.isBoss) return;
+    if (this.arenaStart !== undefined) {
+      if ((player.x >= this.arenaStart) !== this.isBoss) return;
       const distance = Math.abs(dx);
-      if (this.isBoss && this.lastAttack !== 'combo' && distance <= moves.combo.range) {
+      if (this.kind === 'club' && this.lastAttack !== 'combo' && distance <= moves.combo.range) {
         this.patternIndex = 1;
         this.startAttack(now, dx, 'combo');
         return;
@@ -161,7 +175,9 @@ export default class SpringEnemy extends SnowEnemy {
       this.pose(move === 'combo' ? 'idle' : move,
         Math.floor((now - starts + spec.windup) / spec.windup * spec.impactFrame));
       this.effect.fillStyle(this.color, .55);
-      if (spec.radius) this.effect.fillEllipse(center, 617, spec.radius * 2, 10);
+      if (spec.radius || spec.groundRadius) {
+        this.effect.fillEllipse(center, 617, (spec.radius ?? spec.groundRadius) * 2, 10);
+      }
       else if (move === 'wave') {
         this.effect.fillCircle(this.x + this.direction * 48,
           this.y - spec.heights[this.waveIndex % spec.heights.length], 9 + Math.sin(now / 40) * 2);
@@ -180,7 +196,7 @@ export default class SpringEnemy extends SnowEnemy {
     if (!attack.fired) {
       attack.fired = true;
       if (spec.projectile) this.fire(now, move);
-      if (move === 'pounce') this.setVelocityY(-210);
+      if (move === 'pounce' || spec.jump) this.setVelocityY(-210);
     }
     const progress = (now - starts) / spec.active;
     const remainingFrames = this.frameCount(this.kind, move) - spec.impactFrame;
@@ -205,7 +221,10 @@ export default class SpringEnemy extends SnowEnemy {
       }
     }
     const impact = move === 'eruption' ? this.eruption : this;
-    if (!attack.hit && spritesTouch(impact, player)) {
+    const hits = spec.groundRadius
+      ? Math.abs(player.body.center.x - this.x) <= spec.groundRadius && player.body.bottom >= 580
+      : spritesTouch(impact, player);
+    if (!attack.hit && hits) {
       attack.hit = true;
       this.scene.combat.damagePlayer(player.x < impact.x ? -1 : 1);
     }
@@ -223,13 +242,13 @@ export default class SpringEnemy extends SnowEnemy {
         shot.body.setSize(width * .7, height * .55);
         shot.setVelocityX(this.direction * (projectile === 'wave' ? 335 : 400 - index * 75));
         if (count > 1) shot.clubAnimation = { type: projectile, count, start: now - index * 85 };
-        if (!this.isBoss) shot.stopAtX = this.clubArenaStart;
+        if (!this.isBoss) shot.stopAtX = this.arenaStart;
         if (move === 'wave' && elevation === clubHeights[1]) shot.highWave = true;
         shot.expires = now + 1850;
       }
       return;
     }
-    const boss = move === 'volley';
+    const boss = move === 'volley' || move === 'summon';
     const heights = boss && this.health * 2 <= this.maxHealth ? [36, 104] : [58];
     for (const height of heights) {
       const shot = this.shots.create(this.x + this.direction * 31 * this.sizeMultiplier,

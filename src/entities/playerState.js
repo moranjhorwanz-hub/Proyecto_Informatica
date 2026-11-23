@@ -18,6 +18,7 @@ export class PlayerState {
     this.hurtUntil = 0;
     this.invulnerableUntil = 0;
     this.knockback = 0;
+    this.shieldHits = 0;
   }
 
   update(input, { grounded, canStand = true }, now) {
@@ -63,6 +64,16 @@ export class PlayerState {
     this.knockback = Math.sign(direction) * 170;
     this.pose = 'hurt';
     return true;
+  }
+
+  takeEnemyDamage(now, direction = -this.facing) {
+    if (!this.lives || now < this.invulnerableUntil || now < this.moonUntil) return false;
+    if (this.shieldHits > 0) {
+      this.shieldHits--;
+      this.invulnerableUntil = now + this.stats.invulnerability;
+      return true;
+    }
+    return this.takeDamage(now, direction);
   }
 
   // Falling bypasses invulnerability, but the caller must respawn immediately.

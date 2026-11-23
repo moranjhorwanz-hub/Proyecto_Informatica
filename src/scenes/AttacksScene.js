@@ -95,20 +95,21 @@ export default class AttacksScene extends Phaser.Scene {
         `${seconds(combat.freezeCooldown)} s`],
       ['note', 'Nota musical', 'Lanza una nota rápida que inflige un punto de daño.',
         `${seconds(combat.noteCooldown)} s`],
+      ['hatPower', 'Sombrero estelar', 'Duplica el daño del sombrero durante 10 s. Se compra en la tienda.', '30 s'],
       ['moon', 'Moonwalk', 'Esquiva mientras te deslizas.', '—'],
     ];
     this.text(1188, 181, 'Recarga', 16, 'bold', '#afbfd6').setOrigin(1, 0);
     const lines = this.add.graphics().lineStyle(1, 0x354560);
     this.content.add(lines);
     moves.forEach(([action, name, description, cooldown], index) => {
-      const y = 211 + index * 70;
+      const y = 204 + index * 58;
       this.shape(378, y + 9, 106, 38, 0x172335, 0x536680, 8);
-      this.text(431, y + 28, keyLabel(controls[action][0]), 18, 'bold').setOrigin(.5);
+      this.text(431, y + 28, action === 'hatPower' ? 'B / LT' : keyLabel(controls[action][0]), 18, 'bold').setOrigin(.5);
       const title = this.text(505, y, name, 24, 'bold');
       if (action === 'note') this.text(515 + title.width, y, '♪', 24, 'bold', '#80e7ff');
       this.text(505, y + 32, description, 18, 'normal', '#afbfd6');
       this.text(1188, y + 28, cooldown, 21, 'bold').setOrigin(1, .5);
-      lines.lineBetween(377, y + 59, 1209, y + 59);
+      lines.lineBetween(377, y + 54, 1209, y + 54);
     });
     this.text(379, 574, `Personaje activo · ${this.character.name}`, 18, 'normal', '#afbfd6');
   }

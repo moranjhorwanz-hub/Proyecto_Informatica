@@ -7,6 +7,11 @@ const bars = {
     artwork: 'club-boss-health', top: 159, height: 427, scale: .28,
     fillBounds: { x: 434, y: 391, width: 1648, height: 99 },
   },
+  deadKing: {
+    artwork: 'thriller-boss-health', top: 0, height: 724, scale: .28,
+    fillBounds: { x: 585, y: 352, width: 1413, height: 94 },
+    hasVioletFill: true,
+  },
 };
 
 export function preloadBossHealthBar(scene) {
@@ -15,7 +20,7 @@ export function preloadBossHealthBar(scene) {
   }
 }
 
-function registerHealthTextures(scene, { artwork, top, height: artworkHeight, fillBounds }, emptyArtwork) {
+function registerHealthTextures(scene, { artwork, top, height: artworkHeight, fillBounds, hasVioletFill }, emptyArtwork) {
   if (scene.textures.exists(emptyArtwork)) return;
   const source = scene.textures.get(artwork);
   const image = source.getSourceImage();
@@ -28,11 +33,15 @@ function registerHealthTextures(scene, { artwork, top, height: artworkHeight, fi
   const pixels = context.getImageData(x, y - top, width, height);
   for (let i = 0; i < pixels.data.length; i += 4) {
     const red = pixels.data[i], green = pixels.data[i + 1], blue = pixels.data[i + 2];
-    // Desaturate the red and pink fill while retaining the dark track around it.
-    if (red <= 35 || red <= blue * 1.19 || red <= green * 2) continue;
-    pixels.data[i] = 13 + red * .06;
-    pixels.data[i + 1] = 7 + red * .025;
-    pixels.data[i + 2] = 20 + red * .075;
+    const intensity = hasVioletFill ? Math.max(red, blue) : red;
+    // Keep the gold border and the dark gaps between segments.
+    const isFill = hasVioletFill
+      ? intensity > 32 && green < intensity * .66 && blue > green * 1.15
+      : red > 35 && red > blue * 1.19 && red > green * 2;
+    if (!isFill) continue;
+    pixels.data[i] = 13 + intensity * .06;
+    pixels.data[i + 1] = 7 + intensity * .025;
+    pixels.data[i + 2] = 20 + intensity * .075;
   }
   context.putImageData(pixels, x, y - top);
   texture.refresh();
