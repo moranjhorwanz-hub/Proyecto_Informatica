@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { DEFAULT_SETTINGS, difficulties } from '../data/settings.js';
+import { controlActions, keyLabel } from '../data/controls.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
 
 const tabs = ['Gráficos', 'Audio', 'Controles', 'General'];
@@ -7,13 +8,17 @@ const tabs = ['Gráficos', 'Audio', 'Controles', 'General'];
 export default class SettingsScene extends Phaser.Scene {
   constructor() { super('Settings'); }
 
-  create({ gameOver, victory } = {}) {
+  create({ gameOver, victory, fromPause } = {}) {
     const returnScene = victory ? 'Victory' : gameOver ? 'GameOver' : 'Menu';
-    this.goBack = () => this.scene.start(returnScene, victory ?? gameOver ?? {});
+    this.goBack = fromPause ? () => {
+      this.scene.stop();
+      this.scene.resume('Game');
+    } : () => this.scene.start(returnScene, victory ?? gameOver ?? {});
     this.services = this.registry.get('services');
     this.draft = { ...this.services.progress.data.settings };
     this.tab = 0;
     this.focus = -1;
+    this.binding = null;
     createSettingsMenuFrame(this);
     this.content = this.add.group();
     this.renderPage();
@@ -60,6 +65,7 @@ export default class SettingsScene extends Phaser.Scene {
   selectTab(index) {
     this.tab = Phaser.Math.Wrap(index, 0, tabs.length);
     this.focus = -1;
+    this.binding = null;
     this.renderPage();
   }
 
@@ -80,9 +86,12 @@ export default class SettingsScene extends Phaser.Scene {
 
     [this.graphicsPage, this.audioPage, this.controlsPage, this.generalPage][this.tab].call(this);
     this.feedback = this.text(377, 584, notice, 17, '#ffd2d9');
-    this.text(35, 675, 'Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar', 16, '#afbfd6');
+    this.text(35, 675, this.tab === 2
+      ? 'Tab · Apartados    ↑ ↓ · Elegir    Enter · Cambiar'
+      : 'Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar', 16, '#afbfd6');
     this.button(691, 664, 259, 43, 'Restablecer valores', () => {
       this.draft = { ...DEFAULT_SETTINGS };
+      this.binding = null;
       this.renderPage('Valores restablecidos. Pulsa Aplicar para guardarlos.');
     });
     this.button(960, 664, 137, 43, 'Aplicar', () => this.apply(), true);
@@ -158,15 +167,27 @@ export default class SettingsScene extends Phaser.Scene {
   }
 
   controlsPage() {
-    const controls = [
-      ['Mover', 'A / D  ·  ← / →'], ['Correr', 'SHIFT'], ['Saltar / Doble salto', 'ESPACIO / ESPACIO × 2'],
-      ['Agacharse', 'S / ↓'], ['Moonwalk', 'M'], ['Sombrero / Giro / Nieve / Nota musical', 'J / K / L / N'],
-      ['Pausa / Reiniciar / Menú', 'P / R / ESC'],
-    ];
-    controls.forEach(([label, keys], index) => {
-      const y = 199 + index * 55;
-      this.row(y, label);
-      this.text(1198, y, keys, 21, '#cddff9', 'bold').setOrigin(1, .5);
+    const controls = this.draft.controls;
+    this.text(379, 180, 'Elige una acción, pulsa la nueva tecla y guarda con Aplicar.', 18, '#afbfd6');
+    Object.entries(controlActions).forEach(([action, label], index) => {
+      const x = 379 + Math.floor(index / 6) * 421;
+      const y = 224 + (index % 6) * 53;
+      const startBinding = () => {
+        this.focus = index;
+        this.binding = action;
+        this.renderPage('Pulsa la nueva tecla. Esc cancela el cambio.');
+      };
+      this.adjustments.push(startBinding);
+      const waiting = this.binding === action;
+      this.text(x, y + 19, label, 19, this.focus === index ? '#ff889c' : '#f4f6fd').setOrigin(0, .5);
+      this.button(x + 225, y, 175, 38, waiting ? 'Pulsa una tecla' : controls[action].map(keyLabel).join(' / '),
+        startBinding, waiting || this.focus === index);
+    });
+    this.text(379, 555, 'Esc · Volver al menú', 17, '#afbfd6');
+    this.button(931, 542, 269, 38, 'Restablecer teclas', () => {
+      this.binding = null;
+      this.draft.controls = DEFAULT_SETTINGS.controls;
+      this.renderPage('Teclas restablecidas. Pulsa Aplicar para guardarlas.');
     });
   }
 
@@ -177,17 +198,43 @@ export default class SettingsScene extends Phaser.Scene {
   }
 
   apply() {
+    this.binding = null;
     const result = this.services.settings.update(this.draft);
     this.renderPage(result.ok ? 'Preferencias guardadas.' : 'No se pudo guardar. Los ajustes no han cambiado.');
   }
 
   onKey(event) {
     const { key } = event;
+    if (this.binding) {
+      event.preventDefault();
+      if (event.repeat) return;
+      if (key === 'Escape') {
+        this.binding = null;
+        this.renderPage();
+        return;
+      }
+      const code = event.keyCode;
+      if (!keyLabel(code)) {
+        this.renderPage('Elige otra tecla. Esc cancela el cambio.');
+        return;
+      }
+      const conflict = Object.entries(this.draft.controls)
+        .find(([action, keys]) => action !== this.binding && keys.includes(code));
+      if (conflict) {
+        this.renderPage(`Tecla en uso · ${controlActions[conflict[0]]}. Elige otra tecla.`);
+        return;
+      }
+      this.draft.controls = { ...this.draft.controls, [this.binding]: [code] };
+      this.binding = null;
+      this.renderPage('Pulsa Aplicar para guardar las teclas.');
+      return;
+    }
     if (!['Escape', 'Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) return;
     event.preventDefault();
     if (event.repeat) return;
     if (key === 'Escape') this.goBack();
     else if (key === 'Tab') this.selectTab(this.tab + (event.shiftKey ? -1 : 1));
+    else if (key === 'Enter' && this.tab === 2 && this.focus >= 0 && !event.ctrlKey) this.adjustments[this.focus]();
     else if (key === 'Enter') this.apply();
     else if (key === 'ArrowUp' || key === 'ArrowDown') {
       if (!this.adjustments.length) return;
@@ -195,6 +242,6 @@ export default class SettingsScene extends Phaser.Scene {
         : Phaser.Math.Wrap(this.focus + (key === 'ArrowDown' ? 1 : -1), 0, this.adjustments.length);
       this.renderPage();
     } else if (this.focus < 0) this.selectTab(this.tab + (key === 'ArrowLeft' ? -1 : 1));
-    else this.adjustments[this.focus](key === 'ArrowLeft' ? -1 : 1);
+    else if (this.tab !== 2) this.adjustments[this.focus](key === 'ArrowLeft' ? -1 : 1);
   }
 }

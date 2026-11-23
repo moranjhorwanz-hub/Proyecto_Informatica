@@ -7,12 +7,15 @@ import { courses } from '../data/courses.js';
 import { getAppearance } from '../entities/appearance.js';
 import { canUseSnow, getCharacter } from '../data/characters.js';
 import { getDifficulty } from '../data/settings.js';
+import { keyLabel, menuKey } from '../data/controls.js';
 import { scenery } from './scenery.js';
 import { drawParallaxScenery, hasParallaxScenery, styleParallaxPlatform } from '../visuals/parallaxScenery.js';
 import { createBossHealthBar, updateBossHealthBar } from '../visuals/bossHealthBar.js';
 import { fitMenuText, menuColors, menuPanel, menuText } from '../ui/menuComponents.js';
+import { createPauseMenu } from '../ui/pauseMenu.js';
 
 const lifeBarWidth = 240;
+const pauseNavigation = { previous: [38], next: [40], confirm: [13] };
 
 const label = (scene, x, y, value, size = 18, color = '#eceee9') => scene.add.text(x, y, value, {
   fontFamily: 'Arial', fontSize: `${size}px`, color,
@@ -23,6 +26,9 @@ export default class GameScene extends Phaser.Scene {
 
   create(data) {
     this.services = this.registry.get('services');
+    this.controls = this.services.progress.data.settings.controls;
+    this.controlHints = [];
+    this.keyCaptures = [];
     this.level = levels.find(level => level.id === data.levelId) || levels[0];
     this.difficulty = getDifficulty(this.services.progress.data.settings);
     this.campaign = data.mode === 'campaign';
@@ -62,10 +68,10 @@ export default class GameScene extends Phaser.Scene {
       [1430,490,240,50],[1760,475,190,24],[2080,510,150,24],
     ].forEach(rect => this.addPlatform(...rect));
     label(this, 70, 568, '01 / Encuentra tu ritmo', 17, '#eed29c');
-    label(this, 290, 460, 'ESPACIO · Salta', 16);
+    this.controlHint(label(this, 290, 460, '', 16), () => `${this.controlLabel('jump')} · Salta`);
     label(this, 690, 660, 'Cuidado con el hueco', 15, '#f5c8bd');
-    label(this, 1370, 433, '↓ / S · Agáchate bajo el puente', 17, '#eed29c');
-    label(this, 2020, 570, 'M · Deslízate hacia atrás', 17, '#b7eafa');
+    this.controlHint(label(this, 1370, 433, '', 17, '#eed29c'), () => `${this.controlLabel('down')} · Agáchate bajo el puente`);
+    this.controlHint(label(this, 2020, 570, '', 17, '#b7eafa'), () => `${this.controlLabel('moon')} · Deslízate hacia atrás`);
     this.add.rectangle(2455, 505, 5, 230, 0xf0d298);
     this.add.triangle(2505, 420, 0, 0, 100, 25, 0, 50, this.level.accent);
     label(this, 2370, 340, 'FIN DEL ENSAYO', 21, '#f0d298');
@@ -88,20 +94,64 @@ export default class GameScene extends Phaser.Scene {
     this.trainingSnow = !this.campaign;
     this.combat = new CombatSystem(this);
     this.levelManager?.connect();
-    this.keys = this.input.keyboard.addKeys({
-      left: 'LEFT', right: 'RIGHT', a: 'A', d: 'D', down: 'DOWN', s: 'S',
-      jump: 'SPACE', run: 'SHIFT', moon: 'M', restart: 'R', pause: 'P', escape: 'ESC',
-      hat: 'J', spin: 'K', freeze: 'L', note: 'N',
-    });
-    this.input.keyboard.addCapture(['SPACE', 'UP', 'DOWN', 'LEFT', 'RIGHT']);
+    this.bindControls();
     this.createHud();
     this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
+    this.pauseMenu = createPauseMenu(this, {
+      resume: () => this.setPaused(false),
+      menu: () => this.scene.start('Menu'),
+      settings: () => {
+        this.scene.launch('Settings', { fromPause: true });
+        this.scene.pause();
+      },
+    });
+    const refreshAfterSettings = () => {
+      this.bindControls();
+      this.controlHints.forEach(refresh => refresh());
+      this.pauseMenu.show(true);
+    };
+    this.events.on('resume', refreshAfterSettings);
     this.onBlur = () => { this.input.keyboard.resetKeys(); if (!this.dead&&!this.finished) this.setPaused(true); };
     this.game.events.on(Phaser.Core.Events.BLUR, this.onBlur);
     this.events.once('shutdown', () => {
       this.game.events.off(Phaser.Core.Events.BLUR, this.onBlur);
-      this.input.keyboard.resetKeys();
+      this.events.off('resume', refreshAfterSettings);
+      this.input.keyboard.removeCapture(this.keyCaptures);
     });
+  }
+
+  bindControls() {
+    const keyboard = this.input.keyboard;
+    keyboard.resetKeys();
+    keyboard.removeCapture(this.keyCaptures);
+    this.controls = this.services.progress.data.settings.controls;
+    const bindings = { ...this.controls, escape: [menuKey], ...pauseNavigation };
+    const existingCaptures = new Set(keyboard.getCaptures());
+    this.keyCaptures = [...new Set(Object.values(bindings).flat())].filter(code => !existingCaptures.has(code));
+    this.keys = Object.fromEntries(Object.entries(bindings)
+      .map(([action, codes]) => [action, codes.map(code => keyboard.addKey(code))]));
+  }
+
+  controlHint(text, value, maxWidth) {
+    const size = parseFloat(text.style.fontSize);
+    const refresh = () => {
+      text.setFontSize(size).setText(value());
+      if (maxWidth) fitMenuText(text, maxWidth);
+    };
+    this.controlHints.push(refresh);
+    refresh();
+  }
+
+  controlLabel(action) {
+    return this.controls[action].map(keyLabel).join('/');
+  }
+
+  held(action) {
+    return this.keys[action].some(key => key.isDown);
+  }
+
+  pressed(action) {
+    return Phaser.Input.Keyboard.JustDown(this.keys[action][0]);
   }
 
   addPlatform(x, y, width, height) {
@@ -144,42 +194,50 @@ export default class GameScene extends Phaser.Scene {
     const button = (x, value, action) => {
       const hit = fixed(this.add.rectangle(x, 48, 112, 36, menuColors.accent, .45)
         .setStrokeStyle(1, menuColors.border, .5)).setInteractive({ useHandCursor: true });
-      fitMenuText(text(x, 48, value, 16).setOrigin(.5), 100);
+      this.controlHint(text(x, 48, '', 16).setOrigin(.5), value, 100);
       hit.on('pointerover', () => hit.setFillStyle(menuColors.accent, .9));
       hit.on('pointerout', () => hit.setFillStyle(menuColors.accent, .45));
-      hit.on('pointerdown', action);
+      hit.on('pointerdown', () => { if (!this.paused) action(); });
     };
-    button(1067, 'P · Pausa', () => { if (!this.dead) this.setPaused(!this.paused); });
-    button(1191, '← Menú', () => this.scene.start('Menu'));
+    button(1067, () => `${this.controlLabel('pause')} · Pausa`, () => { if (!this.dead) this.setPaused(true); });
+    button(1191, () => '← Menú', () => this.scene.start('Menu'));
     fixed(menuPanel(this, 16, 682, 1248, 30), 100);
-    text(640, 697, 'A/D o ← →  Mover    SHIFT  Correr    ESPACIO  Saltar    S/↓  Agacharse    M  Moonwalk    R  Reiniciar    ESC  Menú', 14, menuColors.muted).setOrigin(.5);
-    this.overlay = this.add.container(640, 345).setScrollFactor(0).setDepth(110).setVisible(false);
-    this.overlay.add(menuPanel(this, -340, -95, 680, 190));
-    this.overlayTitle = menuText(this, 0, -53, '', 36, menuColors.accentText).setOrigin(.5, 0);
-    this.overlayBody = menuText(this, 0, 11, '', 19).setOrigin(.5, 0);
-    this.overlay.add([this.overlayTitle, this.overlayBody]);
+    const shortcuts = () => [
+      [`${this.controlLabel('left')} · ${this.controlLabel('right')}`, 'Mover'],
+      ...[['run', 'Correr'], ['jump', 'Saltar'], ['down', 'Agacharse'], ['moon', 'Moonwalk'], ['restart', 'Reiniciar']]
+        .map(([action, title]) => [this.controlLabel(action), title]),
+      [keyLabel(menuKey), 'Menú'],
+    ].map(([keys, title]) => `${keys}  ${title}`).join('    ');
+    this.controlHint(text(640, 697, '', 14, menuColors.muted).setOrigin(.5), shortcuts, 1210);
     this.notice = text(640, 91, '', 18, menuColors.accentText).setOrigin(.5, 0);
     this.sectionText = this.levelManager?.course.sections && text(34, 93, '', 15, menuColors.muted);
     this.combatText = text(640, 116, '', 16).setOrigin(.5, 0);
-    text(640, 139, this.campaign
-      ? `J · Sombrero   K · Giro   L · ${canUseSnow(this.services.progress.data)?'Nieve disponible':'Nieve disponible en tienda'}`
-      : 'L · Nieve habilitada para este ensayo · Muñecos: 2 impactos', 13, menuColors.muted).setOrigin(.5, 0);
+    this.controlHint(text(640, 139, '', 13, menuColors.muted).setOrigin(.5, 0), () => this.campaign
+      ? `${this.controlLabel('hat')} · Sombrero   ${this.controlLabel('spin')} · Giro   ${this.controlLabel('freeze')} · ${canUseSnow(this.services.progress.data)?'Nieve disponible':'Nieve disponible en tienda'}`
+      : `${this.controlLabel('freeze')} · Nieve habilitada para este ensayo · Muñecos: 2 impactos`);
   }
 
   setPaused(value) {
+    if (this.paused === value) return;
     this.paused = value;
+    this.input.keyboard.resetKeys();
     if (value) {
       this.physics.pause(); this.player.anims.pause();
-      this.overlayTitle.setText('Pausa');
-      this.overlayBody.setText('P para continuar · ESC para volver al menú');
     } else { this.physics.resume(); this.player.anims.resume(); }
-    this.overlay.setVisible(value);
+    this.pauseMenu.show(value);
   }
 
   update(_time, delta) {
-    if (Phaser.Input.Keyboard.JustDown(this.keys.escape)) { this.scene.start('Menu'); return; }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.pause) && !this.dead) this.setPaused(!this.paused);
+    if (this.pressed('escape')) { this.scene.start('Menu'); return; }
+    if (this.pressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
+    if (this.paused) {
+      if (this.pressed('previous')) this.pauseMenu.move(-1);
+      else if (this.pressed('next')) this.pauseMenu.move(1);
+      else if (this.pressed('confirm')) this.pauseMenu.activate();
+      else if (this.pressed('pause')) this.setPaused(false);
+      return;
+    }
+    if (this.pressed('pause') && !this.dead) this.setPaused(true);
     if (this.paused || this.dead) return;
     if (this.backdrop) {
       const camera = this.cameras.main;
@@ -190,15 +248,15 @@ export default class GameScene extends Phaser.Scene {
     this.playTime += delta;
     this.levelManager?.update(this.playTime);
     this.player.update({
-      left: this.keys.left.isDown || this.keys.a.isDown,
-      right: this.keys.right.isDown || this.keys.d.isDown,
-      down: this.keys.down.isDown || this.keys.s.isDown,
-      run: this.keys.run.isDown,
-      jumpPressed: Phaser.Input.Keyboard.JustDown(this.keys.jump),
-      moonPressed: Phaser.Input.Keyboard.JustDown(this.keys.moon),
+      left: this.held('left'),
+      right: this.held('right'),
+      down: this.held('down'),
+      run: this.held('run'),
+      jumpPressed: this.pressed('jump'),
+      moonPressed: this.pressed('moon'),
     }, this.playTime);
     for (const kind of ['hat', 'spin', 'freeze', 'note']) {
-      if (Phaser.Input.Keyboard.JustDown(this.keys[kind])) this.combat.attack(kind);
+      if (this.pressed(kind)) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
     if (this.player.y > 850) {
@@ -206,16 +264,16 @@ export default class GameScene extends Phaser.Scene {
       this.centerCameraOnPlayer();
       this.combat.resetProjectiles();
     }
-    this.combatText.setText([['hat', 'J · Sombrero'], ['spin', 'K · Giro'], ['freeze', 'L · Nieve'], ['note', 'N ♪ · Nota musical']].map(([kind, title]) => {
+    this.combatText.setText([['hat', 'Sombrero'], ['spin', 'Giro'], ['freeze', 'Nieve'], ['note', 'Nota musical']].map(([kind, title]) => {
       const remaining = Math.max(0, this.combat.state.next[kind] - this.playTime);
-      return `${title}: ${kind==='freeze'&&!this.trainingSnow&&!canUseSnow(this.services.progress.data)?'bloqueada':remaining ? `${(remaining / 1000).toFixed(1)} s` : kind === 'hat' && this.combat.hat?.active ? 'en vuelo' : 'listo'}`;
+      return `${this.controlLabel(kind)} · ${title}: ${kind==='freeze'&&!this.trainingSnow&&!canUseSnow(this.services.progress.data)?'bloqueada':remaining ? `${(remaining / 1000).toFixed(1)} s` : kind === 'hat' && this.combat.hat?.active ? 'en vuelo' : 'listo'}`;
     }).join('     '));
     const state = this.player.state;
     this.lifeBar.setScale(state.lives / state.stats.lives, 1);
-    const poses = { idle: 'En escena', run: this.keys.run.isDown ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
+    const poses = { idle: 'En escena', run: this.held('run') ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
     this.stateText.setText(poses[state.pose]);
     const remaining = Math.max(0, state.nextMoon - this.playTime);
-    this.moonText.setText(remaining ? `M · Recargando ${(remaining / 1000).toFixed(1)} s` : 'M · Moonwalk listo');
+    this.moonText.setText(`${this.controlLabel('moon')} · ${remaining ? `Recargando ${(remaining / 1000).toFixed(1)} s` : 'Moonwalk listo'}`);
     if (!state.lives) {
       this.dead = true;
       this.scene.start('GameOver', {

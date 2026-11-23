@@ -38,6 +38,21 @@ test('difficulty adjusts lives and immunity while preserving character movement'
   }
   assert.equal(getDifficulty({difficulty:'constructor'}),getDifficulty({difficulty:'Normal'}));
 });
+test('custom controls survive saving and loading, and reject duplicate or reserved keys', () => {
+  const progress = { data: defaultProgress() };
+  let stored;
+  const manager = new SettingsManager(progress, { configure() {} }, next => {
+    stored = JSON.stringify(next);
+    return true;
+  });
+  const controls = { ...DEFAULT_SETTINGS.controls, jump: [70] };
+  assert.equal(manager.update({ controls }).ok, true);
+  assert.deepEqual(validateProgress(JSON.parse(stored)).settings.controls, controls);
+  for (const invalid of [{ ...controls, jump: [74] }, { ...controls, jump: [27] }, { jump: [70] }]) {
+    assert.equal(manager.update({ controls: invalid }).reason, 'invalid-settings');
+    assert.deepEqual(validateSettings({ controls: invalid }).controls, DEFAULT_SETTINGS.controls);
+  }
+});
 test('all catalog names and descriptions have English and French translations',()=>{
   for(const item of [...shopItems,...characters])for(const key of ['name','description'])for(const language of ['en','fr']) {
     if(item[key]==='Michael')continue;
