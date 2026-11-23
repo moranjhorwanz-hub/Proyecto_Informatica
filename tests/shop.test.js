@@ -88,7 +88,8 @@ test('equipped skins override outfits across seasons without changing level iden
     assert.equal(dressed.textureId, 'skin-white');
     assert.equal(dressed.color, 0xf4f0e7);
     assert.equal(JSON.stringify(level), before);
-    assert.deepEqual(getAppearance(level, { equippedSkin: 'white', purchases: [] }), level);
-    assert.deepEqual(getAppearance(level, { equippedSkin: null, purchases: ['white'] }), level);
+    const seasonal = { ...level, textureId: `season-${level.world}` };
+    assert.deepEqual(getAppearance(level, { equippedSkin: 'white', purchases: [] }), seasonal);
+    assert.deepEqual(getAppearance(level, { equippedSkin: null, purchases: ['white'] }), seasonal);
   }
 });

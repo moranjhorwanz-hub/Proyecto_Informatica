@@ -6,7 +6,9 @@ export function getAppearance(level, progress) {
   const skin = findShopItem(progress.equippedSkin);
   const character = getCharacter(progress);
   const hasSkin = skin?.type === 'skin' && progress.purchases.includes(skin.id);
-  let appearance = character.id === 'michael' ? { ...level } : { ...level, ...character.look, outfit: character.outfit, textureId: `character-${character.id}` };
+  let appearance = character.id === 'michael'
+    ? { ...level, textureId: `season-${level.world}` }
+    : { ...level, ...character.look, outfit: character.outfit, textureId: `character-${character.id}` };
   if (hasSkin) appearance = {
     ...appearance,
     color: character.id === 'snow-king' ? appearance.color : skin.color,

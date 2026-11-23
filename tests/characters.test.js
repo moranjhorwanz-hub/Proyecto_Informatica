@@ -89,7 +89,7 @@ test('skins preserve character identity, have separate texture keys and never gr
     data.equippedSkin=null;
     assert.equal(getAppearance(levels[3],data).textureId,`character-${character.id}`);
     data.character='michael';
-    assert.equal(getAppearance(levels[3],data).textureId,undefined);
+    assert.equal(getAppearance(levels[3],data).textureId,'season-2');
     assert.equal(data.abilities.includes('freeze'),false);
   }
 });

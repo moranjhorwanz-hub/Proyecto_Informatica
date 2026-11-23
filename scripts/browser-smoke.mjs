@@ -242,7 +242,7 @@ try {
     await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:${id}});true`);
     await waitFor(`testGame.scene.isActive('Game')`, 'Season practice starts');
     await advance(180);
-    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), 'player-pixel');
+    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), `dancer-season-${Math.ceil(id / 3)}`);
     await tap('Escape', 'Escape');
   }
   // Campaign integration: locks, collection, rewards, moving platforms and boss.
@@ -408,7 +408,7 @@ try {
   await tap('Escape','Escape');
   await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:2,mode:'campaign'});true`);
   await advance(100);
-  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'player-pixel','Default outfit restored');
+  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'dancer-season-1','Default outfit restored');
   console.log('Shop passed: insufficient coins, mouse purchase, failed-save rollback, snow unlock, replay earnings, skin equip across seasons, reload persistence and default outfit restore.');
   // Phase 7 uses an explicit isolated save fixture to avoid farming 3400 coins.
   await evaluate(`(()=>{const s=testGame.registry.get('services');s.progress.data={...s.progress.data,coins:5000,character:'michael',equippedSkin:'thriller',purchases:s.progress.data.purchases.filter(id=>id!=='freeze'),abilities:['hat','moonwalk']};localStorage.setItem('mja.save.v1',JSON.stringify(s.progress.data));})()`);
@@ -416,7 +416,10 @@ try {
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');
   await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Characters')`,'Menu opens character selection');
+  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-skin-thriller-')`),'Michael previews his equipped outfit');
   await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter'); await tap('Enter','Enter');
+  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-character-christmas-dancer-')`),'The animated preview uses the Christmas dancer outfit');
+  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-character-christmas-dancer-skin-thriller-')`),'The character preview matches the equipped outfit in gameplay');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'christmas-dancer');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
   const characterShot=await cdp('Page.captureScreenshot',{format:'png'});

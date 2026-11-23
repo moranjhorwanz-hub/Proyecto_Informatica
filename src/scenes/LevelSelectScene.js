@@ -3,6 +3,8 @@ import { levels } from '../data/levels.js';
 import { achievementNames } from '../systems/ProgressManager.js';
 import { fitMenuText } from '../ui/menuComponents.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
+import { getAppearance } from '../entities/appearance.js';
+import { updatePixelMenuCharacter } from '../visuals/menuCharacter.js';
 
 // Small illustrations sampled from the original selector artwork.
 const thumbnails = [
@@ -21,7 +23,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     this.services = this.registry.get('services');
     this.selected = this.services.progress.data.selectedLevel - 1;
     this.services.audio.playMenu();
-    createSettingsMenuFrame(this);
+    this.menuHero = createSettingsMenuFrame(this);
     this.text(51, 20, '✦', 36);
     this.text(106, 19, 'Elige tu aventura', 42, white, 'bold italic');
     this.text(38, 133, 'Completa cada nivel para desbloquear el siguiente.', 19, muted)
@@ -89,6 +91,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     });
     const progress = this.services.progress.data;
     const level = levels[this.selected];
+    updatePixelMenuCharacter(this.menuHero, getAppearance(level, progress));
     const unlocked = progress.unlockedLevels.includes(level.id);
     this.season.setText(level.subtitle);
     this.info.setText(`Dificultad ${level.difficulty} · ${unlocked ? 'Listo para jugar' : 'Nivel bloqueado'}`);

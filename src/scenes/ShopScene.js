@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { getAppearance } from '../entities/appearance.js';
-import { getPlayerSpritePrefix } from '../entities/playerSprites.js';
+import { updatePixelMenuCharacter } from '../visuals/menuCharacter.js';
 import { characters } from '../data/characters.js';
 import { wardrobePreviewTexture } from '../visuals/wardrobePreview.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
@@ -101,7 +101,11 @@ export default class ShopScene extends Phaser.Scene {
     this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin);
     if (isSkin) {
       const level = levels[data.selectedLevel - 1];
-      const appearance = getAppearance(level, this.characters ? { character: selected.id, equippedSkin: null, purchases: [selected.id] } : { ...data, equippedSkin: selected.id, purchases: [...data.purchases, ...(selected.id ? [selected.id] : [])] });
+      const purchases = [...data.purchases, ...(selected.id ? [selected.id] : [])];
+      const appearance = getAppearance(level, this.characters
+        ? { ...data, character: selected.id, purchases }
+        : { ...data, equippedSkin: selected.id, purchases });
+      if (this.characters || this.wardrobe) updatePixelMenuCharacter(this.menuHero, appearance);
       this.preview.setTexture(wardrobePreviewTexture(this, appearance));
       this.preview.setScale(250 / this.preview.height);
     }
@@ -117,12 +121,6 @@ export default class ShopScene extends Phaser.Scene {
     if (this.characters) {
       if (owned && this.services.progress.data.character === item.id) { this.scene.start('LevelSelect'); return; }
       const result = owned ? this.shop.selectCharacter(item.id) : this.shop.buy(item.id);
-      if (result.ok && owned) {
-        const appearance = getAppearance(levels.find(level => level.world === 4), this.services.progress.data);
-        const prefix = getPlayerSpritePrefix(this, appearance);
-        if (this.menuHero.anims.isPlaying) this.menuHero.play(`${prefix}-dance`);
-        else this.menuHero.setTexture(`${prefix}-idle-0`);
-      }
       this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
       this.feedback.setText(result.ok ? owned ? 'Personaje seleccionado y guardado. Se conservan tu skin y tus compras.' : 'Personaje desbloqueado y guardado. Pulsa de nuevo para seleccionarlo.' : messages[result.reason]);
       this.refresh(); return;
