@@ -141,13 +141,16 @@ try {
   await waitFor(`p.body.blocked.down || p.body.touching.down`, 'Player must land');
   const initial = await evaluate(`({x:p.x,y:p.y,lives:p.state.lives})`);
   assert.equal(initial.lives, 3);
+  assert.equal(await evaluate('practice.lifeBar.scaleX'), 1, 'Player health bar starts full');
   assert.ok(Math.abs(initial.y - 620) < 2, 'Feet must align with floor');
   // Phase 4: exercise real projectiles, Arcade overlaps and keyboard attacks.
-  await evaluate(`window.enemy=practice.combat.enemies.getChildren()[0]; enemy.body.reset(230,620); enemy.left=230;enemy.right=230;enemy.freeze(10000); true`);
+  await evaluate(`window.enemy=practice.combat.enemies.getChildren()[0]; const targetX=p.x+270; enemy.body.reset(targetX,620); enemy.left=targetX;enemy.right=targetX;enemy.health=3;enemy.freeze(10000); true`);
   await tap('j');
-  assert.equal(await evaluate('enemy.health'), 1, 'Hat must hit a snowman');
+  await advance(450);
+  assert.equal(await evaluate('enemy.health'), 1, 'Hat reaches the distant snowman and deals two damage');
   await advance(1700);
   assert.equal(await evaluate('Boolean(practice.combat.hat?.active)'), false, 'Hat returns and is destroyed');
+  await evaluate('enemy.body.reset(230,620);enemy.left=230;enemy.right=230;true');
   await tap('l');
   assert.ok(await evaluate('!enemy.active'), 'Snow projectile delivers second hit');
   await evaluate(`window.enemy=practice.combat.enemies.getChildren()[0]; enemy.body.reset(210,620);enemy.left=210;enemy.right=210;true`);
@@ -207,6 +210,7 @@ try {
   // Hazard is a real Arcade overlap, not a direct state call.
   await evaluate(`p.body.reset(1290,600); p.setVelocity(0,0); true`);
   await waitFor('p.state.lives===2', 'Hazard must damage once');
+  assert.equal(await evaluate('practice.lifeBar.scaleX'), 2 / 3, 'Player health bar reflects damage');
   await evaluate(`p.body.reset(1290,600); p.setVelocity(0,0); true`);
   await advance(180);
   assert.equal(await evaluate('p.state.lives'), 2, 'Invulnerability must block repeated overlaps');
@@ -238,7 +242,7 @@ try {
     await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:${id}});true`);
     await waitFor(`testGame.scene.isActive('Game')`, 'Season practice starts');
     await advance(180);
-    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), 'player-pixel');
+    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), `dancer-season-${Math.ceil(id / 3)}`);
     await tap('Escape', 'Escape');
   }
   // Campaign integration: locks, collection, rewards, moving platforms and boss.
@@ -294,12 +298,12 @@ try {
       await advance(200);
       assert.ok(await evaluate('boss.projectiles.getLength()>0'),'Boss fires snow projectiles');
       // Real keyboard throws and spins; position each encounter to avoid pathfinding in this smoke test.
-      for(let hit=0;hit<8;hit++) {
+      for(let hit=0;hit<4;hit++) {
         await evaluate('boss.body.reset(3440,620);boss.left=3440;boss.right=3440;boss.nextShot=practice.playTime+5000;p.body.reset(3370,620);p.state.facing=1;p.state.hurtUntil=0;p.setVelocity(0,0);true');
         await tap('j');
         await advance(1900);
       }
-      assert.equal(await evaluate('boss.active'),false,'Eight hat hits defeat boss');
+      assert.equal(await evaluate('boss.active'),false,'Four hat hits defeat boss');
     }
     await evaluate('practice.cameras.main.stopFollow();practice.cameras.main.centerOn(p.x,360);true');
     await advance(30);
@@ -369,8 +373,7 @@ try {
     assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance,'Replay pays items without repeating bonus');
   }
   await tap('Escape','Escape'); await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
-  await tap('Enter','Enter'); // Buy Thriller.
-  expectedBalance-=500;
+  await tap('Enter','Enter'); // Claim Thriller for free.
   assert.ok(await evaluate(`testGame.registry.get('services').shop.owns('thriller')`));
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),null,'Buying does not equip automatically');
   await tap('Enter','Enter'); // Equip.
@@ -405,7 +408,7 @@ try {
   await tap('Escape','Escape');
   await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:2,mode:'campaign'});true`);
   await advance(100);
-  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'player-pixel','Default outfit restored');
+  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'dancer-season-1','Default outfit restored');
   console.log('Shop passed: insufficient coins, mouse purchase, failed-save rollback, snow unlock, replay earnings, skin equip across seasons, reload persistence and default outfit restore.');
   // Phase 7 uses an explicit isolated save fixture to avoid farming 3400 coins.
   await evaluate(`(()=>{const s=testGame.registry.get('services');s.progress.data={...s.progress.data,coins:5000,character:'michael',equippedSkin:'thriller',purchases:s.progress.data.purchases.filter(id=>id!=='freeze'),abilities:['hat','moonwalk']};localStorage.setItem('mja.save.v1',JSON.stringify(s.progress.data));})()`);
@@ -413,9 +416,12 @@ try {
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');
   await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Characters')`,'Menu opens character selection');
+  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-skin-thriller-')`),'Michael previews his equipped outfit');
   await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter'); await tap('Enter','Enter');
+  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-character-christmas-dancer-')`),'The animated preview uses the Christmas dancer outfit');
+  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-character-christmas-dancer-skin-thriller-')`),'The character preview matches the equipped outfit in gameplay');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'christmas-dancer');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),4300);
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
   const characterShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase7-characters.png',Buffer.from(characterShot.data,'base64'));
   await evaluate(`testGame.scene.getScene('Characters').scene.start('Game',{levelId:1,mode:'campaign'});true`);
@@ -435,7 +441,7 @@ try {
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');await tap('Enter','Enter');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'snow-king');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),3100);
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
   assert.equal(await evaluate(`testGame.registry.get('services').shop.owns('freeze')`),false,'Innate ability needs no separate snow purchase');
   await evaluate(`testGame.scene.getScene('Characters').scene.start('Game',{levelId:1,mode:'campaign'});true`);await advance(150);
   await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.enemy=practice.combat.enemies.getChildren()[0];enemy.body.reset(230,620);enemy.left=230;enemy.right=230;true`);
@@ -451,7 +457,7 @@ try {
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');await tap('Enter','Enter');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'gold-dancer');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),1600);
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
   await evaluate(`testGame.scene.getScene('Characters').scene.start('Game',{levelId:1,mode:'campaign'});true`);await advance(150);
   await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.enemy=practice.combat.enemies.getChildren()[0];enemy.body.reset(245,620);enemy.left=245;enemy.right=245;true`);
   assert.equal(await evaluate('practice.combat.attack("freeze")'),false,'Switching away removes innate snow');
@@ -471,7 +477,7 @@ try {
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await tap('ArrowDown','ArrowDown');await tap('Enter','Enter'); // Wrap gold -> Michael.
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),1600,'Free switching never charges again');
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000,'Free switching never charges again');
   assert.equal(await evaluate(`testGame.registry.get('services').shop.owns('gold-dancer')`),true);
   console.log('Characters passed: three purchases, selection, skin/identity, agile controls, innate snow/freeze/cooldown, golden damage/range, fall/restart, reload and free return to Michael.');
   // Phase 8: settings through real pointer/keyboard input, then translated screens.
@@ -547,7 +553,7 @@ try {
   await evaluate('testGame.loop.stop();window.simTime=performance.now();true');manualFrames=true;
   assert.equal(await evaluate('document.documentElement.lang'),'fr');
   assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.settings`),{language:'fr',music:false,musicVolume:35,sfxVolume:80,difficulty:'Normal',masterVolume:100,graphicsQuality:'Alta'});
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),1600,'Settings preserve purchases and balance');
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000,'Settings preserve purchases and balance');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
   console.log(`Settings passed: ES/EN/FR, translated screens and HUD, independent audio gains, disabled music with effects, save rollback, fullscreen ${fullAvailable?'enter/exit':'unsupported feedback'}, all difficulty profiles/restart and reload persistence.`);
   for(const language of ['es','en','fr']) {

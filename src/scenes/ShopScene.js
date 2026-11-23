@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { getAppearance } from '../entities/appearance.js';
+import { updatePixelMenuCharacter } from '../visuals/menuCharacter.js';
 import { characters } from '../data/characters.js';
 import { wardrobePreviewTexture } from '../visuals/wardrobePreview.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
@@ -31,7 +32,7 @@ export default class ShopScene extends Phaser.Scene {
       : this.shop.catalog.filter(item => item.type !== 'character');
     const selected = itemId ?? (this.characters ? this.services.progress.data.character : this.wardrobe ? this.services.progress.data.equippedSkin : undefined);
     this.focus = Math.max(0, this.items.findIndex(item => item.id === selected));
-    createSettingsMenuFrame(this);
+    this.menuHero = createSettingsMenuFrame(this);
     this.text(51, 20, '✦', 36);
     this.text(106, 19, this.characters ? 'Elige tu personaje' : this.wardrobe ? 'Tu vestuario' : 'La tienda del ritmo', 38, textColor, 'bold italic');
     this.balanceText = this.text(1210, 42, '', 22, '#ff9ca8', 'bold').setOrigin(1, 0);
@@ -92,7 +93,7 @@ export default class ShopScene extends Phaser.Scene {
       const focused = index === this.focus;
       surface.clear().fillStyle(focused ? 0xba1029 : 0x172335).fillPoints(points, true)
         .lineStyle(1.5, focused ? 0xff6277 : 0x536680).strokePoints(points, true);
-      status.setText(equipped ? this.characters ? 'Seleccionado' : 'Equipada' : owned ? item.type === 'ability' ? 'Desbloqueado · L en campaña' : 'En tu inventario' : `${item.price} monedas${this.wardrobe ? ' · Disponible en tienda' : data.coins < item.price ? ` · Faltan ${item.price - data.coins}` : ''}`);
+      status.setText(equipped ? this.characters ? 'Seleccionado' : 'Equipada' : owned ? item.type === 'ability' ? 'Desbloqueado · L en campaña' : 'En tu inventario' : `${item.price === 0 ? 'Gratis' : `${item.price} monedas`}${this.wardrobe ? ' · Disponible en tienda' : data.coins < item.price ? ` · Faltan ${item.price - data.coins}` : ''}`);
     });
     this.previewTitle.setText(selected.name);
     this.previewBody.setText(selected.description);
@@ -100,12 +101,17 @@ export default class ShopScene extends Phaser.Scene {
     this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin);
     if (isSkin) {
       const level = levels[data.selectedLevel - 1];
-      const appearance = getAppearance(level, this.characters ? { character: selected.id, equippedSkin: null, purchases: [selected.id] } : { ...data, equippedSkin: selected.id, purchases: [...data.purchases, ...(selected.id ? [selected.id] : [])] });
+      const purchases = [...data.purchases, ...(selected.id ? [selected.id] : [])];
+      const appearance = getAppearance(level, this.characters
+        ? { ...data, character: selected.id, purchases }
+        : { ...data, equippedSkin: selected.id, purchases });
+      if (this.characters || this.wardrobe) updatePixelMenuCharacter(this.menuHero, appearance);
       this.preview.setTexture(wardrobePreviewTexture(this, appearance));
       this.preview.setScale(250 / this.preview.height);
     }
     const owned = this.owns(selected);
-    this.actionText.setText(this.characters ? !owned ? `Comprar · ${selected.price} monedas` : data.character === selected.id ? 'Seleccionado · Jugar →' : 'Seleccionar personaje' : this.wardrobe && !owned ? 'Ver en tienda →' : !owned ? `Comprar · ${selected.price} monedas` : selected.type === 'ability' ? 'Desbloqueado · Ver controles →' : data.equippedSkin === selected.id ? 'Equipada · Usar en el juego →' : selected.id === null ? 'Usar vestuario predeterminado' : 'Equipar skin');
+    const claimLabel = selected.price === 0 ? 'Obtener gratis' : `Comprar · ${selected.price} monedas`;
+    this.actionText.setText(this.characters ? !owned ? claimLabel : data.character === selected.id ? 'Seleccionado · Jugar →' : 'Seleccionar personaje' : this.wardrobe && !owned ? 'Ver en tienda →' : !owned ? claimLabel : selected.type === 'ability' ? 'Desbloqueado · Ver controles →' : data.equippedSkin === selected.id ? 'Equipada · Usar en el juego →' : selected.id === null ? 'Usar vestuario predeterminado' : 'Equipar skin');
   }
   owns(item) { return item.id === null || item.id === 'michael' || this.shop.owns(item.id); }
   activate() {
@@ -116,13 +122,13 @@ export default class ShopScene extends Phaser.Scene {
       if (owned && this.services.progress.data.character === item.id) { this.scene.start('LevelSelect'); return; }
       const result = owned ? this.shop.selectCharacter(item.id) : this.shop.buy(item.id);
       this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
-      this.feedback.setText(result.ok ? owned ? 'Personaje seleccionado y guardado. Se conservan tu skin y tus compras.' : 'Personaje comprado y guardado. Pulsa de nuevo para seleccionarlo.' : messages[result.reason]);
+      this.feedback.setText(result.ok ? owned ? 'Personaje seleccionado y guardado. Se conservan tu skin y tus compras.' : 'Personaje desbloqueado y guardado. Pulsa de nuevo para seleccionarlo.' : messages[result.reason]);
       this.refresh(); return;
     }
     if (owned && this.services.progress.data.equippedSkin === item.id) { this.scene.start('LevelSelect'); return; }
     const result = owned ? this.shop.equip(item.id) : this.shop.buy(item.id);
     this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
-    this.feedback.setText(result.ok ? owned ? 'Vestuario guardado. Se aplicará al menú y a cualquier nivel.' : item.type === 'ability' ? 'Nieve desbloqueada y guardada. Ya puedes usar L en campaña.' : 'Compra guardada. Pulsa de nuevo para equipar la skin.' : messages[result.reason]);
+    this.feedback.setText(result.ok ? owned ? 'Vestuario guardado. Se aplicará al menú y a cualquier nivel.' : item.type === 'ability' ? 'Nieve desbloqueada y guardada. Ya puedes usar L en campaña.' : 'Traje guardado. Pulsa de nuevo para equiparlo.' : messages[result.reason]);
     this.refresh();
   }
   onKey(event) {

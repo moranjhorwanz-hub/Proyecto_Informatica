@@ -10,7 +10,8 @@ export default class AttacksScene extends Phaser.Scene {
   constructor() { super('Attacks'); }
 
   create() {
-    const progress = this.registry.get('services').progress;
+    this.services = this.registry.get('services');
+    const { progress } = this.services;
     this.character = getCharacter(progress.data);
     this.snowUnlocked = canUseSnow(progress.data);
     this.tab = 0;

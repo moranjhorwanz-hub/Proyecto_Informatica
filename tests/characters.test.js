@@ -9,21 +9,22 @@ import { getAppearance } from '../src/entities/appearance.js';
 import { levels } from '../src/data/levels.js';
 
 const setup=()=>{const progress={data:{...defaultProgress(),coins:5000}};return {progress,shop:new ShopManager(progress,()=>true)};};
-test('characters require purchase, charge catalog prices once, and can switch back freely',()=>{
+test('all characters can be unlocked for free and selected',()=>{
   const {progress,shop}=setup();
+  progress.data.coins=0;
   assert.equal(shop.selectCharacter('snow-king').reason,'not-owned');
   assert.equal(shop.selectCharacter('unknown').reason,'unknown-character');
   for(const character of characters.slice(1)) {
     const balance=progress.data.coins;
     assert.equal(shop.buy(character.id).ok,true);
-    assert.equal(progress.data.coins,balance-character.price);
+    assert.equal(progress.data.coins,0);
     assert.equal(shop.buy(character.id).reason,'already-owned');
     assert.equal(shop.selectCharacter(character.id).ok,true);
     assert.equal(progress.data.character,character.id);
     assert.equal(getCharacter(progress.data),character);
   }
   assert.equal(shop.selectCharacter('michael').ok,true);
-  assert.equal(progress.data.coins,1600);
+  assert.equal(progress.data.coins,0);
 });
 test('failed character purchase or selection cannot change coins, ownership or current character',()=>{
   const {progress}=setup();const shop=new ShopManager(progress,()=>false);
@@ -80,7 +81,7 @@ test('skins preserve character identity, have separate texture keys and never gr
   for(const character of characters.slice(1)) {
     const data={...defaultProgress(),character:character.id,purchases:[character.id,'white'],equippedSkin:'white'};
     const appearance=getAppearance(levels[0],data);
-    assert.equal(appearance.color,0xf4f0e7);
+    assert.equal(appearance.color,character.id === 'snow-king' ? character.look.color : 0xf4f0e7);
     assert.equal(appearance.accessory,character.look.accessory);
     assert.equal(appearance.skinColor,character.look.skinColor);
     assert.equal(appearance.textureId,`character-${character.id}-skin-white`);
@@ -88,7 +89,12 @@ test('skins preserve character identity, have separate texture keys and never gr
     data.equippedSkin=null;
     assert.equal(getAppearance(levels[3],data).textureId,`character-${character.id}`);
     data.character='michael';
-    assert.equal(getAppearance(levels[3],data).textureId,undefined);
+    assert.equal(getAppearance(levels[3],data).textureId,'season-2');
     assert.equal(data.abilities.includes('freeze'),false);
   }
+});
+
+test('Snow King keeps his blue suit with the gold skin across all levels', () => {
+  const data = { ...defaultProgress(), character: 'snow-king', purchases: ['snow-king', 'gold'], equippedSkin: 'gold' };
+  for (const level of levels) assert.equal(getAppearance(level, data).color, 0x8ecce9);
 });
