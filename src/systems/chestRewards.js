@@ -1,5 +1,5 @@
 export const CHEST_COUNT = 3;
-export const CHEST_COIN_REWARD = 50;
+export const CHEST_COIN_REWARD = 100;
 
 // Distribute chests on solid ground, away from traps and the goal/boss arena.
 export function chestPositions(course) {
@@ -29,7 +29,7 @@ export function chooseChestReward(random = Math.random) {
 }
 
 export function applyChestReward(kind, player, combat, now) {
-  if (kind === 'coins') return { coins: 50, message: '¡Cofre: 50 monedas al completar el nivel!' };
+  if (kind === 'coins') return { coins: CHEST_COIN_REWARD, message: '¡Cofre: 100 monedas al completar el nivel!' };
   if (kind === 'shield') {
     player.shieldHits = Math.min(3, player.shieldHits + 3);
     return { coins: 0, message: '¡Cofre: escudo de 3 golpes!' };
@@ -46,5 +46,5 @@ export function applyChestReward(kind, player, combat, now) {
     player.restoreLife();
     return { coins: 0, message: '¡Cofre: recuperaste una vida!' };
   }
-  return { coins: 50, message: '¡Cofre: 50 monedas al completar el nivel!' };
+  return { coins: CHEST_COIN_REWARD, message: '¡Cofre: 100 monedas al completar el nivel!' };
 }

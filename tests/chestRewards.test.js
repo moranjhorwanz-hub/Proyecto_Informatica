@@ -9,7 +9,7 @@ import { ProgressManager, defaultProgress } from '../src/systems/ProgressManager
 test('chest selects five rewards and applies temporary effects', () => {
   assert.deepEqual([0, .21, .41, .61, .81].map(n => chooseChestReward(() => n)), ['coins', 'shield', 'hatPower', 'life', 'energyWave']);
   const player = new PlayerState(), combat = new CombatState();
-  assert.equal(applyChestReward('coins', player, combat, 0).coins, 50);
+  assert.equal(applyChestReward('coins', player, combat, 0).coins, 100);
   applyChestReward('shield', player, combat, 0);
   assert.equal(player.shieldHits, 3);
   applyChestReward('hatPower', player, combat, 100);
@@ -21,16 +21,16 @@ test('chest selects five rewards and applies temporary effects', () => {
   player.fall(0);
   applyChestReward('life', player, combat, 0);
   assert.equal(player.lives, 3);
-  assert.equal(applyChestReward('life', player, combat, 0).coins, 50);
+  assert.equal(applyChestReward('life', player, combat, 0).coins, 100);
 });
 
 test('chest coins are included in level completion rewards', () => {
   const progress = new ProgressManager();
   progress.data = defaultProgress();
-  assert.equal(progress.completeLevel(1, { time: 1000, chestCoins: 50 }).reward, 150);
-  assert.equal(progress.data.coins, 150);
-  assert.equal(progress.completeLevel(1, { time: 1000, chestCoins: 150 }).reward, 150);
-  assert.equal(progress.completeLevel(1, { time: 1000, chestCoins: 200 }), null);
+  assert.equal(progress.completeLevel(1, { time: 1000, chestCoins: 100 }).reward, 200);
+  assert.equal(progress.data.coins, 200);
+  assert.equal(progress.completeLevel(1, { time: 1000, chestCoins: 300 }).reward, 300);
+  assert.equal(progress.completeLevel(1, { time: 1000, chestCoins: 350 }), null);
 });
 
 test('every level has three separate chests on safe ground', () => {

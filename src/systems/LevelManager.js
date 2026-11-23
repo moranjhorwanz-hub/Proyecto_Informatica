@@ -13,6 +13,7 @@ export default class LevelManager {
     this.collected = new Set(this.checkpoint?.collected);
     this.chestCoins = this.checkpoint?.chestCoins ?? 0;
     this.markers = [];
+    this.floatingChests = [];
   }
   get spawn() { return this.course.sections?.[this.checkpoint?.section]?.spawn ?? this.course.spawn; }
   build() {
@@ -45,7 +46,7 @@ export default class LevelManager {
     c.coins.forEach(([x,y], index) => this.pickup(x,y,'coin', index));
     c.gifts.forEach(([x,y], index) => this.pickup(x,y,'gift', index));
     chestPositions(c).forEach((x, index) => {
-      if (!this.collected.has(`chest-${index}`)) this.createChest(x, 591, index);
+      if (!this.collected.has(`chest-${index}`)) this.createChest(x, 450, index);
     });
     this.hazards = s.physics.add.staticGroup();
     c.hazards.forEach(([x,y,w,h]) => {
@@ -67,6 +68,7 @@ export default class LevelManager {
     const chest = s.add.zone(x, y, 64, 50);
     chest.kind = 'chest'; chest.pickupKey = `chest-${index}`; chest.art = art; chest.mark = mark;
     this.pickups.add(chest);
+    this.floatingChests.push({ chest, art, mark, baseY: y, phase: index * 1.7 });
   }
   pickup(x,y,kind,index) {
     const key = `${kind}-${index}`;
@@ -121,6 +123,14 @@ export default class LevelManager {
   }
   update(now) {
     const s=this.scene;
+    this.floatingChests = this.floatingChests.filter(({ chest }) => chest.active);
+    for (const { chest, art, mark, baseY, phase } of this.floatingChests) {
+      const offset = Math.sin(now / 550 + phase) * 8;
+      chest.y = baseY + offset;
+      art.y = offset;
+      mark.y = baseY + offset;
+      chest.body.updateFromGameObject();
+    }
     this.moving.forEach(({block,x,range,period})=>{
       const old=block.x;
       const riding=s.player.body.touching.down && Math.abs(s.player.body.bottom-block.body.y)<5 && s.player.body.right>block.body.x && s.player.body.x<block.body.right;
