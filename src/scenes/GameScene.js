@@ -193,6 +193,7 @@ export default class GameScene extends Phaser.Scene {
     this.lifeBar.setScale(this.player.state.lives / this.player.state.stats.lives, 1);
     this.hatPowerText = menuText(this, 24, 48, '', 16, menuColors.accentText).setScrollFactor(0).setDepth(101);
     this.shieldText = menuText(this, 24, 70, '', 16, '#85edff').setScrollFactor(0).setDepth(101);
+    this.energyWaveText = menuText(this, 24, 92, '', 16, '#ffdc81').setScrollFactor(0).setDepth(101);
   }
 
   setPaused(value) {
@@ -243,6 +244,8 @@ export default class GameScene extends Phaser.Scene {
     this.combat.update(this.playTime, delta);
     this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
     this.shieldText.setText(this.player.state.shieldHits > 0 || this.services.progress.data.abilities.includes('shield') ? `Escudo: ${this.player.state.shieldHits} / 3 golpes` : '');
+    const waveSeconds = Math.ceil((this.combat.state.energyWaveUntil - this.playTime) / 1000);
+    this.energyWaveText.setText(waveSeconds > 0 ? `Ondas de energía: ${waveSeconds} s` : '');
     if (this.services.progress.data.abilities.includes('hat-power') || this.playTime < this.combat.state.hatPowerUntil) {
       const combat = this.combat.state;
       const active = Math.ceil((combat.hatPowerUntil - this.playTime) / 1000);

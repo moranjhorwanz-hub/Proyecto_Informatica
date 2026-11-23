@@ -72,7 +72,18 @@ export default class CombatSystem {
   }
   damagePlayer(direction) { return this.scene.player.takeEnemyDamage(direction); }
   damageEnemy(enemy, amount) {
-    if (enemy.takeDamage(amount)) this.scene.services.audio.effect('enemy-hit');
+    const bounds = enemy.getBounds();
+    const x = bounds.centerX, y = bounds.centerY;
+    if (!enemy.takeDamage(amount)) return;
+    this.scene.services.audio.effect('enemy-hit');
+    if (!this.state.energyWaveActive(this.scene.playTime)) return;
+    const wave = this.scene.add.circle(x, y, 12, 0xffd25b, .15).setStrokeStyle(4, 0xffd66d).setDepth(15);
+    this.scene.tweens.add({ targets: wave, scale: 10, alpha: 0, duration: 350, onComplete: () => wave.destroy() });
+    for (const other of this.enemies.getChildren().slice()) {
+      if (other !== enemy && other.active && spriteTouchesCircle(other, x, y, 120)) {
+        if (other.takeDamage(1)) this.scene.services.audio.effect('enemy-hit');
+      }
+    }
   }
   attack(kind) {
     const s = this.scene, p = s.player;

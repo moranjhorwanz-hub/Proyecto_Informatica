@@ -3,7 +3,7 @@ import { drawRecessedStreet, hasParallaxScenery } from '../visuals/parallaxScene
 import { createSpikeTrap } from '../visuals/spikeTrap.js';
 import { createMicrophonePickup } from '../visuals/microphonePickups.js';
 import { createVinylPickup } from '../visuals/vinylPickup.js';
-import { chooseChestReward, applyChestReward } from './chestRewards.js';
+import { chooseChestReward, applyChestReward, chestPositions } from './chestRewards.js';
 
 export default class LevelManager {
   constructor(scene, checkpoint) {
@@ -44,7 +44,9 @@ export default class LevelManager {
     this.pickups = s.physics.add.staticGroup();
     c.coins.forEach(([x,y], index) => this.pickup(x,y,'coin', index));
     c.gifts.forEach(([x,y], index) => this.pickup(x,y,'gift', index));
-    if (!this.collected.has('chest-0')) this.createChest(c.spawn[0] + 220, 591);
+    chestPositions(c).forEach((x, index) => {
+      if (!this.collected.has(`chest-${index}`)) this.createChest(x, 591, index);
+    });
     this.hazards = s.physics.add.staticGroup();
     c.hazards.forEach(([x,y,w,h]) => {
       this.hazards.add(createSpikeTrap(s, x, y, w, h));
@@ -53,7 +55,7 @@ export default class LevelManager {
     s.add.triangle(c.goal+50,420,0,0,100,25,0,50,s.level.accent);
     s.add.text(c.goal-110,330,'META',{fontSize:'25px',color:'#f0d298'});
   }
-  createChest(x, y) {
+  createChest(x, y, index) {
     const s = this.scene;
     const art = s.add.graphics().setDepth(5);
     art.fillStyle(0x592276).fillRoundedRect(x - 32, y - 25, 64, 50, 6);
@@ -63,7 +65,7 @@ export default class LevelManager {
     art.fillStyle(0x76218f).fillCircle(x, y, 12).lineStyle(3, 0xffd174).strokeCircle(x, y, 12);
     const mark = s.add.text(x, y, '?', { fontFamily: 'Arial', fontSize: '22px', fontStyle: 'bold', color: '#ffe483' }).setOrigin(.5).setDepth(6);
     const chest = s.add.zone(x, y, 64, 50);
-    chest.kind = 'chest'; chest.pickupKey = 'chest-0'; chest.art = art; chest.mark = mark;
+    chest.kind = 'chest'; chest.pickupKey = `chest-${index}`; chest.art = art; chest.mark = mark;
     this.pickups.add(chest);
   }
   pickup(x,y,kind,index) {

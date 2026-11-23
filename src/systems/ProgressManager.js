@@ -3,6 +3,7 @@ import {readStorage,writeStorage} from '../utils/storage.js';
 import { findShopItem, shopItems } from '../data/shopItems.js';
 import { getCharacter } from '../data/characters.js';
 import { DEFAULT_SETTINGS, validateSettings } from '../data/settings.js';
+import { CHEST_COUNT, CHEST_COIN_REWARD } from './chestRewards.js';
 export function defaultProgress(){return {version:1,coins:0,unlockedLevels:[1],completedLevels:[],records:{},achievements:[],purchases:[],equippedSkin:null,character:'michael',abilities:['hat','moonwalk'],selectedLevel:1,settings:{...DEFAULT_SETTINGS}};}
 export function validateProgress(raw){
  const base=defaultProgress();
@@ -36,7 +37,7 @@ export class ProgressManager {
  constructor(){this.data=validateProgress(readStorage());}
  selectLevel(id){if(!Number.isInteger(id)||id<1||id>levels.length)return;this.data.selectedLevel=id;return writeStorage(this.data);}
  completeLevel(id,{coins=0,gifts=0,chestCoins=0,time,lives}={}) {
-  if(!Number.isInteger(id)||!this.data.unlockedLevels.includes(id)||id<1||id>levels.length||!Number.isSafeInteger(time)||time<=0||!Number.isInteger(coins)||coins<0||coins>7||!Number.isInteger(gifts)||gifts<0||gifts>(id===12?3:2)||![0,50].includes(chestCoins))return null;
+  if(!Number.isInteger(id)||!this.data.unlockedLevels.includes(id)||id<1||id>levels.length||!Number.isSafeInteger(time)||time<=0||!Number.isInteger(coins)||coins<0||coins>7||!Number.isInteger(gifts)||gifts<0||gifts>(id===12?3:2)||!Number.isInteger(chestCoins)||chestCoins<0||chestCoins>CHEST_COUNT*CHEST_COIN_REWARD||chestCoins%CHEST_COIN_REWARD!==0)return null;
   const first=!this.data.completedLevels.includes(id);
   const reward=coins*10+gifts*25+chestCoins+(first?100:0);
   if(!Number.isSafeInteger(this.data.coins+reward))return null;
