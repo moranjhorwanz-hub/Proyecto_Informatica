@@ -5,6 +5,8 @@ import { preloadSpringSprites, registerSpringEffects } from '../visuals/springEn
 import { preloadClubSprites, registerClubTextures } from '../visuals/clubEnemies.js';
 import { preloadBossHealthBar } from '../visuals/bossHealthBar.js';
 import { preloadThrillerSprites } from '../visuals/thrillerEnemies.js';
+import { preloadMicrophones, registerMicrophones } from '../visuals/microphonePickups.js';
+import { registerVinylPickup } from '../visuals/vinylPickup.js';
 
 export default class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
@@ -16,6 +18,7 @@ export default class BootScene extends Phaser.Scene {
     preloadClubSprites(this);
     preloadThrillerSprites(this);
     preloadBossHealthBar(this);
+    preloadMicrophones(this);
     this.load.image('neon-spikes', `${import.meta.env.BASE_URL}assets/neon-spikes.png`);
     this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);
     this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);
@@ -31,6 +34,8 @@ export default class BootScene extends Phaser.Scene {
     registerPlayerSprites(this);
     registerSpringEffects(this);
     registerClubTextures(this, Phaser.Textures.FilterMode.NEAREST);
+    registerMicrophones(this);
+    registerVinylPickup(this);
     // Use six spikes from the strip so the tips stay distinct at gameplay scale.
     this.textures.get('neon-spikes').add('trap', 0, 180, 249, 731, 254);
     this.scene.start('Menu');
