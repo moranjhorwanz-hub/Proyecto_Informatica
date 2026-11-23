@@ -1,4 +1,4 @@
-export const COMBAT_DEFAULTS = Object.freeze({ hatCooldown: 800, spinCooldown: 1500, freezeCooldown: 3000, noteCooldown: 1100, spinDuration: 350, freezeDuration: 1800 });
+export const COMBAT_DEFAULTS = Object.freeze({ hatCooldown: 500, spinCooldown: 1000, freezeCooldown: 2000, noteCooldown: 700, spinDuration: 350, freezeDuration: 1800 });
 
 // Uses the scene's simulation clock, so pausing also pauses cooldowns.
 export class CombatState {

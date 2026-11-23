@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { getThrownHatTexture } from './playerSprites.js';
-export const HAT_DEFAULTS = Object.freeze({ speed: 480, cooldown: 800, outboundDuration: 700, damage: 2 });
+export const HAT_DEFAULTS = Object.freeze({ speed: 480, cooldown: 500, outboundDuration: 450, damage: 2 });
 
 export default class Hat extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, owner) {
