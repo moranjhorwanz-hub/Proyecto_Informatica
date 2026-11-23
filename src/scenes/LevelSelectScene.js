@@ -5,6 +5,7 @@ import { fitMenuText } from '../ui/menuComponents.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
 import { getAppearance } from '../entities/appearance.js';
 import { updatePixelMenuCharacter } from '../visuals/menuCharacter.js';
+import { worldCoverTexture } from '../visuals/parallaxScenery.js';
 
 // Small illustrations sampled from the original selector artwork.
 const thumbnails = [
@@ -30,6 +31,8 @@ export default class LevelSelectScene extends Phaser.Scene {
       .setWordWrapWidth(265);
     this.season = this.text(38, 212, '', 30, white, 'bold italic');
     this.info = this.text(38, 258, '', 17, muted).setWordWrapWidth(265);
+    this.worldCovers = [1, 2, 3].map(world => worldCoverTexture(this, world));
+    this.worldPreview = this.add.image(38, 303, this.worldCovers[0], 'scenery').setOrigin(0).setScale(.84);
     this.add.graphics().fillStyle(0x8a1024).fillPoints(cut(350, 114, 377, 49, 23), true);
     this.text(380, 123, 'Niveles', 27, white, 'bold italic');
     this.cards = levels.map((level, index) => this.createCard(level, index));
@@ -55,11 +58,8 @@ export default class LevelSelectScene extends Phaser.Scene {
 
     const surface = this.add.graphics();
     const points = cut(left, top, 272, 78, 12);
-    const texture = this.textures.get('level-select');
-    const frame = `level-${level.id}`;
-    const [sourceX, sourceY] = thumbnails[index];
-    if (!texture.has(frame)) texture.add(frame, 0, sourceX, sourceY, 44, 44);
-    this.add.image(left + 236, top + 39, 'level-select', frame).setDisplaySize(48, 48).setAlpha(unlocked ? 1 : .55);
+    const thumbnail = this.createThumbnail(level, index, left + 236, top + 39);
+    thumbnail.setAlpha(unlocked ? 1 : .55);
 
     const heading = `${String(level.id).padStart(2, '0')} / ${level.subtitle.toUpperCase()} · ${status}`;
     fitMenuText(this.text(left + 18, top + 9, heading, 12, '#ff9ca8', 'bold'), 187, 10);
@@ -68,6 +68,18 @@ export default class LevelSelectScene extends Phaser.Scene {
     this.add.zone(left + 136, top + 39, 255, 78).setInteractive({ useHandCursor: true })
       .on('pointerdown', () => { this.selected = index; this.highlight(); });
     return { surface, points, unlocked };
+  }
+
+  createThumbnail(level, index, x, y) {
+    const cover = this.worldCovers[level.world - 1];
+    if (cover) {
+      return this.add.image(x, y, cover, 'scenery').setDisplaySize(56, 28);
+    }
+    const texture = this.textures.get('level-select');
+    const frame = `level-${level.id}`;
+    const [sourceX, sourceY] = thumbnails[index];
+    if (!texture.has(frame)) texture.add(frame, 0, sourceX, sourceY, 44, 44);
+    return this.add.image(x, y, 'level-select', frame).setDisplaySize(48, 48);
   }
 
   text(left, top, value, size, color = white, fontStyle = 'normal') {
@@ -95,6 +107,9 @@ export default class LevelSelectScene extends Phaser.Scene {
     updatePixelMenuCharacter(this.menuHero, getAppearance(level, progress));
     const unlocked = progress.unlockedLevels.includes(level.id);
     this.season.setText(level.subtitle);
+    const cover = this.worldCovers[level.world - 1];
+    this.worldPreview.setVisible(Boolean(cover));
+    if (cover) this.worldPreview.setTexture(cover, 'scenery');
     this.info.setText(`Dificultad ${level.difficulty} · ${unlocked ? 'Listo para jugar' : 'Nivel bloqueado'}`);
     this.play.surface.setAlpha(unlocked ? 1 : .4);
     this.play.text.setAlpha(unlocked ? 1 : .65);
