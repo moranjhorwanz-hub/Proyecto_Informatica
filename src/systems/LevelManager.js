@@ -2,6 +2,7 @@ import { courses } from '../data/courses.js';
 import { drawRecessedStreet, hasParallaxScenery } from '../visuals/parallaxScenery.js';
 import { createSpikeTrap } from '../visuals/spikeTrap.js';
 import { createMicrophonePickup } from '../visuals/microphonePickups.js';
+import { createVinylPickup } from '../visuals/vinylPickup.js';
 
 export default class LevelManager {
   constructor(scene, checkpoint) {
@@ -57,12 +58,13 @@ export default class LevelManager {
     }
     const s=this.scene;
     const item = kind === 'coin'
-      ? s.add.circle(x, y, 10, 0xffd76c).setStrokeStyle(2, 0xfff0b8)
+      ? createVinylPickup(s, x, y)
       : createMicrophonePickup(s, x, y, index);
     item.kind = kind;
     item.pickupKey = key;
     this.pickups.add(item);
-    if (kind === 'gift') item.body.setSize(25, 25);
+    const pickupSize = kind === 'coin' ? 20 : 25;
+    item.body.setSize(pickupSize, pickupSize);
   }
   connect() {
     const s=this.scene;
