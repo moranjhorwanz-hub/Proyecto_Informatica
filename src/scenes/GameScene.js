@@ -13,6 +13,7 @@ import { drawParallaxScenery, hasParallaxScenery, styleParallaxPlatform } from '
 import { createBossHealthBar, updateBossHealthBar } from '../visuals/bossHealthBar.js';
 import { fitMenuText, menuColors, menuPanel, menuText } from '../ui/menuComponents.js';
 import { createPauseMenu } from '../ui/pauseMenu.js';
+import { createSpikeTrap } from '../visuals/spikeTrap.js';
 
 const lifeBarWidth = 240;
 const pauseNavigation = { previous: [38], next: [40], confirm: [13] };
@@ -38,7 +39,7 @@ export default class GameScene extends Phaser.Scene {
     this.paused = false;
     this.finished = false;
     this.dead = false;
-    this.services.audio.play(this.level.id);
+    this.services.audio.play(this.level.id, data.musicPosition);
     this.events.once('shutdown', () => {
       if (this.services.audio.worldMusic) this.services.audio.stopMusic();
     });
@@ -76,7 +77,7 @@ export default class GameScene extends Phaser.Scene {
     this.add.triangle(2505, 420, 0, 0, 100, 25, 0, 50, this.level.accent);
     label(this, 2370, 340, 'FIN DEL ENSAYO', 21, '#f0d298');
     // Visible training tile exercises damage/invulnerability without adding enemies.
-    this.hazard = this.add.rectangle(1290, 612, 86, 16, 0xc64b60).setStrokeStyle(2, 0xffb0a3);
+    this.hazard = createSpikeTrap(this, 1290, 612, 86, 16);
     this.physics.add.existing(this.hazard, true);
     label(this, 1225, 666, 'Zona de daño', 15, '#ffb0a3');
     }
@@ -228,16 +229,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(_time, delta) {
-    if (this.pressed('escape')) { this.scene.start('Menu'); return; }
-    if (this.pressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
+    const { held, pressed } = this.services.gamepad;
+    const justPressed = (key, action = key) => this.pressed(key) || pressed.has(action);
+    if (justPressed('escape', 'back')) { this.scene.start('Menu'); return; }
+    if (justPressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
     if (this.paused) {
-      if (this.pressed('previous')) this.pauseMenu.move(-1);
-      else if (this.pressed('next')) this.pauseMenu.move(1);
-      else if (this.pressed('confirm')) this.pauseMenu.activate();
-      else if (this.pressed('pause')) this.setPaused(false);
+      if (justPressed('previous', 'up')) this.pauseMenu.move(-1);
+      else if (justPressed('next', 'down')) this.pauseMenu.move(1);
+      else if (justPressed('confirm', 'jump')) this.pauseMenu.activate();
+      else if (justPressed('pause')) this.setPaused(false);
       return;
     }
-    if (this.pressed('pause') && !this.dead) this.setPaused(true);
+    if (justPressed('pause') && !this.dead) this.setPaused(true);
     if (this.paused || this.dead) return;
     if (this.backdrop) {
       const camera = this.cameras.main;
@@ -247,16 +250,17 @@ export default class GameScene extends Phaser.Scene {
     }
     this.playTime += delta;
     this.levelManager?.update(this.playTime);
+    const running = this.held('run') || held.has('run');
     this.player.update({
-      left: this.held('left'),
-      right: this.held('right'),
-      down: this.held('down'),
-      run: this.held('run'),
-      jumpPressed: this.pressed('jump'),
-      moonPressed: this.pressed('moon'),
+      left: this.held('left') || held.has('left'),
+      right: this.held('right') || held.has('right'),
+      down: this.held('down') || held.has('down'),
+      run: running,
+      jumpPressed: justPressed('jump'),
+      moonPressed: justPressed('moon'),
     }, this.playTime);
     for (const kind of ['hat', 'spin', 'freeze', 'note']) {
-      if (this.pressed(kind)) this.combat.attack(kind);
+      if (justPressed(kind)) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
     if (this.player.y > 850) {
@@ -270,7 +274,7 @@ export default class GameScene extends Phaser.Scene {
     }).join('     '));
     const state = this.player.state;
     this.lifeBar.setScale(state.lives / state.stats.lives, 1);
-    const poses = { idle: 'En escena', run: this.held('run') ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
+    const poses = { idle: 'En escena', run: running ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
     this.stateText.setText(poses[state.pose]);
     const remaining = Math.max(0, state.nextMoon - this.playTime);
     this.moonText.setText(`${this.controlLabel('moon')} · ${remaining ? `Recargando ${(remaining / 1000).toFixed(1)} s` : 'Moonwalk listo'}`);
@@ -281,6 +285,7 @@ export default class GameScene extends Phaser.Scene {
         mode: this.campaign ? 'campaign' : 'practice',
         coins: this.levelManager?.coins ?? 0,
         checkpoint: this.levelManager?.checkpoint,
+        musicPosition: this.services.audio.pauseForRetry(),
       });
       return;
     }

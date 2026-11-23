@@ -1,5 +1,6 @@
 import { courses } from '../data/courses.js';
-import { hasParallaxScenery } from '../visuals/parallaxScenery.js';
+import { drawRecessedStreet, hasParallaxScenery } from '../visuals/parallaxScenery.js';
+import { createSpikeTrap } from '../visuals/spikeTrap.js';
 
 export default class LevelManager {
   constructor(scene, checkpoint) {
@@ -14,7 +15,8 @@ export default class LevelManager {
     const s = this.scene, c = this.course;
     s.physics.world.setBounds(0,0,c.width,1000); s.cameras.main.setBounds(0,0,c.width,720);
     c.gaps.forEach(([x,w]) => {
-      if (!hasParallaxScenery(s.level.id)) s.add.rectangle(x,620,w,100,0x07131f).setOrigin(0);
+      if (s.level.id === 2) drawRecessedStreet(s, x, w);
+      else if (!hasParallaxScenery(s.level.id)) s.add.rectangle(x,620,w,100,0x07131f).setOrigin(0);
       s.add.text(x-110,655,'SALTA →',{fontSize:'14px',color:'#f5d397'});
     });
     c.platforms.forEach(rect => s.addPlatform(...rect));
@@ -40,8 +42,7 @@ export default class LevelManager {
     c.gifts.forEach(([x,y], index) => this.pickup(x,y,'gift', index));
     this.hazards = s.physics.add.staticGroup();
     c.hazards.forEach(([x,y,w,h]) => {
-      const hazard = s.add.rectangle(x,y,w,h,0xc64b60).setStrokeStyle(2,0xffb0a3);
-      this.hazards.add(hazard);
+      this.hazards.add(createSpikeTrap(s, x, y, w, h));
     });
     s.add.rectangle(c.goal,505,5,230,0xf0d298);
     s.add.triangle(c.goal+50,420,0,0,100,25,0,50,s.level.accent);

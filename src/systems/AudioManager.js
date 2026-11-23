@@ -1,16 +1,22 @@
 import { stageMusic } from '../data/stageMusic.js';
+import { levels } from '../data/levels.js';
 import { validateSettings } from '../data/settings.js';
 
 const worldTracks = {
   1: 'billie-jean-instrumental.mp3',
   2: 'smooth-criminal-instrumental.mp3',
 };
+const getTrackFile = levelId => levels[levelId - 1]?.world === 3
+  ? 'thriller-instrumental.mp3'
+  : worldTracks[levelId];
 
 export class AudioManager {
   constructor(settings) {
     this.context = null; this.timer = null; this.level = 1;
     this.menuMusic = null; this.damageBuffer = null; this.damageLoading = null;
     this.worldMusic = null;
+    this.worldPosition = 0;
+    this.awaitingRetry = false;
     this.victoryBuffer = null; this.victoryLoading = null;
     this.jumpBuffer = null; this.jumpLoading = null;
     this.coinBuffer = null; this.coinLoading = null; this.inMenu = false;
@@ -32,7 +38,9 @@ export class AudioManager {
     if (!this.context) return;
     this.musicGain.gain.setValueAtTime(this.musicLevel, this.context.currentTime);
     this.sfxGain.gain.setValueAtTime(this.effectsLevel, this.context.currentTime);
-    if (previous !== this.settings.music && !this.inMenu) this.play(this.level);
+    if (previous !== this.settings.music && !this.inMenu && !this.awaitingRetry) {
+      this.play(this.level, this.worldMusic?.currentTime ?? this.worldPosition);
+    }
   }
   unlock() {
     if (!this.context) {
@@ -46,7 +54,8 @@ export class AudioManager {
     this.loadVictorySound();
     this.loadJumpSound();
     this.loadCoinSound();
-    if (this.inMenu) this.playMenu(); else this.play(this.level);
+    if (this.inMenu) this.playMenu();
+    else if (!this.awaitingRetry && !this.worldMusic) this.play(this.level, this.worldPosition);
   }
   loadDamageSound() {
     return this.loadClip('damage', 1.69, 2.3);
@@ -90,6 +99,7 @@ export class AudioManager {
     oscillator.start(); oscillator.stop(c.currentTime + duration);
   }
   playMenu() {
+    this.awaitingRetry = false;
     this.stopMusic(); this.inMenu = true;
     if (!this.menuMusic) {
       this.menuMusic = new Audio(`${import.meta.env.BASE_URL}assets/menu-music.mp3`);
@@ -99,16 +109,19 @@ export class AudioManager {
     if (!this.muted) this.menuMusic.play().catch(() => {});
   }
   stopMenu() { this.inMenu = false; if (this.menuMusic) { this.menuMusic.pause(); this.menuMusic.currentTime = 0; } }
-  play(level) {
+  play(level, position = 0) {
+    this.awaitingRetry = false;
+    this.worldPosition = position;
     this.stopMenu();
     this.stopMusic(); this.level = Number.isInteger(level) && level >= 1 && level <= 12 ? level : 1;
     if (!this.context || this.muted) return;
-    const trackFile = worldTracks[this.level];
+    const trackFile = getTrackFile(this.level);
     if (trackFile && typeof Audio === 'function') {
       const track = new Audio(`${import.meta.env.BASE_URL}assets/${trackFile}`);
       this.worldMusic = track;
       track.loop = true;
       track.volume = this.musicLevel;
+      track.currentTime = position;
       track.play().catch(() => {
         if (this.worldMusic !== track) return;
         this.stopMusic();
@@ -117,6 +130,13 @@ export class AudioManager {
       return;
     }
     this.playStagePattern();
+  }
+  pauseForRetry() {
+    if (!getTrackFile(this.level)) return undefined;
+    this.awaitingRetry = true;
+    const position = this.worldMusic?.currentTime ?? this.worldPosition;
+    this.stopMusic();
+    return position;
   }
   playStagePattern() {
     const {notes, tempo, wave} = stageMusic[this.level - 1];

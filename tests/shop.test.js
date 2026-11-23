@@ -78,6 +78,11 @@ test('load ignores unknown or duplicate purchases and derives abilities only fro
   assert.equal(validateProgress({ version: 1, abilities: ['freeze'], purchases: [] }).abilities.includes('freeze'), false);
   assert.equal(validateProgress({ version: 1, purchases: ['freeze'], equippedSkin: 'freeze' }).equippedSkin, null);
 });
+test('a saved Negro imperial outfit falls back to the default without removing other purchases', () => {
+  const loaded = validateProgress({ ...defaultProgress(), purchases: ['black-gold', 'gold'], equippedSkin: 'black-gold' });
+  assert.deepEqual(loaded.purchases, ['gold']);
+  assert.equal(loaded.equippedSkin, null);
+});
 test('equipped skins override outfits across seasons without changing level identity or palette', () => {
   for (const level of levels) {
     const before = JSON.stringify(level);

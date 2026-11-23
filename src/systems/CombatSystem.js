@@ -132,7 +132,9 @@ export default class CombatSystem {
     }
     for (const group of [this.enemyProjectiles, this.boss?.projectiles]) {
       for (const shot of group?.getChildren().slice() ?? []) {
-        if (!shot.active || p.x >= shot.stopAtX || !spritesTouch(p, shot)) continue;
+        if (!shot.active || p.x >= shot.stopAtX) continue;
+        if (shot.highWave && p.state.crouched && shot.getBounds().bottom <= p.y - 70) continue;
+        if (!spritesTouch(p, shot)) continue;
         this.damagePlayer(shot.body.velocity.x < 0 ? -1 : 1);
         shot.destroy();
       }

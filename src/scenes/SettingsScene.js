@@ -17,6 +17,7 @@ export default class SettingsScene extends Phaser.Scene {
     this.services = this.registry.get('services');
     this.draft = { ...this.services.progress.data.settings };
     this.tab = 0;
+    this.controlDevice = 0;
     this.focus = -1;
     this.binding = null;
     createSettingsMenuFrame(this);
@@ -167,11 +168,25 @@ export default class SettingsScene extends Phaser.Scene {
   }
 
   controlsPage() {
+    const devices = ['Teclado', 'Mando'];
+    devices.forEach((device, index) => {
+      this.button(377 + index * 180, 176, 168, 38, device, () => {
+        this.controlDevice = index;
+        this.binding = null;
+        this.focus = -1;
+        this.renderPage();
+      }, this.controlDevice === index);
+    });
+    if (this.controlDevice === 0) this.keyboardControlsPage();
+    else this.gamepadControlsPage();
+  }
+
+  keyboardControlsPage() {
     const controls = this.draft.controls;
-    this.text(379, 180, 'Elige una acción, pulsa la nueva tecla y guarda con Aplicar.', 18, '#afbfd6');
+    this.text(379, 221, 'Elige una acción, pulsa la nueva tecla y guarda con Aplicar.', 18, '#afbfd6');
     Object.entries(controlActions).forEach(([action, label], index) => {
       const x = 379 + Math.floor(index / 6) * 421;
-      const y = 224 + (index % 6) * 53;
+      const y = 248 + (index % 6) * 46;
       const startBinding = () => {
         this.focus = index;
         this.binding = action;
@@ -189,6 +204,24 @@ export default class SettingsScene extends Phaser.Scene {
       this.draft.controls = DEFAULT_SETTINGS.controls;
       this.renderPage('Teclas restablecidas. Pulsa Aplicar para guardarlas.');
     });
+  }
+
+  gamepadControlsPage() {
+    const controls = [
+      ['Mover', 'Palanca izquierda / Cruceta'],
+      ['Correr', 'RT / R2'],
+      ['Saltar / Doble salto', 'A / ✕  ·  × 2'],
+      ['Agacharse', 'Palanca izquierda ↓ / Cruceta ↓'],
+      ['Moonwalk', 'LB / L1'],
+      ['Sombrero / Giro / Nieve / Nota musical', 'X / □  ·  B / ○  ·  Y / △  ·  RB / R1'],
+      ['Pausa / Reiniciar / Menú', 'Menu / Options  ·  R3  ·  View / Share'],
+    ];
+    controls.forEach(([label, buttons], index) => {
+      const y = 238 + index * 46;
+      this.row(y, label);
+      this.text(1198, y, buttons, 20, '#cddff9', 'bold').setOrigin(1, .5);
+    });
+    this.text(379, 551, 'Menús: cruceta para elegir, A / ✕ para confirmar y B / ○ para volver.', 17, '#afbfd6');
   }
 
   generalPage() {
@@ -240,6 +273,9 @@ export default class SettingsScene extends Phaser.Scene {
       if (!this.adjustments.length) return;
       this.focus = key === 'ArrowUp' && this.focus < 0 ? this.adjustments.length - 1
         : Phaser.Math.Wrap(this.focus + (key === 'ArrowDown' ? 1 : -1), 0, this.adjustments.length);
+      this.renderPage();
+    } else if (this.tab === 2) {
+      this.controlDevice = key === 'ArrowLeft' ? 0 : 1;
       this.renderPage();
     } else if (this.focus < 0) this.selectTab(this.tab + (key === 'ArrowLeft' ? -1 : 1));
     else if (this.tab !== 2) this.adjustments[this.focus](key === 'ArrowLeft' ? -1 : 1);

@@ -50,6 +50,11 @@ Volver al menú|Return to menu|Retour au menu
 {key} para volver al menú|{key} to return to menu|{key} pour revenir au menu
 Agáchate bajo el puente|Crouch under the bridge|Accroupissez-vous sous le pont
 Deslízate hacia atrás|Slide backward|Glissez en arrière
+Teclado|Keyboard|Clavier
+Mando|Controller|Manette
+Palanca izquierda / Cruceta|Left stick / D-pad|Stick gauche / Croix directionnelle
+Palanca izquierda ↓ / Cruceta ↓|Left stick ↓ / D-pad ↓|Stick gauche ↓ / Croix directionnelle ↓
+Menús: cruceta para elegir, A / ✕ para confirmar y B / ○ para volver.|Menus: use the D-pad to navigate, A / ✕ to confirm and B / ○ to go back.|Menus : croix directionnelle pour naviguer, A / ✕ pour confirmer et B / ○ pour revenir.
 Correr|Run|Courir
 Saltar|Jump|Sauter
 Saltar / Doble salto|Jump / Double jump|Saut / Double saut

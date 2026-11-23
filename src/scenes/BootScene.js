@@ -14,6 +14,7 @@ export default class BootScene extends Phaser.Scene {
     preloadSpringSprites(this);
     preloadClubSprites(this);
     preloadBossHealthBar(this);
+    this.load.image('neon-spikes', `${import.meta.env.BASE_URL}assets/neon-spikes.png`);
     this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);
     this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);
     this.load.image('summer-menu', `${import.meta.env.BASE_URL}assets/backgrounds/summer-menu.png`);
@@ -28,6 +29,8 @@ export default class BootScene extends Phaser.Scene {
     registerPlayerSprites(this);
     registerSpringEffects(this);
     registerClubTextures(this, Phaser.Textures.FilterMode.NEAREST);
+    // Use six spikes from the strip so the tips stay distinct at gameplay scale.
+    this.textures.get('neon-spikes').add('trap', 0, 180, 249, 731, 254);
     this.scene.start('Menu');
   }
 }
