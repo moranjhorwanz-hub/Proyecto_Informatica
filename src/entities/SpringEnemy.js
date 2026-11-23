@@ -22,8 +22,8 @@ const moves = {
   heavy: { range: 108, windup: 420, active: 240, impactFrame: 3 },
   throw: { range: 480, windup: 420, active: 230, impactFrame: 3, projectile: 'knife', heights: [72] },
   doubleThrow: { range: 530, windup: 500, active: 300, impactFrame: 3, projectile: 'knife', heights: [39, 99] },
-  combo: { range: 155, windup: 280, active: 750, impactFrame: 0, velocity: 92 },
-  wave: { range: 625, windup: 550, active: 260, impactFrame: 3, projectile: 'wave', heights: [25, 115] },
+  combo: { range: 195, windup: 330, active: 900, impactFrame: 0, velocity: 135 },
+  wave: { range: 625, windup: 550, active: 260, impactFrame: 3, projectile: 'wave', heights: [25, 112] },
   bossRush: { range: 425, windup: 510, active: 790, impactFrame: 2, velocity: 465 },
 };
 const patterns = {
@@ -99,6 +99,12 @@ export default class SpringEnemy extends SnowEnemy {
       return;
     }
     super.update(now);
+    if (this.kind === 'club' && player.x >= this.clubArenaStart && player.state.lives) {
+      this.direction = dx < 0 ? -1 : 1;
+      const room = this.direction > 0 ? this.right - this.x : this.x - this.left;
+      const approachSpeed = Math.max(0, Math.min(this.speed, room * 20, (Math.abs(dx) - 105) * 6));
+      this.setFlipX(dx < 0).setVelocityX(this.direction * approachSpeed);
+    }
     if (now < this.hitUntil) this.setTint(0xffaaaa);
     const clip = now < this.hitUntil ? 'hurt' : 'walk';
     const frame = clip === 'hurt' ? Math.floor((now - this.hitAt) / 65)
@@ -109,6 +115,11 @@ export default class SpringEnemy extends SnowEnemy {
     if (this.clubEnemy) {
       if ((player.x >= this.clubArenaStart) !== this.isBoss) return;
       const distance = Math.abs(dx);
+      if (this.isBoss && this.lastAttack !== 'combo' && distance <= moves.combo.range) {
+        this.patternIndex = 1;
+        this.startAttack(now, dx, 'combo');
+        return;
+      }
       for (let offset = 0; offset < pattern.length; offset++) {
         const index = (this.patternIndex + offset) % pattern.length;
         const move = pattern[index];
@@ -132,6 +143,7 @@ export default class SpringEnemy extends SnowEnemy {
     this.direction = dx < 0 ? -1 : 1;
     this.setFlipX(this.direction < 0).setVelocityX(0);
     this.attack = { move, starts: now + moves[move].windup, target: this.scene.player.x, fired: false, hit: false };
+    this.lastAttack = move;
     this.pose(move === 'combo' ? 'idle' : move);
   }
 
@@ -150,6 +162,10 @@ export default class SpringEnemy extends SnowEnemy {
         Math.floor((now - starts + spec.windup) / spec.windup * spec.impactFrame));
       this.effect.fillStyle(this.color, .55);
       if (spec.radius) this.effect.fillEllipse(center, 617, spec.radius * 2, 10);
+      else if (move === 'wave') {
+        this.effect.fillCircle(this.x + this.direction * 48,
+          this.y - spec.heights[this.waveIndex % spec.heights.length], 9 + Math.sin(now / 40) * 2);
+      }
       else this.effect.fillCircle(this.x + this.direction * 23 * this.sizeMultiplier,
         this.y - (this.kind === 'cat' ? 24 : 45) * this.sizeMultiplier, 6 + Math.sin(now / 40) * 2);
       return;
@@ -208,6 +224,7 @@ export default class SpringEnemy extends SnowEnemy {
         shot.setVelocityX(this.direction * (projectile === 'wave' ? 335 : 400 - index * 75));
         if (count > 1) shot.clubAnimation = { type: projectile, count, start: now - index * 85 };
         if (!this.isBoss) shot.stopAtX = this.clubArenaStart;
+        if (move === 'wave' && elevation === clubHeights[1]) shot.highWave = true;
         shot.expires = now + 1850;
       }
       return;

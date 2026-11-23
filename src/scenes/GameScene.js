@@ -32,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
     this.paused = false;
     this.finished = false;
     this.dead = false;
-    this.services.audio.play(this.level.id);
+    this.services.audio.play(this.level.id, data.musicPosition);
     this.events.once('shutdown', () => {
       if (this.services.audio.worldMusic) this.services.audio.stopMusic();
     });
@@ -223,6 +223,7 @@ export default class GameScene extends Phaser.Scene {
         mode: this.campaign ? 'campaign' : 'practice',
         coins: this.levelManager?.coins ?? 0,
         checkpoint: this.levelManager?.checkpoint,
+        musicPosition: this.services.audio.pauseForRetry(),
       });
       return;
     }

@@ -43,6 +43,24 @@ const stages = {
     foundation: 0x21202a,
     trim: 0xc0a17e,
   },
+  7: {
+    folder: 'thriller',
+    layers: ['cielo', 'ciudad', 'mansiones', 'cementerio', 'sendero'],
+    rows: [[244, 642], [329, 611], [240, 709], [294, 700], [305, 700]],
+    insets: [12, 25, 0, 0, 0],
+    skylineFade: 90,
+    planes: [
+      { speed: 0, scaleX: .78, top: -4, bottom: 383 },
+      { speed: .12, scaleX: .83, top: 317, bottom: 496 },
+      { speed: .28, scaleX: .86, top: 325, bottom: 561 },
+      { speed: .48, scaleX: .94, top: 434, bottom: 607 },
+      { speed: .73, scaleX: 1, top: 514, bottom: 623 },
+    ],
+    atmosphere: [0x060e22, 0x152438, 0x161919],
+    pavement: [4, 720, 668, 95, 26],
+    foundation: 0x272727,
+    trim: 0x7d8c65,
+  },
 };
 const layerKey = (stage, index) => `${stage.folder}-layer-${index + 1}`;
 const pavementFrame = 'pavement';
@@ -99,6 +117,23 @@ function foregroundTexture(scene, sourceKey, firstRow, height, vents) {
   return key;
 }
 
+function fadedSkylineTexture(scene, sourceKey, firstRow, fadeHeight) {
+  const key = `${sourceKey}-faded`;
+  if (scene.textures.exists(key)) return key;
+  const source = scene.textures.get(sourceKey).getSourceImage();
+  const texture = scene.textures.createCanvas(key, source.width, source.height);
+  const context = texture.getContext();
+  context.drawImage(source, 0, 0);
+  const fade = context.createLinearGradient(0, firstRow, 0, firstRow + fadeHeight);
+  fade.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  fade.addColorStop(1, 'black');
+  context.globalCompositeOperation = 'destination-in';
+  context.fillStyle = fade;
+  context.fillRect(0, 0, source.width, source.height);
+  texture.refresh();
+  return key;
+}
+
 export function drawParallaxScenery(scene, courseWidth) {
   const stage = stages[scene.level.id];
   const camera = scene.cameras.main;
@@ -116,20 +151,23 @@ export function drawParallaxScenery(scene, courseWidth) {
       .setOrigin(0).setDepth(-1).setAlpha(.6).setTileScale(48 / frame.width, 24 / frame.height);
   }
 
-  for (const [index, { speed, scaleX, top, bottom }] of planes.entries()) {
+  const layerPlanes = stage.planes ?? planes;
+  for (const [index, { speed, scaleX, top, bottom }] of layerPlanes.entries()) {
     const [firstRow, lastRow] = stage.rows[index];
     const height = lastRow - firstRow;
-    const foreground = index === planes.length - 1 ? stage.foreground : undefined;
+    const foreground = index === layerPlanes.length - 1 ? stage.foreground : undefined;
     const sourceKey = layerKey(stage, index);
-    const key = foreground ? foregroundTexture(scene, sourceKey, firstRow, height, foreground.vents) : sourceKey;
+    let key = sourceKey;
+    if (foreground) key = foregroundTexture(scene, sourceKey, firstRow, height, foreground.vents);
+    if (index === 1 && stage.skylineFade) key = fadedSkylineTexture(scene, sourceKey, firstRow, stage.skylineFade);
     const texture = scene.textures.get(key);
-    const inset = index === 0 || foreground ? 0 : 16;
+    const inset = stage.insets?.[index] ?? (index === 0 || foreground ? 0 : 16);
     const width = texture.get().width - inset * 2;
     if (!texture.has('plane')) texture.add('plane', 0, inset, foreground ? 0 : firstRow, width, height);
     const tileWidth = width * scaleX;
     const planeTop = foreground?.top ?? top;
     const planeBottom = foreground?.bottom ?? (index === 2 ? stage.facadeBottom ?? bottom : bottom);
-    const depth = index - planes.length;
+    const depth = index - layerPlanes.length;
     const visibleEnd = camera.width + Math.max(0, courseWidth - camera.width) * speed + 1;
     for (let x = 0; x < visibleEnd; x += tileWidth) {
       scene.add.image(x, planeTop, key, 'plane').setOrigin(0).setScale(scaleX, (planeBottom - planeTop) / height)
@@ -143,10 +181,36 @@ export function drawParallaxScenery(scene, courseWidth) {
 
 function getPavementKey(scene, stage) {
   const [layer, ...bounds] = stage.pavement;
-  const key = layerKey(stage, layer);
-  const texture = scene.textures.get(key);
-  if (!texture.has(pavementFrame)) texture.add(pavementFrame, 0, ...bounds);
+  const sourceKey = layerKey(stage, layer);
+  const key = `${stage.folder}-pavement`;
+  if (scene.textures.exists(key)) return key;
+  const [x, y, width, height] = bounds;
+  const source = scene.textures.get(sourceKey).getSourceImage();
+  const texture = scene.textures.createCanvas(key, width, height);
+  texture.getContext().drawImage(source, x, y, width, height, 0, 0, width, height);
+  texture.add(pavementFrame, 0, 0, 0, width, height);
+  texture.refresh();
   return key;
+}
+
+export function drawRecessedStreet(scene, x, width) {
+  const stage = stages[scene.level.id];
+  const key = getPavementKey(scene, stage);
+  const frame = scene.textures.get(key).get(pavementFrame);
+  const top = 620, lowerStreet = 661, depth = lowerStreet - top;
+  scene.add.rectangle(x, top, width, depth, 0x35303c).setOrigin(0);
+  scene.add.tileSprite(x, top, width, depth, key, pavementFrame)
+    .setOrigin(0).setTileScale(48 / frame.width, 16 / frame.height).setAlpha(.34);
+  scene.add.tileSprite(x, lowerStreet, width, 720 - lowerStreet, key, pavementFrame)
+    .setOrigin(0).setTileScale(48 / frame.width, 24 / frame.height).setAlpha(.85);
+  scene.add.rectangle(x, lowerStreet, width, 2, stage.trim, .6).setOrigin(0);
+
+  const edges = scene.add.graphics();
+  edges.fillStyle(0x76594d).fillTriangle(x, top, x + 16, lowerStreet, x, lowerStreet);
+  edges.fillStyle(0x58404a).fillTriangle(x + width, top, x + width - 16, lowerStreet, x + width, lowerStreet);
+  edges.lineStyle(3, stage.trim)
+    .lineBetween(x, top, x + 16, lowerStreet)
+    .lineBetween(x + width, top, x + width - 16, lowerStreet);
 }
 
 export function styleParallaxPlatform(scene, block) {
