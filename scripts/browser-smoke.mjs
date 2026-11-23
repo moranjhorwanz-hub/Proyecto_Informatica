@@ -111,7 +111,11 @@ try {
     await tap('Escape','Escape');
   }
   const textureCount=await evaluate('testGame.textures.getTextureKeys().length');
-  for(let index=0;index<8;index++)await tap('ArrowRight','ArrowRight');
+  for(let index=0;index<8;index++) {
+    await tap('ArrowRight','ArrowRight');
+    assert.equal(await evaluate(`testGame.scene.getScene('Menu').level.world`), (index + 1) % 4 + 1,
+      'A single horizontal input advances to the next season');
+  }
   assert.equal(await evaluate('testGame.textures.getTextureKeys().length'),textureCount,'Season changes reuse cached textures');
   assert.equal(await evaluate(`testGame.scene.getScene('Menu').backdrop.particles.length`),26,'Particle budget is bounded');
   for(const [width,height] of [[960,540],[1440,900],[800,1000]]) {
@@ -533,7 +537,7 @@ try {
   await writeFile('.tools/phase8-settings-fr.png',Buffer.from(settingsShot.data,'base64'));
   await tap('Escape','Escape');
   assert.equal(await evaluate(`testGame.scene.getScene('Menu').buttons[0].t.text`),'Jouer');
-  const screenCases=[['Shop','La boutique du rythme'],['Character','Vos tenues'],['Characters','Choisissez votre personnage'],['LevelSelect','Trouvez votre rythme'],['Attacks','Le pouvoir de la danse'],['Game','NIVEAU / PRINTEMPS'],['Victory','Niveau terminé !'],['GameOver','Pièces obtenues']];
+  const screenCases=[['Shop','La boutique du rythme'],['Character','Vos tenues'],['Characters','Choisissez votre personnage'],['LevelSelect','Trouvez votre rythme'],['Attacks','Le pouvoir de la danse'],['Game','Vie'],['Victory','Niveau terminé !'],['GameOver','Pièces obtenues']];
   for(const [sceneKey,expected] of screenCases) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('${sceneKey}',{levelId:1,mode:'campaign',result:{reward:10,first:false,saved:true}});true`);
     await advance(150);

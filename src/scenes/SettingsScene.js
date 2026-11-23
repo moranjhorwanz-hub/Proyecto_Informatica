@@ -87,9 +87,11 @@ export default class SettingsScene extends Phaser.Scene {
 
     [this.graphicsPage, this.audioPage, this.controlsPage, this.generalPage][this.tab].call(this);
     this.feedback = this.text(377, 584, notice, 17, '#ffd2d9');
-    this.text(35, 675, this.tab === 2
+    this.text(35, 659, this.tab === 2 && this.controlDevice === 0
       ? 'Tab · Apartados    ↑ ↓ · Elegir    Enter · Cambiar'
-      : 'Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar', 16, '#afbfd6');
+      : 'Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar', 14, '#afbfd6');
+    this.text(35, 677, 'Mando: LB / L1 y RB / R1 Apartados · Cruceta Elegir o ajustar', 14, '#ff9ca8');
+    this.text(35, 695, 'A / ✕ Aplicar · B / ○ Volver', 14, '#ff9ca8');
     this.button(691, 664, 259, 43, 'Restablecer valores', () => {
       this.draft = { ...DEFAULT_SETTINGS };
       this.binding = null;
@@ -267,7 +269,7 @@ export default class SettingsScene extends Phaser.Scene {
     if (event.repeat) return;
     if (key === 'Escape') this.goBack();
     else if (key === 'Tab') this.selectTab(this.tab + (event.shiftKey ? -1 : 1));
-    else if (key === 'Enter' && this.tab === 2 && this.focus >= 0 && !event.ctrlKey) this.adjustments[this.focus]();
+    else if (key === 'Enter' && this.tab === 2 && this.focus >= 0 && !event.ctrlKey && event.keyCode !== undefined) this.adjustments[this.focus]();
     else if (key === 'Enter') this.apply();
     else if (key === 'ArrowUp' || key === 'ArrowDown') {
       if (!this.adjustments.length) return;
@@ -276,6 +278,7 @@ export default class SettingsScene extends Phaser.Scene {
       this.renderPage();
     } else if (this.tab === 2) {
       this.controlDevice = key === 'ArrowLeft' ? 0 : 1;
+      this.focus = -1;
       this.renderPage();
     } else if (this.focus < 0) this.selectTab(this.tab + (key === 'ArrowLeft' ? -1 : 1));
     else if (this.tab !== 2) this.adjustments[this.focus](key === 'ArrowLeft' ? -1 : 1);

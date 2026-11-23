@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { getAppearance } from '../entities/appearance.js';
 import { createPixelMenuCharacter } from '../visuals/menuCharacter.js';
+import { bindResultMenu } from '../ui/resultMenu.js';
 
 export default class GameOverScene extends Phaser.Scene {
   constructor() { super('GameOver'); }
@@ -24,22 +25,18 @@ export default class GameOverScene extends Phaser.Scene {
     const retry = () => this.scene.start('Game', { levelId, mode, checkpoint, musicPosition });
     const menu = () => this.scene.start('Menu');
     const settings = () => this.scene.start('Settings', { gameOver: { levelId, mode, coins, checkpoint, musicPosition } });
-    for (const [x, y, width, height, action] of [
+    const options = [
       [641, 464, 490, 64, retry],
       [639, 542, 468, 61, menu],
       [639, 618, 468, 61, settings],
-    ]) {
+    ].map(([x, y, width, height, action]) => {
       const highlight = this.add.rectangle(x, y, width, height, 0xffffff, .12).setVisible(false);
-      this.add.zone(x, y, width, height).setInteractive({ useHandCursor: true })
+      const hit = this.add.zone(x, y, width, height).setInteractive({ useHandCursor: true })
         .on('pointerover', () => highlight.setVisible(true))
         .on('pointerout', () => highlight.setVisible(false))
         .on('pointerdown', action);
-    }
-
-    const shortcuts = [['keydown-ENTER', retry], ['keydown-R', retry], ['keydown-ESC', menu]];
-    shortcuts.forEach(([key, action]) => this.input.keyboard.on(key, action));
-    this.events.once('shutdown', () => {
-      shortcuts.forEach(([key, action]) => this.input.keyboard.off(key, action));
+      return { hit, action, marker: [x - width / 2 - 20, y] };
     });
+    bindResultMenu(this, options, { retry, menu });
   }
 }
