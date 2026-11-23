@@ -14,6 +14,7 @@ import { menuColors, menuText } from '../ui/menuComponents.js';
 import { createPauseMenu } from '../ui/pauseMenu.js';
 import { createSpikeTrap } from '../visuals/spikeTrap.js';
 import { createMicrophonePickup } from '../visuals/microphonePickups.js';
+import { createTouchControls, touchControlsEnabled } from '../ui/touchControls.js';
 
 const lifeBarWidth = 240;
 const pauseNavigation = { previous: [38], next: [40], confirm: [13] };
@@ -108,6 +109,13 @@ export default class GameScene extends Phaser.Scene {
     this.levelManager?.connect();
     this.bindControls();
     this.createHud();
+    this.touch = createTouchControls(this);
+    this.refreshTouchControls();
+    this.touchToggle = this.add.text(1060, 18, 'CELULAR', { fontFamily: 'Arial', fontSize: '16px', fontStyle: 'bold', color: '#ffffff', backgroundColor: '#592137', padding: { x: 12, y: 8 } }).setScrollFactor(0).setDepth(106).setInteractive({ useHandCursor: true });
+    this.touchToggle.on('pointerdown', () => {
+      const result = this.services.settings.update({ touchControls: this.touchEnabled ? 'off' : 'on' });
+      if (result.ok) this.refreshTouchControls();
+    });
     this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
     this.pauseMenu = createPauseMenu(this, {
       resume: () => this.setPaused(false),
@@ -120,6 +128,7 @@ export default class GameScene extends Phaser.Scene {
     const refreshAfterSettings = () => {
       this.bindControls();
       this.controlHints.forEach(refresh => refresh());
+      this.refreshTouchControls();
       this.pauseMenu.show(true);
     };
     this.events.on('resume', refreshAfterSettings);
@@ -130,6 +139,12 @@ export default class GameScene extends Phaser.Scene {
       this.events.off('resume', refreshAfterSettings);
       this.input.keyboard.removeCapture(this.keyCaptures);
     });
+  }
+
+  refreshTouchControls() {
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+    this.touchEnabled = touchControlsEnabled(this.services.progress.data.settings.touchControls, coarse);
+    this.touch.show(this.touchEnabled && !this.paused);
   }
 
   bindControls() {
@@ -200,6 +215,8 @@ export default class GameScene extends Phaser.Scene {
     if (this.paused === value) return;
     this.paused = value;
     this.input.keyboard.resetKeys();
+    this.touch.show(this.touchEnabled && !value);
+    this.touchToggle.setVisible(!value);
     if (value) {
       this.physics.pause(); this.player.anims.pause();
     } else { this.physics.resume(); this.player.anims.resume(); }
@@ -208,7 +225,8 @@ export default class GameScene extends Phaser.Scene {
 
   update(_time, delta) {
     const { held, pressed } = this.services.gamepad;
-    const justPressed = (key, action = key) => this.pressed(key) || pressed.has(action);
+    const touchPressed = this.touch.takePressed();
+    const justPressed = (key, action = key) => this.pressed(key) || pressed.has(action) || touchPressed.has(key);
     if (justPressed('escape', 'back')) { this.scene.start('Menu'); return; }
     if (justPressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
     if (this.paused) {
@@ -228,11 +246,11 @@ export default class GameScene extends Phaser.Scene {
     }
     this.playTime += delta;
     this.levelManager?.update(this.playTime);
-    const running = this.held('run') || held.has('run');
+    const running = this.held('run') || held.has('run') || this.touch.held.has('run');
     this.player.update({
-      left: this.held('left') || held.has('left'),
-      right: this.held('right') || held.has('right'),
-      down: this.held('down') || held.has('down'),
+      left: this.held('left') || held.has('left') || this.touch.held.has('left'),
+      right: this.held('right') || held.has('right') || this.touch.held.has('right'),
+      down: this.held('down') || held.has('down') || this.touch.held.has('down'),
       run: running,
       jumpPressed: justPressed('jump'),
       moonPressed: justPressed('moon'),

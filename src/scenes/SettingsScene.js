@@ -170,7 +170,7 @@ export default class SettingsScene extends Phaser.Scene {
   }
 
   controlsPage() {
-    const devices = ['Teclado', 'Mando'];
+    const devices = ['Teclado', 'Mando', 'Celular'];
     devices.forEach((device, index) => {
       this.button(377 + index * 180, 176, 168, 38, device, () => {
         this.controlDevice = index;
@@ -180,7 +180,15 @@ export default class SettingsScene extends Phaser.Scene {
       }, this.controlDevice === index);
     });
     if (this.controlDevice === 0) this.keyboardControlsPage();
-    else this.gamepadControlsPage();
+    else if (this.controlDevice === 1) this.gamepadControlsPage();
+    else this.touchControlsPage();
+  }
+
+  touchControlsPage() {
+    this.text(379, 231, 'Botones en pantalla para jugar con los dedos.', 20, '#afbfd6');
+    this.choice(310, 'Controles táctiles', 'touchControls', ['auto', 'on', 'off'], ['Automático', 'Activados', 'Desactivados']);
+    this.text(379, 370, 'Automático los muestra en celulares y pantallas táctiles.', 18, '#afbfd6');
+    this.text(379, 405, 'Pulsa Aplicar para guardar. Gira el celular en horizontal.', 18, '#afbfd6');
   }
 
   keyboardControlsPage() {
@@ -230,6 +238,8 @@ export default class SettingsScene extends Phaser.Scene {
     this.choice(212, 'Idioma', 'language', ['es', 'en', 'fr'], ['Español', 'English', 'Français']);
     this.choice(280, 'Dificultad', 'difficulty', Object.keys(difficulties));
     this.text(379, 330, 'La dificultad se aplica al siguiente intento.', 18, '#afbfd6');
+    this.choice(400, 'Controles táctiles', 'touchControls', ['auto', 'on', 'off'], ['Automático', 'Activados', 'Desactivados']);
+    this.text(379, 450, 'En celular, juega en horizontal para ver mejor los botones.', 18, '#afbfd6');
   }
 
   apply() {
@@ -269,7 +279,7 @@ export default class SettingsScene extends Phaser.Scene {
     if (event.repeat) return;
     if (key === 'Escape') this.goBack();
     else if (key === 'Tab') this.selectTab(this.tab + (event.shiftKey ? -1 : 1));
-    else if (key === 'Enter' && this.tab === 2 && this.focus >= 0 && !event.ctrlKey && event.keyCode !== undefined) this.adjustments[this.focus]();
+    else if (key === 'Enter' && this.tab === 2 && this.controlDevice === 0 && this.focus >= 0 && !event.ctrlKey && event.keyCode !== undefined) this.adjustments[this.focus]();
     else if (key === 'Enter') this.apply();
     else if (key === 'ArrowUp' || key === 'ArrowDown') {
       if (!this.adjustments.length) return;
@@ -277,7 +287,8 @@ export default class SettingsScene extends Phaser.Scene {
         : Phaser.Math.Wrap(this.focus + (key === 'ArrowDown' ? 1 : -1), 0, this.adjustments.length);
       this.renderPage();
     } else if (this.tab === 2) {
-      this.controlDevice = key === 'ArrowLeft' ? 0 : 1;
+      if (this.controlDevice === 2 && this.focus >= 0) { this.adjustments[this.focus](key === 'ArrowLeft' ? -1 : 1); return; }
+      this.controlDevice = Phaser.Math.Wrap(this.controlDevice + (key === 'ArrowLeft' ? -1 : 1), 0, 3);
       this.focus = -1;
       this.renderPage();
     } else if (this.focus < 0) this.selectTab(this.tab + (key === 'ArrowLeft' ? -1 : 1));
