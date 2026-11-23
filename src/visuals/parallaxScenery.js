@@ -136,6 +136,67 @@ function fadedSkylineTexture(scene, sourceKey, firstRow, fadeHeight) {
   return key;
 }
 
+export function worldCoverTexture(scene, world) {
+  const stage = world === 3 ? stages.thriller : stages[world];
+  const key = `${stage.folder}-cover`;
+  if (scene.textures.exists(key)) return key;
+  const texture = scene.textures.createCanvas(key, 320, 180);
+  const context = texture.getContext();
+  context.save();
+  context.scale(.25, .25);
+  const atmosphere = scene.textures.get(atmosphereTexture(scene, stage)).getSourceImage();
+  context.drawImage(atmosphere, 0, 0, 1280, 720);
+  (stage.planes ?? planes).forEach(({ scaleX, top, bottom }, index) => {
+    const [firstRow, lastRow] = stage.rows[index];
+    const inset = stage.insets?.[index] ?? 0;
+    const sourceKey = layerKey(stage, index);
+    const key = index === 1 && stage.skylineFade
+      ? fadedSkylineTexture(scene, sourceKey, firstRow, stage.skylineFade) : sourceKey;
+    const source = scene.textures.get(key).getSourceImage();
+    const width = source.width - inset * 2;
+    context.drawImage(source, inset, firstRow, width, lastRow - firstRow, 0, top, width * scaleX, bottom - top);
+  });
+  context.restore();
+  if (world === 3) drawCoverZombie(context);
+  // Crop the preview at the walking surface to feature the scenery.
+  texture.add('scenery', 0, 0, 0, 320, 155);
+  texture.refresh();
+  return key;
+}
+
+function drawCoverZombie(context) {
+  const palette = { o: '#141621', s: '#566a46', h: '#98ad68', e: '#f8e39c', d: '#422338', j: '#a2444e', t: '#e48772' };
+  const pixels = [
+    '       oooooo       ',
+    '      oooddooo      ',
+    '      odssssho      ',
+    '     odshhhshho     ',
+    '     osshhhhsho     ',
+    '     oshoehehso     ',
+    '     oshssshhso     ',
+    '      oshossoo      ',
+    '      osshooo       ',
+    '      ooosso        ',
+    '    oojjtsojoo      ',
+    '   ojjjtsoojjoo     ',
+    '  ojjtjjodojjjo     ',
+    ' ooshjjoddotjjoo    ',
+    'osshhoooddojjjsooo  ',
+    'osshooojddotjooshso ',
+    ' oo   ojddotjo oshho',
+    '      ojddotjo  ooo ',
+    '      ojjdtjjo      ',
+    '      ojjdojjo      ',
+  ];
+  for (const [y, row] of pixels.entries()) {
+    for (const [x, color] of [...row].entries()) {
+      if (color === ' ') continue;
+      context.fillStyle = palette[color];
+      context.fillRect(121 + x * 6, 36 + y * 6, 6, 6);
+    }
+  }
+}
+
 export function drawParallaxScenery(scene, courseWidth) {
   const stage = getStage(scene.level.id);
   const camera = scene.cameras.main;
