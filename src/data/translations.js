@@ -36,6 +36,18 @@ Sombrero / Giro / Nieve / Nota musical|Hat / Spin / Snow / Musical note|Chapeau 
 Mover|Move|Se déplacer
 Teclado|Keyboard|Clavier
 Mando|Controller|Manette
+Mando: ↑ ↓ Elegir · A / ✕ Abrir · ← → Estación|Controller: ↑ ↓ Select · A / ✕ Open · ← → Season|Manette : ↑ ↓ Choisir · A / ✕ Ouvrir · ← → Saison
+Mando: Cruceta Elegir · A / ✕ Jugar · B / ○ Volver|Controller: D-pad Select · A / ✕ Play · B / ○ Back|Manette : Croix Choisir · A / ✕ Jouer · B / ○ Retour
+Mando: ↑ ↓ Elegir · A / ✕ Confirmar · B / ○ Volver|Controller: ↑ ↓ Select · A / ✕ Confirm · B / ○ Back|Manette : ↑ ↓ Choisir · A / ✕ Confirmer · B / ○ Retour
+LB / L1 Vestuario · RB / R1 Tienda|LB / L1 Wardrobe · RB / R1 Shop|LB / L1 Vestiaire · RB / R1 Boutique
+LB / L1 Tienda · RB / R1 Personajes|LB / L1 Shop · RB / R1 Characters|LB / L1 Boutique · RB / R1 Personnages
+LB / L1 Vestuario · RB / R1 Personajes|LB / L1 Wardrobe · RB / R1 Characters|LB / L1 Vestiaire · RB / R1 Personnages
+Mando: LB / L1 Apartados · RB / R1 Tienda|Controller: LB / L1 Tabs · RB / R1 Shop|Manette : LB / L1 Onglets · RB / R1 Boutique
+A / ✕ Ensayo · B / ○ Volver|A / ✕ Practice · B / ○ Back|A / ✕ Entraînement · B / ○ Retour
+Mando: LB / L1 y RB / R1 Apartados · Cruceta Elegir o ajustar|Controller: LB / L1 and RB / R1 Tabs · D-pad Select or adjust|Manette : LB / L1 et RB / R1 Onglets · Croix Choisir ou régler
+A / ✕ Aplicar · B / ○ Volver|A / ✕ Apply · B / ○ Back|A / ✕ Appliquer · B / ○ Retour
+Mando: Menu / Options Continuar · View / Share Menú|Controller: Menu / Options Resume · View / Share Main menu|Manette : Menu / Options Reprendre · View / Share Menu
+Mando: ↑ ↓ Elegir · A / ✕ Confirmar · B / ○ Menú · R3 Reintentar|Controller: ↑ ↓ Select · A / ✕ Confirm · B / ○ Menu · R3 Retry|Manette : ↑ ↓ Choisir · A / ✕ Confirmer · B / ○ Menu · R3 Réessayer
 Palanca izquierda / Cruceta|Left stick / D-pad|Stick gauche / Croix directionnelle
 Palanca izquierda ↓ / Cruceta ↓|Left stick ↓ / D-pad ↓|Stick gauche ↓ / Croix directionnelle ↓
 Menús: cruceta para elegir, A / ✕ para confirmar y B / ○ para volver.|Menus: use the D-pad to navigate, A / ✕ to confirm and B / ○ to go back.|Menus : croix directionnelle pour naviguer, A / ✕ pour confirmer et B / ○ pour revenir.

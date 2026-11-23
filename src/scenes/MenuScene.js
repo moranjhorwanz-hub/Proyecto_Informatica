@@ -102,6 +102,7 @@ export default class MenuScene extends Phaser.Scene {
       return {id:level.id,box,label};
     });
     text(this,45,697,'↑ ↓ ELEGIR · ENTER ABRIR · ← → ESTACIÓN',10,menuColors.muted);
+    text(this,430,694,'Mando: ↑ ↓ Elegir · A / ✕ Abrir · ← → Estación',14,menuColors.accentText);
     text(this,1234,697,'KING JACKSON',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
   }
 

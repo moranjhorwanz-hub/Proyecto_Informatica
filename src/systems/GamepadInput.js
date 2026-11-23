@@ -7,6 +7,13 @@ const menuKeys = {
   up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight',
   jump: 'Enter', spin: 'Escape', restart: 'r',
 };
+const bumperKeys = {
+  Settings: { moon: 'Tab', note: 'Tab' },
+  Attacks: { moon: 'Tab', note: 't' },
+  Shop: { moon: 'v', note: 'c' },
+  Character: { moon: 't', note: 'c' },
+  Characters: { moon: 'v', note: 't' },
+};
 
 export class GamepadInput {
   constructor(getPads = () => globalThis.navigator?.getGamepads?.() ?? []) {
@@ -39,8 +46,7 @@ export class GamepadInput {
     const keyboard = scene?.input?.keyboard;
     if (!keyboard || scene.sys.settings.key === 'Game') return;
     for (const action of this.pressed) {
-      const tab = scene.sys.settings.key === 'Settings' && (action === 'moon' || action === 'note');
-      const key = tab ? 'Tab' : menuKeys[action];
+      const key = bumperKeys[scene.sys.settings.key]?.[action] ?? menuKeys[action];
       if (!key) continue;
       const event = { key, shiftKey: action === 'moon', preventDefault() {} };
       // A menu confirmation can start a new scene during the same frame.

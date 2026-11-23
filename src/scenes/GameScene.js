@@ -157,7 +157,8 @@ export default class GameScene extends Phaser.Scene {
     this.overlay.add(menuPanel(this, -340, -95, 680, 190));
     this.overlayTitle = menuText(this, 0, -53, '', 36, menuColors.accentText).setOrigin(.5, 0);
     this.overlayBody = menuText(this, 0, 11, '', 19).setOrigin(.5, 0);
-    this.overlay.add([this.overlayTitle, this.overlayBody]);
+    const pauseGamepad = menuText(this, 0, 42, 'Mando: Menu / Options Continuar · View / Share Menú', 17, menuColors.accentText).setOrigin(.5, 0);
+    this.overlay.add([this.overlayTitle, this.overlayBody, pauseGamepad]);
     this.notice = text(640, 91, '', 18, menuColors.accentText).setOrigin(.5, 0);
     this.sectionText = this.levelManager?.course.sections && text(34, 93, '', 15, menuColors.muted);
     this.combatText = text(640, 116, '', 16).setOrigin(.5, 0);
