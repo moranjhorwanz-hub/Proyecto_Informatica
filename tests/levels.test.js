@@ -161,11 +161,15 @@ test('a living boss, no lives or falling below the flag prevent victory',()=>{
 import {levels} from '../src/data/levels.js';
 import {stageMusic} from '../src/data/stageMusic.js';
 
-test('each level has its own song reference, course and original music pattern',()=>{
+test('Thriller shares a song across its three stages and each level keeps its own course and fallback pattern',()=>{
   assert.equal(levels.length,12);
   assert.equal(levels[1].name,'Smooth Criminal');
   assert.equal(levels[1].track,'Smooth Criminal');
-  assert.equal(new Set(levels.map(level=>level.track)).size,12);
+  const thriller = levels.filter(level => level.world === 3);
+  assert.deepEqual(thriller.map(level => [level.subtitle, level.track]), [
+    ['Thriller', 'Thriller'], ['Thriller', 'Thriller'], ['Thriller', 'Thriller'],
+  ]);
+  assert.equal(new Set(levels.filter(level => level.world !== 3).map(level => level.track)).size,9);
   assert.equal(new Set(Object.values(courses).map(course=>JSON.stringify(course.gaps))).size,12);
   assert.equal(new Set(stageMusic.map(track=>JSON.stringify(track.notes))).size,12);
   assert.ok(courses[12].boss);
