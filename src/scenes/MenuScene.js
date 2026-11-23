@@ -4,7 +4,6 @@ import { getCharacter } from '../data/characters.js';
 import { getAppearance } from '../entities/appearance.js';
 import { createMenuBackdrop, createImageMenuBackdrop } from '../visuals/menuBackdrop.js';
 import { createMenuCharacter } from '../visuals/menuCharacter.js';
-import { worldCoverTexture } from '../visuals/parallaxScenery.js';
 import { menuText as text, menuPanel, fitMenuText, menuColors } from '../ui/menuComponents.js';
 
 const seasonLevels = levels.filter(level => level.stage === 1);
@@ -99,9 +98,6 @@ export default class MenuScene extends Phaser.Scene {
       const x=44+index*(width+gap),selected=level.world===this.level.world;
       const box=this.add.rectangle(x+width/2,651,width,44,selected?menuColors.accent:menuColors.ink,selected?.95:.8).setStrokeStyle(1,menuColors.border,selected?.8:.18).setInteractive({useHandCursor:true});
       const label=fitMenuText(text(this,x+17,641,`${level.subtitle}`,16,menuColors.cream),width-34);
-      if (level.world <= 3) {
-        this.add.image(x + width - 43, 651, worldCoverTexture(this, level.world), 'scenery').setDisplaySize(66, 32);
-      }
       box.on('pointerdown',()=>this.select(level.id));
       box.on('pointerover',()=>box.setStrokeStyle(1,menuColors.border,.8));
       box.on('pointerout',()=>box.setStrokeStyle(1,menuColors.border,selected?.8:.18));
