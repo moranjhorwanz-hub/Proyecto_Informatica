@@ -1,6 +1,7 @@
 import { courses } from '../data/courses.js';
 import { drawRecessedStreet, hasParallaxScenery } from '../visuals/parallaxScenery.js';
 import { createSpikeTrap } from '../visuals/spikeTrap.js';
+import { createMicrophonePickup } from '../visuals/microphonePickups.js';
 
 export default class LevelManager {
   constructor(scene, checkpoint) {
@@ -55,8 +56,13 @@ export default class LevelManager {
       return;
     }
     const s=this.scene;
-    const item=kind==='coin'?s.add.circle(x,y,10,0xffd76c).setStrokeStyle(2,0xfff0b8):s.add.rectangle(x,y,25,25,0xdd5271).setStrokeStyle(4,0xf7d789);
-    item.kind=kind; item.pickupKey = key; this.pickups.add(item);
+    const item = kind === 'coin'
+      ? s.add.circle(x, y, 10, 0xffd76c).setStrokeStyle(2, 0xfff0b8)
+      : createMicrophonePickup(s, x, y, index);
+    item.kind = kind;
+    item.pickupKey = key;
+    this.pickups.add(item);
+    if (kind === 'gift') item.body.setSize(25, 25);
   }
   connect() {
     const s=this.scene;
@@ -77,7 +83,12 @@ export default class LevelManager {
     s.physics.add.overlap(s.player,this.pickups,(_p,item)=>{
       if(!item.active || !s.player.state.lives)return;
       this.collected.add(item.pickupKey);
-      if(item.kind==='coin')this.coins++; else this.gifts++;
+      if (item.kind === 'coin') {
+        this.coins++;
+      } else {
+        this.gifts++;
+        s.player.state.restoreLife();
+      }
       const sound = item.kind === 'coin' ? 'coin' : 'hat';
       item.destroy(); s.services.audio.effect(sound);
     });

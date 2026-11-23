@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { courses } from '../src/data/courses.js';
 import { ProgressManager, defaultProgress, validateProgress } from '../src/systems/ProgressManager.js';
 import LevelManager from '../src/systems/LevelManager.js';
+import { PlayerState } from '../src/entities/playerState.js';
 
 const manager=()=>{const p=new ProgressManager();p.data=defaultProgress();return p;};
 test('winning unlocks next season, pays collected items and awards first-win bonus once',()=>{
@@ -114,9 +115,11 @@ test('campaign sections connect and checkpoints have clear ground', () => {
 });
 test('Billie Jean retries restore the latest checkpoint and its collected items', () => {
   const overlaps = new Map();
+  const state = new PlayerState();
+  state.fall(0);
   const scene = {
     level: { id: 1 },
-    player: { state: { lives: 3 } },
+    player: { state },
     playTime: 3000,
     physics: { add: { collider() {}, overlap(_player, target, callback) { overlaps.set(target, callback); } } },
     services: { audio: { effect() {} } },
@@ -136,8 +139,10 @@ test('Billie Jean retries restore the latest checkpoint and its collected items'
     kind, active: true, pickupKey: `${kind}-${index}`, destroy() {},
   });
   collect('coin', 0);
+  assert.equal(state.lives, 2);
   overlaps.get(second)();
   collect('gift', 0);
+  assert.equal(state.lives, 3);
   overlaps.get(first)();
   assert.deepEqual(level.checkpoint, { section: 2, collected: ['coin-0'], time: 3000 });
 
