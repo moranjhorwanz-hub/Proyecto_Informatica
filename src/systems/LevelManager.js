@@ -1,5 +1,6 @@
 import { courses } from '../data/courses.js';
 import { drawRecessedStreet, hasParallaxScenery } from '../visuals/parallaxScenery.js';
+import { createSpikeTrap } from '../visuals/spikeTrap.js';
 
 export default class LevelManager {
   constructor(scene, checkpoint) {
@@ -41,8 +42,7 @@ export default class LevelManager {
     c.gifts.forEach(([x,y], index) => this.pickup(x,y,'gift', index));
     this.hazards = s.physics.add.staticGroup();
     c.hazards.forEach(([x,y,w,h]) => {
-      const hazard = s.add.rectangle(x,y,w,h,0xc64b60).setStrokeStyle(2,0xffb0a3);
-      this.hazards.add(hazard);
+      this.hazards.add(createSpikeTrap(s, x, y, w, h));
     });
     s.add.rectangle(c.goal,505,5,230,0xf0d298);
     s.add.triangle(c.goal+50,420,0,0,100,25,0,50,s.level.accent);

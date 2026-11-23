@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { canUseSnow, getCharacter } from '../data/characters.js';
+import { keyLabel } from '../data/controls.js';
 import { COMBAT_DEFAULTS } from '../systems/combatState.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
 
@@ -84,27 +85,28 @@ export default class AttacksScene extends Phaser.Scene {
 
   renderMoves() {
     const combat = { ...COMBAT_DEFAULTS, ...this.character.combat };
+    const { controls } = this.services.progress.data.settings;
     const moves = [
-      ['J', 'Sombrero de retorno', 'Lanza un sombrero que regresa. Solo uno en vuelo.',
+      ['hat', 'Sombrero de retorno', 'Lanza un sombrero que regresa. Solo uno en vuelo.',
         `${seconds(combat.hatCooldown)} s`],
-      ['K', 'Giro', `Golpea alrededor de ti en un radio de ${combat.spinRange ?? 100} px.`,
+      ['spin', 'Giro', `Golpea alrededor de ti en un radio de ${combat.spinRange ?? 100} px.`,
         `${seconds(combat.spinCooldown)} s`],
-      ['L', 'Copo', `Congela enemigos durante ${seconds(combat.freezeDuration)} s.`,
+      ['freeze', 'Copo', `Congela enemigos durante ${seconds(combat.freezeDuration)} s.`,
         `${seconds(combat.freezeCooldown)} s`],
-      ['N', 'Nota musical', 'Lanza una nota rápida que inflige un punto de daño.',
+      ['note', 'Nota musical', 'Lanza una nota rápida que inflige un punto de daño.',
         `${seconds(combat.noteCooldown)} s`],
-      ['M', 'Moonwalk', 'Esquiva mientras te deslizas.', '—'],
+      ['moon', 'Moonwalk', 'Esquiva mientras te deslizas.', '—'],
     ];
     this.text(1188, 181, 'Recarga', 16, 'bold', '#afbfd6').setOrigin(1, 0);
     const lines = this.add.graphics().lineStyle(1, 0x354560);
     this.content.add(lines);
-    moves.forEach(([key, name, description, cooldown], index) => {
+    moves.forEach(([action, name, description, cooldown], index) => {
       const y = 211 + index * 70;
-      this.shape(378, y + 9, 49, 38, 0x172335, 0x536680, 8);
-      this.text(402, y + 28, key, 20, 'bold').setOrigin(.5);
-      const title = this.text(452, y, name, 24, 'bold');
-      if (key === 'N') this.text(462 + title.width, y, '♪', 24, 'bold', '#80e7ff');
-      this.text(452, y + 32, description, 18, 'normal', '#afbfd6');
+      this.shape(378, y + 9, 106, 38, 0x172335, 0x536680, 8);
+      this.text(431, y + 28, keyLabel(controls[action][0]), 18, 'bold').setOrigin(.5);
+      const title = this.text(505, y, name, 24, 'bold');
+      if (action === 'note') this.text(515 + title.width, y, '♪', 24, 'bold', '#80e7ff');
+      this.text(505, y + 32, description, 18, 'normal', '#afbfd6');
       this.text(1188, y + 28, cooldown, 21, 'bold').setOrigin(1, .5);
       lines.lineBetween(377, y + 59, 1209, y + 59);
     });
