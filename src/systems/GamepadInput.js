@@ -1,7 +1,7 @@
 const deadZone = .35;
 const directionKeys = { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' };
 const buttons = {
-  jump: 0, spin: 1, hat: 2, freeze: 3, moon: 4, note: 5, run: 7, back: 8, pause: 9, restart: 11,
+  jump: 0, spin: 1, hat: 2, freeze: 3, moon: 4, note: 5, hatPower: 6, run: 7, back: 8, pause: 9, restart: 11,
   up: 12, down: 13, left: 14, right: 15,
 };
 const menuKeys = {

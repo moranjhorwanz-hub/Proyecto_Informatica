@@ -3,6 +3,25 @@ import assert from 'node:assert/strict';
 import { PlayerState, PLAYER_DEFAULTS as config } from '../src/entities/playerState.js';
 const ground = { grounded: true, canStand: true };
 
+test('shield absorbs three separate enemy hits but not hazards', () => {
+  const state = new PlayerState();
+  state.shieldHits = 3;
+  assert.equal(state.takeEnemyDamage(0), true);
+  assert.equal(state.takeEnemyDamage(1), false);
+  assert.equal(state.shieldHits, 2);
+  assert.equal(state.takeEnemyDamage(1300), true);
+  assert.equal(state.takeEnemyDamage(2600), true);
+  assert.equal(state.lives, 3);
+  assert.equal(state.shieldHits, 0);
+  assert.equal(state.takeEnemyDamage(3900), true);
+  assert.equal(state.lives, 2);
+  const hazard = new PlayerState();
+  hazard.shieldHits = 3;
+  assert.equal(hazard.takeDamage(0), true);
+  assert.equal(hazard.lives, 2);
+  assert.equal(hazard.shieldHits, 3);
+});
+
 test('walking, running and contradictory input have bounded speed', () => {
   const player = new PlayerState();
   assert.equal(player.update({ right: true }, ground, 1).vx, config.speed);

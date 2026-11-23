@@ -1,5 +1,14 @@
 // Spanish source phrases are stable localization keys. Placeholders preserve live values.
 const rows = `
+Sombrero estelar|Star hat|Chapeau étoilé
+Pulsa B para duplicar el daño del sombrero durante 10 s. Recarga de 30 s.|Press B to double hat damage for 10 s. Cooldown: 30 s.|Appuyez sur B pour doubler les dégâts du chapeau pendant 10 s. Recharge : 30 s.
+Escudo estelar|Star shield|Bouclier étoilé
+Protege de tres golpes enemigos. Se recupera al comenzar cada partida.|Blocks three enemy hits. Restored at the start of each game.|Protège contre trois coups ennemis. Restauré au début de chaque partie.
+Habilidad desbloqueada y guardada.|Ability unlocked and saved.|Capacité débloquée et enregistrée.
+Desbloqueado|Unlocked|Débloqué
+Desbloqueado ? B / LT|Unlocked ? B / LT|D?bloqu? ? B / LT
+Sombrero estelar desbloqueado. Act?valo con B o LT.|Star hat unlocked. Activate with B or LT.|Chapeau ?toil? d?bloqu?. Activez avec B ou LT.
+Duplica el da?o del sombrero durante 10 s. Se compra en la tienda.|Doubles hat damage for 10 s. Buy it in the shop.|Double les d?g?ts du chapeau pendant 10 s. ? acheter en boutique.
 Calle iluminada|Lit Street|Rue illuminée
 Distrito de neón|Neon District|Quartier néon
 Callejón de las farolas|Lamplit Alley|Ruelle des réverbères

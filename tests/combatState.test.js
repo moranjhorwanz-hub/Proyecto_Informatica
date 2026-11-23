@@ -35,3 +35,13 @@ test('dead, hurt, duplicate hats and unknown attacks are rejected', () => {
   assert.equal(state.activate('unknown', 0), false);
   assert.deepEqual(state.next, { hat: 0, spin: 0, freeze: 0, note: 0 });
 });
+
+test('hat power requires purchase, lasts 10 seconds and recharges after 30 seconds', () => {
+  const state = new CombatState();
+  assert.equal(state.activateHatPower(0), false);
+  assert.equal(state.activateHatPower(0, { unlocked: true }), true);
+  assert.equal(state.hatDamage(9999, 2), 4);
+  assert.equal(state.hatDamage(10000, 2), 2);
+  assert.equal(state.activateHatPower(29999, { unlocked: true }), false);
+  assert.equal(state.activateHatPower(30000, { unlocked: true }), true);
+});
