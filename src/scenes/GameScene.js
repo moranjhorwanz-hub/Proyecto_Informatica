@@ -242,13 +242,13 @@ export default class GameScene extends Phaser.Scene {
     }
     this.combat.update(this.playTime, delta);
     this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
-    if (this.services.progress.data.abilities.includes('shield')) this.shieldText.setText(`Escudo: ${this.player.state.shieldHits} / 3 golpes`);
-    if (this.services.progress.data.abilities.includes('hat-power')) {
+    this.shieldText.setText(this.player.state.shieldHits > 0 || this.services.progress.data.abilities.includes('shield') ? `Escudo: ${this.player.state.shieldHits} / 3 golpes` : '');
+    if (this.services.progress.data.abilities.includes('hat-power') || this.playTime < this.combat.state.hatPowerUntil) {
       const combat = this.combat.state;
       const active = Math.ceil((combat.hatPowerUntil - this.playTime) / 1000);
       const cooldown = Math.ceil((combat.nextHatPower - this.playTime) / 1000);
       this.hatPowerText.setText(active > 0 ? `Sombrero estelar: ${active} s` : cooldown > 0 ? `Sombrero estelar: recarga ${cooldown} s` : 'B / LT: Sombrero estelar listo');
-    }
+    } else this.hatPowerText.setText('');
     if (this.player.y > 850) {
       this.player.respawn(...(this.levelManager?.spawn || [130,600]));
       this.centerCameraOnPlayer();
@@ -277,7 +277,7 @@ export default class GameScene extends Phaser.Scene {
       if (this.player.x > manager.course.goal && !this.finished && manager.canFinish()) {
         this.finished=true;
         this.services.audio.effect('victory');
-        const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,time:Math.max(1,Math.round(this.playTime)),lives:state.lives});
+        const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,chestCoins:manager.chestCoins,time:Math.max(1,Math.round(this.playTime)),lives:state.lives});
         this.scene.start('Victory',{levelId:this.level.id,result}); return;
       }
     } else if (this.player.x > 2420 && !this.finished) {

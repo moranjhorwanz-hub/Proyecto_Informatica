@@ -35,10 +35,10 @@ export const achievementNames={first:'Primer paso',spring:'Primavera completada'
 export class ProgressManager {
  constructor(){this.data=validateProgress(readStorage());}
  selectLevel(id){if(!Number.isInteger(id)||id<1||id>levels.length)return;this.data.selectedLevel=id;return writeStorage(this.data);}
- completeLevel(id,{coins=0,gifts=0,time,lives}={}) {
-  if(!Number.isInteger(id)||!this.data.unlockedLevels.includes(id)||id<1||id>levels.length||!Number.isSafeInteger(time)||time<=0||!Number.isInteger(coins)||coins<0||coins>7||!Number.isInteger(gifts)||gifts<0||gifts>(id===12?3:2))return null;
+ completeLevel(id,{coins=0,gifts=0,chestCoins=0,time,lives}={}) {
+  if(!Number.isInteger(id)||!this.data.unlockedLevels.includes(id)||id<1||id>levels.length||!Number.isSafeInteger(time)||time<=0||!Number.isInteger(coins)||coins<0||coins>7||!Number.isInteger(gifts)||gifts<0||gifts>(id===12?3:2)||![0,50].includes(chestCoins))return null;
   const first=!this.data.completedLevels.includes(id);
-  const reward=coins*10+gifts*25+(first?100:0);
+  const reward=coins*10+gifts*25+chestCoins+(first?100:0);
   if(!Number.isSafeInteger(this.data.coins+reward))return null;
   this.data.coins+=reward;
   if(first)this.data.completedLevels.push(id);
