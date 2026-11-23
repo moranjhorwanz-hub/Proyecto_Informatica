@@ -9,21 +9,22 @@ const setup = (coins = 1000, save = () => true) => {
   const progress = { data: { ...defaultProgress(), coins } };
   return { progress, shop: new ShopManager(progress, save) };
 };
-test('purchase charges catalog price once and does not automatically equip a skin', () => {
+test('all four skins can be claimed once with zero coins and equipped separately', () => {
   let saves = 0;
-  const { progress, shop } = setup(500, () => { saves++; return true; });
-  assert.deepEqual(shop.buy('thriller'), { ok: true });
+  const { progress, shop } = setup(0, () => { saves++; return true; });
+  const skins = ['thriller', 'white', 'christmas', 'gold'];
+  for (const id of skins) assert.deepEqual(shop.buy(id), { ok: true });
   assert.equal(progress.data.coins, 0);
-  assert.deepEqual(progress.data.purchases, ['thriller']);
+  assert.deepEqual(progress.data.purchases, skins);
   assert.equal(progress.data.equippedSkin, null);
   assert.deepEqual(shop.buy('thriller'), { ok: false, reason: 'already-owned' });
-  assert.equal(saves, 1);
+  assert.equal(saves, skins.length);
   assert.equal(progress.data.coins, 0);
 });
 test('unknown items, insufficient balance and invalid balances never mutate progress', () => {
-  const { progress, shop } = setup(499);
+  const { progress, shop } = setup(299);
   const initial = JSON.stringify(progress.data);
-  assert.equal(shop.buy('thriller').reason, 'insufficient-coins');
+  assert.equal(shop.buy('freeze').reason, 'insufficient-coins');
   assert.equal(shop.buy('not-real').reason, 'unknown-item');
   assert.equal(JSON.stringify(progress.data), initial);
   for (const coins of [-1, NaN, Infinity, 500.5, Number.MAX_SAFE_INTEGER + 1]) {
@@ -38,7 +39,7 @@ test('equip requires an owned skin; default outfit can be restored without losin
   assert.equal(shop.equip('freeze').reason, 'not-a-skin');
   assert.equal(shop.buy('white').ok, true);
   assert.equal(shop.equip('white').ok, true);
-  assert.equal(progress.data.coins, 200);
+  assert.equal(progress.data.coins, 1000);
   assert.equal(progress.data.equippedSkin, 'white');
   assert.equal(shop.equip(null).ok, true);
   assert.equal(progress.data.equippedSkin, null);
@@ -64,7 +65,7 @@ test('inventory, equipped skin, balance and snow unlock survive a JSON save roun
   shop.buy('freeze'); shop.buy('thriller'); shop.equip('thriller');
   const loaded = validateProgress(JSON.parse(stored));
   assert.deepEqual(loaded, progress.data);
-  assert.equal(loaded.coins, 200);
+  assert.equal(loaded.coins, 700);
   assert.deepEqual(loaded.purchases, ['freeze', 'thriller']);
   assert.equal(loaded.equippedSkin, 'thriller');
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);

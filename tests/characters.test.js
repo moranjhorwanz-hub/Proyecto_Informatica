@@ -9,21 +9,22 @@ import { getAppearance } from '../src/entities/appearance.js';
 import { levels } from '../src/data/levels.js';
 
 const setup=()=>{const progress={data:{...defaultProgress(),coins:5000}};return {progress,shop:new ShopManager(progress,()=>true)};};
-test('characters require purchase, charge catalog prices once, and can switch back freely',()=>{
+test('all characters can be unlocked for free and selected',()=>{
   const {progress,shop}=setup();
+  progress.data.coins=0;
   assert.equal(shop.selectCharacter('snow-king').reason,'not-owned');
   assert.equal(shop.selectCharacter('unknown').reason,'unknown-character');
   for(const character of characters.slice(1)) {
     const balance=progress.data.coins;
     assert.equal(shop.buy(character.id).ok,true);
-    assert.equal(progress.data.coins,balance-character.price);
+    assert.equal(progress.data.coins,0);
     assert.equal(shop.buy(character.id).reason,'already-owned');
     assert.equal(shop.selectCharacter(character.id).ok,true);
     assert.equal(progress.data.character,character.id);
     assert.equal(getCharacter(progress.data),character);
   }
   assert.equal(shop.selectCharacter('michael').ok,true);
-  assert.equal(progress.data.coins,1600);
+  assert.equal(progress.data.coins,0);
 });
 test('failed character purchase or selection cannot change coins, ownership or current character',()=>{
   const {progress}=setup();const shop=new ShopManager(progress,()=>false);

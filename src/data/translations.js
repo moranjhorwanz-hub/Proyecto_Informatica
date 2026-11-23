@@ -120,6 +120,8 @@ Monedas: {count}|Coins: {count}|Pièces : {count}
 Faltan {count}|Need {count} more|Il manque {count}
 Seleccionado|Selected|Sélectionné
 Equipada|Equipped|Équipée
+Gratis|Free|Gratuit
+Obtener gratis|Get for free|Obtenir gratuitement
 En tu inventario|Owned|Dans votre inventaire
 Desbloqueado|Unlocked|Débloqué
 L en campaña|L in campaign|L en campagne
@@ -142,10 +144,10 @@ Este personaje no está disponible.|This character is unavailable.|Ce personnage
 Este artículo no es una skin.|This item is not an outfit.|Cet article n'est pas une tenue.
 No se pudo guardar. No se ha aplicado ningún cambio ni descontado monedas.|Could not save. No changes were applied and no coins were spent.|Échec de l'enregistrement. Aucun changement et aucune pièce débitée.
 Personaje seleccionado y guardado. Se conservan tu skin y tus compras.|Character selected and saved. Your outfit and purchases are kept.|Personnage choisi et enregistré. Tenue et achats conservés.
-Personaje comprado y guardado. Pulsa de nuevo para seleccionarlo.|Character purchased and saved. Press again to select it.|Personnage acheté et enregistré. Appuyez encore pour le choisir.
+Personaje desbloqueado y guardado. Pulsa de nuevo para seleccionarlo.|Character unlocked and saved. Press again to select it.|Personnage débloqué et enregistré. Appuyez encore pour le choisir.
 Vestuario guardado. Se aplicará al menú y a cualquier nivel.|Outfit saved. It applies to the menu and every level.|Tenue enregistrée. Elle s'applique au menu et à tous les niveaux.
 Nieve desbloqueada y guardada. Ya puedes usar L en campaña.|Snow unlocked and saved. You can now use L in campaign.|Neige débloquée et enregistrée. L est disponible en campagne.
-Compra guardada. Pulsa de nuevo para equipar la skin.|Purchase saved. Press again to equip the outfit.|Achat enregistré. Appuyez encore pour équiper la tenue.
+Traje guardado. Pulsa de nuevo para equiparlo.|Outfit saved. Press again to equip it.|Tenue enregistrée. Appuyez encore pour l'équiper.
 Rojo Thriller|Thriller red|Rouge Thriller
 Blanco de gala|Gala white|Blanc de gala
 Espíritu navideño|Christmas spirit|Esprit de Noël
