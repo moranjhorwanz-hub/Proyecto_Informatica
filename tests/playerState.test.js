@@ -22,6 +22,20 @@ test('shield absorbs three separate enemy hits but not hazards', () => {
   assert.equal(hazard.shieldHits, 3);
 });
 
+test('restoring a life respects the configured maximum and does not revive the player', () => {
+  const player = new PlayerState({ lives: 4 });
+  player.fall(0);
+  player.fall(1);
+  player.restoreLife();
+  assert.equal(player.lives, 3);
+  player.restoreLife();
+  player.restoreLife();
+  assert.equal(player.lives, 4);
+  for (let i = 0; i < 4; i++) player.fall(i + 2);
+  player.restoreLife();
+  assert.equal(player.lives, 0);
+});
+
 test('walking, running and contradictory input have bounded speed', () => {
   const player = new PlayerState();
   assert.equal(player.update({ right: true }, ground, 1).vx, config.speed);

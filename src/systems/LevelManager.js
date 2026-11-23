@@ -1,5 +1,8 @@
 import { courses } from '../data/courses.js';
 import { drawRecessedStreet, hasParallaxScenery } from '../visuals/parallaxScenery.js';
+import { createSpikeTrap } from '../visuals/spikeTrap.js';
+import { createMicrophonePickup } from '../visuals/microphonePickups.js';
+import { createVinylPickup } from '../visuals/vinylPickup.js';
 
 export default class LevelManager {
   constructor(scene, checkpoint) {
@@ -41,8 +44,7 @@ export default class LevelManager {
     c.gifts.forEach(([x,y], index) => this.pickup(x,y,'gift', index));
     this.hazards = s.physics.add.staticGroup();
     c.hazards.forEach(([x,y,w,h]) => {
-      const hazard = s.add.rectangle(x,y,w,h,0xc64b60).setStrokeStyle(2,0xffb0a3);
-      this.hazards.add(hazard);
+      this.hazards.add(createSpikeTrap(s, x, y, w, h));
     });
     s.add.rectangle(c.goal,505,5,230,0xf0d298);
     s.add.triangle(c.goal+50,420,0,0,100,25,0,50,s.level.accent);
@@ -55,8 +57,14 @@ export default class LevelManager {
       return;
     }
     const s=this.scene;
-    const item=kind==='coin'?s.add.circle(x,y,10,0xffd76c).setStrokeStyle(2,0xfff0b8):s.add.rectangle(x,y,25,25,0xdd5271).setStrokeStyle(4,0xf7d789);
-    item.kind=kind; item.pickupKey = key; this.pickups.add(item);
+    const item = kind === 'coin'
+      ? createVinylPickup(s, x, y)
+      : createMicrophonePickup(s, x, y, index);
+    item.kind = kind;
+    item.pickupKey = key;
+    this.pickups.add(item);
+    const pickupSize = kind === 'coin' ? 20 : 25;
+    item.body.setSize(pickupSize, pickupSize);
   }
   connect() {
     const s=this.scene;
@@ -77,7 +85,12 @@ export default class LevelManager {
     s.physics.add.overlap(s.player,this.pickups,(_p,item)=>{
       if(!item.active || !s.player.state.lives)return;
       this.collected.add(item.pickupKey);
-      if(item.kind==='coin')this.coins++; else this.gifts++;
+      if (item.kind === 'coin') {
+        this.coins++;
+      } else {
+        this.gifts++;
+        s.player.state.restoreLife();
+      }
       const sound = item.kind === 'coin' ? 'coin' : 'hat';
       item.destroy(); s.services.audio.effect(sound);
     });

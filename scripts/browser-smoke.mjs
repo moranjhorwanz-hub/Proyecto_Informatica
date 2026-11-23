@@ -221,7 +221,14 @@ try {
   await tap('p'); assert.equal(await evaluate('practice.paused'), true);
   const pausedTime = await evaluate('practice.playTime');
   await advance(200); assert.equal(await evaluate('practice.playTime'), pausedTime);
-  await tap('p'); assert.equal(await evaluate('practice.paused'), false);
+  await click(654, 456);
+  await waitFor(`testGame.scene.isActive('Settings')`, 'The pause menu opens Settings');
+  await tap('Escape', 'Escape');
+  await waitFor(`testGame.scene.isActive('Game')`, 'Leaving Settings returns to the paused game');
+  assert.equal(await evaluate('practice.paused'), true);
+  assert.equal(await evaluate('practice.playTime'), pausedTime);
+  await click(654, 302);
+  assert.equal(await evaluate('practice.paused'), false);
   await evaluate('p.body.reset(760,880); p.setVelocity(0,0); true');
   await waitFor('p.state.lives===1 && p.x<200', 'Fall must respawn and remove life');
   await evaluate('p.body.reset(760,880); p.setVelocity(0,0); true');
@@ -492,7 +499,7 @@ try {
   assert.equal(await settingsShows('Calidad de gráficos'),true);
   assert.equal(await settingsShows('Volumen general'),false);
   await click(170,285);
-  assert.equal(await settingsShows('Mover'),true);
+  assert.equal(await settingsShows('Mover a la izquierda'),true);
   assert.equal(await settingsShows('Calidad de gráficos'),false);
   await click(170,350);
   await click(1180,212);
@@ -556,7 +563,8 @@ try {
   manualFrames=false;await waitFor(`testGame.scene.isActive('Menu')`,'Settings reload menu');
   await evaluate('testGame.loop.stop();window.simTime=performance.now();true');manualFrames=true;
   assert.equal(await evaluate('document.documentElement.lang'),'fr');
-  assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.settings`),{language:'fr',music:false,musicVolume:35,sfxVolume:80,difficulty:'Normal',masterVolume:100,graphicsQuality:'Alta'});
+  const { defaultControls } = await import('../src/data/controls.js');
+  assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.settings`),{language:'fr',music:false,musicVolume:35,sfxVolume:80,difficulty:'Normal',masterVolume:100,graphicsQuality:'Alta',controls:defaultControls});
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000,'Settings preserve purchases and balance');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
   console.log(`Settings passed: ES/EN/FR, translated screens and HUD, independent audio gains, disabled music with effects, save rollback, fullscreen ${fullAvailable?'enter/exit':'unsupported feedback'}, all difficulty profiles/restart and reload persistence.`);

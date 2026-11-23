@@ -43,6 +43,22 @@ Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar|Tab · Sections    �
 Sombrero / Giro / Nieve|Hat / Spin / Snow|Chapeau / Rotation / Neige
 Sombrero / Giro / Nieve / Nota musical|Hat / Spin / Snow / Musical note|Chapeau / Rotation / Neige / Note de musique
 Mover|Move|Se déplacer
+Mover a la izquierda|Move left|Aller à gauche
+Mover a la derecha|Move right|Aller à droite
+Elige una acción, pulsa la nueva tecla y guarda con Aplicar.|Choose an action, press the new key and select Apply.|Choisissez une action, appuyez sur la nouvelle touche et validez avec Appliquer.
+Pulsa una tecla|Press a key|Appuyez sur une touche
+Pulsa la nueva tecla. Esc cancela el cambio.|Press the new key. Esc cancels the change.|Appuyez sur la nouvelle touche. Échap annule le changement.
+Elige otra tecla. Esc cancela el cambio.|Choose another key. Esc cancels the change.|Choisissez une autre touche. Échap annule le changement.
+Tecla en uso · {action}. Elige otra tecla.|Key in use · {action}. Choose another key.|Touche utilisée · {action}. Choisissez une autre touche.
+Pulsa Aplicar para guardar las teclas.|Select Apply to save the keys.|Sélectionnez Appliquer pour enregistrer les touches.
+Restablecer teclas|Reset keys|Rétablir les touches
+Teclas restablecidas. Pulsa Aplicar para guardarlas.|Keys restored. Select Apply to save them.|Touches rétablies. Sélectionnez Appliquer pour les enregistrer.
+Tab · Apartados    ↑ ↓ · Elegir    Enter · Cambiar|Tab · Sections    ↑ ↓ · Select    Enter · Change|Tab · Sections    ↑ ↓ · Choisir    Entrée · Modifier
+Volver al menú|Return to menu|Retour au menu
+{key} para continuar|{key} to resume|{key} pour reprendre
+{key} para volver al menú|{key} to return to menu|{key} pour revenir au menu
+Agáchate bajo el puente|Crouch under the bridge|Accroupissez-vous sous le pont
+Deslízate hacia atrás|Slide backward|Glissez en arrière
 Teclado|Keyboard|Clavier
 Mando|Controller|Manette
 Mando: ↑ ↓ Elegir · A / ✕ Abrir · ← → Estación|Controller: ↑ ↓ Select · A / ✕ Open · ← → Season|Manette : ↑ ↓ Choisir · A / ✕ Ouvrir · ← → Saison
@@ -240,6 +256,7 @@ Deslízate hacia atrás|Slide backwards|Glissez en arrière
 FIN DEL ENSAYO|END OF PRACTICE|FIN DE L'ENTRAÎNEMENT
 Zona de daño|Damage zone|Zone de dégâts
 Pausa|Pause|Pause
+Continuar|Resume|Reprendre
 A/D o ← →  Mover    SHIFT  Correr    ESPACIO  Saltar    S/↓  Agacharse    M  Moonwalk    R  Reiniciar    ESC  Menú|A/D or ← →  Move    SHIFT  Run    SPACE  Jump    S/↓  Crouch    M  Moonwalk    R  Restart    ESC  Menu|A/D ou ← →  Bouger    MAJ  Courir    ESPACE  Sauter    S/↓  S'accroupir    M  Moonwalk    R  Recommencer    ÉCHAP  Menu
 Sombrero|Hat|Chapeau
 Giro|Spin|Rotation

@@ -1,0 +1,276 @@
+{
+  "package": "Enemigos Zombis Mundo Terror",
+  "format": "PNG RGBA, fondo transparente",
+  "frame_size": [
+    256,
+    256
+  ],
+  "frame_order": "filas de izquierda a derecha; cada fila corresponde a una animacion",
+  "enemies": {
+    "01_Zombi": {
+      "01_Quieto": {
+        "frames": [
+          "01_Quieto/quieto_01.png",
+          "01_Quieto/quieto_02.png",
+          "01_Quieto/quieto_03.png",
+          "01_Quieto/quieto_04.png"
+        ],
+        "frame_duration_ms": 160,
+        "loop": true
+      },
+      "02_Caminar": {
+        "frames": [
+          "02_Caminar/caminar_01.png",
+          "02_Caminar/caminar_02.png",
+          "02_Caminar/caminar_03.png",
+          "02_Caminar/caminar_04.png"
+        ],
+        "frame_duration_ms": 125,
+        "loop": true
+      },
+      "03_Ataque_1_Aranazo": {
+        "frames": [
+          "03_Ataque_1_Aranazo/ataque_1_aranazo_01.png",
+          "03_Ataque_1_Aranazo/ataque_1_aranazo_02.png",
+          "03_Ataque_1_Aranazo/ataque_1_aranazo_03.png",
+          "03_Ataque_1_Aranazo/ataque_1_aranazo_04.png"
+        ],
+        "frame_duration_ms": 90,
+        "loop": false
+      },
+      "04_Ataque_2_Mordida": {
+        "frames": [
+          "04_Ataque_2_Mordida/ataque_2_mordida_01.png",
+          "04_Ataque_2_Mordida/ataque_2_mordida_02.png",
+          "04_Ataque_2_Mordida/ataque_2_mordida_03.png",
+          "04_Ataque_2_Mordida/ataque_2_mordida_04.png"
+        ],
+        "frame_duration_ms": 100,
+        "loop": false
+      },
+      "05_Recibir_Dano": {
+        "frames": [
+          "05_Recibir_Dano/recibir_dano_01.png",
+          "05_Recibir_Dano/recibir_dano_02.png",
+          "05_Recibir_Dano/recibir_dano_03.png",
+          "05_Recibir_Dano/recibir_dano_04.png"
+        ],
+        "frame_duration_ms": 120,
+        "loop": false
+      },
+      "06_Derrota": {
+        "frames": [
+          "06_Derrota/derrota_01.png",
+          "06_Derrota/derrota_02.png",
+          "06_Derrota/derrota_03.png",
+          "06_Derrota/derrota_04.png"
+        ],
+        "frame_duration_ms": 200,
+        "loop": false
+      }
+    },
+    "02_Hombre_Lobo": {
+      "01_Quieto": {
+        "frames": [
+          "01_Quieto/quieto_01.png",
+          "01_Quieto/quieto_02.png",
+          "01_Quieto/quieto_03.png",
+          "01_Quieto/quieto_04.png"
+        ],
+        "frame_duration_ms": 150,
+        "loop": true
+      },
+      "02_Caminar": {
+        "frames": [
+          "02_Caminar/caminar_01.png",
+          "02_Caminar/caminar_02.png",
+          "02_Caminar/caminar_03.png",
+          "02_Caminar/caminar_04.png"
+        ],
+        "frame_duration_ms": 110,
+        "loop": true
+      },
+      "03_Ataque_1_Zarpazo": {
+        "frames": [
+          "03_Ataque_1_Zarpazo/ataque_1_zarpazo_01.png",
+          "03_Ataque_1_Zarpazo/ataque_1_zarpazo_02.png",
+          "03_Ataque_1_Zarpazo/ataque_1_zarpazo_03.png",
+          "03_Ataque_1_Zarpazo/ataque_1_zarpazo_04.png"
+        ],
+        "frame_duration_ms": 90,
+        "loop": false
+      },
+      "04_Ataque_2_Salto": {
+        "frames": [
+          "04_Ataque_2_Salto/ataque_2_salto_01.png",
+          "04_Ataque_2_Salto/ataque_2_salto_02.png",
+          "04_Ataque_2_Salto/ataque_2_salto_03.png",
+          "04_Ataque_2_Salto/ataque_2_salto_04.png"
+        ],
+        "frame_duration_ms": 120,
+        "loop": false
+      },
+      "05_Recibir_Dano": {
+        "frames": [
+          "05_Recibir_Dano/recibir_dano_01.png",
+          "05_Recibir_Dano/recibir_dano_02.png",
+          "05_Recibir_Dano/recibir_dano_03.png",
+          "05_Recibir_Dano/recibir_dano_04.png"
+        ],
+        "frame_duration_ms": 110,
+        "loop": false
+      },
+      "06_Derrota": {
+        "frames": [
+          "06_Derrota/derrota_01.png",
+          "06_Derrota/derrota_02.png",
+          "06_Derrota/derrota_03.png",
+          "06_Derrota/derrota_04.png"
+        ],
+        "frame_duration_ms": 200,
+        "loop": false
+      }
+    },
+    "03_Zombi_Bailarin": {
+      "01_Quieto": {
+        "frames": [
+          "01_Quieto/quieto_01.png",
+          "01_Quieto/quieto_02.png",
+          "01_Quieto/quieto_03.png",
+          "01_Quieto/quieto_04.png"
+        ],
+        "frame_duration_ms": 170,
+        "loop": true
+      },
+      "02_Caminar": {
+        "frames": [
+          "02_Caminar/caminar_01.png",
+          "02_Caminar/caminar_02.png",
+          "02_Caminar/caminar_03.png",
+          "02_Caminar/caminar_04.png"
+        ],
+        "frame_duration_ms": 120,
+        "loop": true
+      },
+      "03_Ataque_1_Giro": {
+        "frames": [
+          "03_Ataque_1_Giro/ataque_1_giro_01.png",
+          "03_Ataque_1_Giro/ataque_1_giro_02.png",
+          "03_Ataque_1_Giro/ataque_1_giro_03.png",
+          "03_Ataque_1_Giro/ataque_1_giro_04.png"
+        ],
+        "frame_duration_ms": 85,
+        "loop": false
+      },
+      "04_Ataque_2_Baile_de_Ataque": {
+        "frames": [
+          "04_Ataque_2_Baile_de_Ataque/ataque_2_baile_01.png",
+          "04_Ataque_2_Baile_de_Ataque/ataque_2_baile_02.png",
+          "04_Ataque_2_Baile_de_Ataque/ataque_2_baile_03.png",
+          "04_Ataque_2_Baile_de_Ataque/ataque_2_baile_04.png"
+        ],
+        "frame_duration_ms": 120,
+        "loop": false
+      },
+      "05_Recibir_Dano": {
+        "frames": [
+          "05_Recibir_Dano/recibir_dano_01.png",
+          "05_Recibir_Dano/recibir_dano_02.png",
+          "05_Recibir_Dano/recibir_dano_03.png",
+          "05_Recibir_Dano/recibir_dano_04.png"
+        ],
+        "frame_duration_ms": 120,
+        "loop": false
+      },
+      "06_Derrota": {
+        "frames": [
+          "06_Derrota/derrota_01.png",
+          "06_Derrota/derrota_02.png",
+          "06_Derrota/derrota_03.png",
+          "06_Derrota/derrota_04.png"
+        ],
+        "frame_duration_ms": 190,
+        "loop": false
+      }
+    },
+    "04_Rey_de_los_Muertos": {
+      "01_Quieto": {
+        "frames": [
+          "01_Quieto/quieto_01.png",
+          "01_Quieto/quieto_02.png",
+          "01_Quieto/quieto_03.png",
+          "01_Quieto/quieto_04.png"
+        ],
+        "frame_duration_ms": 165,
+        "loop": true
+      },
+      "02_Caminar": {
+        "frames": [
+          "02_Caminar/caminar_01.png",
+          "02_Caminar/caminar_02.png",
+          "02_Caminar/caminar_03.png",
+          "02_Caminar/caminar_04.png"
+        ],
+        "frame_duration_ms": 115,
+        "loop": true
+      },
+      "03_Ataque_1_Invocacion": {
+        "frames": [
+          "03_Ataque_1_Invocacion/ataque_1_invocacion_01.png",
+          "03_Ataque_1_Invocacion/ataque_1_invocacion_02.png",
+          "03_Ataque_1_Invocacion/ataque_1_invocacion_03.png",
+          "03_Ataque_1_Invocacion/ataque_1_invocacion_04.png"
+        ],
+        "frame_duration_ms": 140,
+        "loop": false
+      },
+      "04_Ataque_2_Golpe_de_Suelo": {
+        "frames": [
+          "04_Ataque_2_Golpe_de_Suelo/ataque_2_golpe_de_suelo_01.png",
+          "04_Ataque_2_Golpe_de_Suelo/ataque_2_golpe_de_suelo_02.png",
+          "04_Ataque_2_Golpe_de_Suelo/ataque_2_golpe_de_suelo_03.png",
+          "04_Ataque_2_Golpe_de_Suelo/ataque_2_golpe_de_suelo_04.png"
+        ],
+        "frame_duration_ms": 125,
+        "loop": false
+      },
+      "05_Ataque_3_Giratorio": {
+        "frames": [
+          "05_Ataque_3_Giratorio/ataque_3_giratorio_01.png",
+          "05_Ataque_3_Giratorio/ataque_3_giratorio_02.png",
+          "05_Ataque_3_Giratorio/ataque_3_giratorio_03.png",
+          "05_Ataque_3_Giratorio/ataque_3_giratorio_04.png"
+        ],
+        "frame_duration_ms": 85,
+        "loop": false
+      },
+      "06_Recibir_Dano": {
+        "frames": [
+          "06_Recibir_Dano/recibir_dano_01.png",
+          "06_Recibir_Dano/recibir_dano_02.png",
+          "06_Recibir_Dano/recibir_dano_03.png",
+          "06_Recibir_Dano/recibir_dano_04.png"
+        ],
+        "frame_duration_ms": 115,
+        "loop": false
+      },
+      "07_Derrota": {
+        "frames": [
+          "07_Derrota/derrota_01.png",
+          "07_Derrota/derrota_02.png",
+          "07_Derrota/derrota_03.png",
+          "07_Derrota/derrota_04.png"
+        ],
+        "frame_duration_ms": 220,
+        "loop": false
+      }
+    }
+  },
+  "counts": {
+    "01_Zombi": 24,
+    "02_Hombre_Lobo": 24,
+    "03_Zombi_Bailarin": 24,
+    "04_Rey_de_los_Muertos": 28
+  },
+  "total_frames": 100
+}

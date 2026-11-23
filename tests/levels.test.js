@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { courses } from '../src/data/courses.js';
 import { ProgressManager, defaultProgress, validateProgress } from '../src/systems/ProgressManager.js';
 import LevelManager from '../src/systems/LevelManager.js';
+import { PlayerState } from '../src/entities/playerState.js';
 
 const manager=()=>{const p=new ProgressManager();p.data=defaultProgress();return p;};
 test('winning unlocks next season, pays collected items and awards first-win bonus once',()=>{
@@ -81,12 +82,13 @@ test('only Billie Jean has the urban enemies and their boss', () => {
   }
 });
 test('Only Smooth Criminal uses the club enemies and boss', () => {
+  const clubKinds = new Set(['gangster', 'bruiser', 'knife']);
   for (const other of Object.values(courses).slice(2)) {
-    assert.ok(other.enemies.every(patrol => patrol.length === 3));
+    assert.ok(other.enemies.every(patrol => !clubKinds.has(patrol[3])));
     assert.notEqual(other.boss?.kind, 'club');
   }
   const course = courses[2];
-  assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])), new Set(['gangster', 'bruiser', 'knife']));
+  assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])), clubKinds);
   const { kind, x, left, right, arenaSection } = course.boss;
   const arena = course.sections[arenaSection];
   assert.equal(kind, 'club');
@@ -96,6 +98,17 @@ test('Only Smooth Criminal uses the club enemies and boss', () => {
   assert.ok(arena.start < left && left < x && x < course.goal && course.goal < right && right < arena.end);
   assert.ok(course.platforms.some(([px, y, width]) => y === 620 && px <= arena.start && px + width === arena.end));
   assert.ok(course.platforms.every(([px, y, width]) => y === 620 || px + width <= arena.start));
+});
+test('Thriller places its three enemies before the crypt and its boss inside it', () => {
+  const course = courses[3];
+  const arena = course.sections[course.boss.arenaSection];
+  assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])),
+    new Set(['zombie', 'werewolf', 'zombieDancer']));
+  assert.ok(course.enemies.every(([, , right]) => right < arena.start));
+  assert.equal(course.boss.kind, 'deadKing');
+  assert.ok(arena.spawn[0] < course.boss.left && course.boss.x < course.goal);
+  assert.ok(course.platforms.some(([x, y, width]) =>
+    y === 620 && x <= arena.start && x + width === arena.end));
 });
 test('campaign sections connect and checkpoints have clear ground', () => {
   for (const course of Object.values(courses)) {
@@ -114,9 +127,11 @@ test('campaign sections connect and checkpoints have clear ground', () => {
 });
 test('Billie Jean retries restore the latest checkpoint and its collected items', () => {
   const overlaps = new Map();
+  const state = new PlayerState();
+  state.fall(0);
   const scene = {
     level: { id: 1 },
-    player: { state: { lives: 3 } },
+    player: { state },
     playTime: 3000,
     physics: { add: { collider() {}, overlap(_player, target, callback) { overlaps.set(target, callback); } } },
     services: { audio: { effect() {} } },
@@ -136,8 +151,10 @@ test('Billie Jean retries restore the latest checkpoint and its collected items'
     kind, active: true, pickupKey: `${kind}-${index}`, destroy() {},
   });
   collect('coin', 0);
+  assert.equal(state.lives, 2);
   overlaps.get(second)();
   collect('gift', 0);
+  assert.equal(state.lives, 3);
   overlaps.get(first)();
   assert.deepEqual(level.checkpoint, { section: 2, collected: ['coin-0'], time: 3000 });
 
@@ -161,15 +178,13 @@ test('a living boss, no lives or falling below the flag prevent victory',()=>{
 import {levels} from '../src/data/levels.js';
 import {stageMusic} from '../src/data/stageMusic.js';
 
-test('Thriller shares a song across its three stages and each level keeps its own course and fallback pattern',()=>{
+test('Thriller occupies level 3 and each level has its own song reference, course and fallback pattern',()=>{
   assert.equal(levels.length,12);
   assert.equal(levels[1].name,'Smooth Criminal');
   assert.equal(levels[1].track,'Smooth Criminal');
-  const thriller = levels.filter(level => level.world === 3);
-  assert.deepEqual(thriller.map(level => [level.subtitle, level.track]), [
-    ['Thriller', 'Thriller'], ['Thriller', 'Thriller'], ['Thriller', 'Thriller'],
-  ]);
-  assert.equal(new Set(levels.filter(level => level.world !== 3).map(level => level.track)).size,9);
+  assert.equal(levels[2].name,'Thriller');
+  assert.equal(levels[2].track,'Thriller');
+  assert.equal(new Set(levels.map(level => level.track)).size,12);
   assert.equal(new Set(Object.values(courses).map(course=>JSON.stringify(course.gaps))).size,12);
   assert.equal(new Set(stageMusic.map(track=>JSON.stringify(track.notes))).size,12);
   assert.ok(courses[12].boss);

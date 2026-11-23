@@ -51,6 +51,10 @@ export class PlayerState {
     return { vx: direction * speed, jump };
   }
 
+  restoreLife() {
+    if (this.lives > 0 && this.lives < this.stats.lives) this.lives++;
+  }
+
   takeDamage(now, direction = -this.facing) {
     if (!this.lives || now < this.invulnerableUntil || now < this.moonUntil) return false;
     this.lives--;

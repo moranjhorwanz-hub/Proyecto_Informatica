@@ -1,5 +1,4 @@
 import { addPixelSmoke } from './pixelSmoke.js';
-import { levels } from '../data/levels.js';
 
 // Each plane has its own crop and screen-space placement. The silhouettes
 // overlap vertically so nearer scenery hides the base of the layer behind it.
@@ -44,7 +43,7 @@ const stages = {
     foundation: 0x21202a,
     trim: 0xc0a17e,
   },
-  thriller: {
+  3: {
     folder: 'thriller',
     layers: ['cielo', 'ciudad', 'mansiones', 'cementerio', 'sendero'],
     rows: [[244, 642], [329, 611], [240, 709], [294, 700], [305, 700]],
@@ -63,7 +62,6 @@ const stages = {
     trim: 0x7d8c65,
   },
 };
-const getStage = levelId => levels[levelId - 1]?.world === 3 ? stages.thriller : stages[levelId];
 const layerKey = (stage, index) => `${stage.folder}-layer-${index + 1}`;
 const pavementFrame = 'pavement';
 
@@ -76,7 +74,7 @@ export function preloadParallaxScenery(scene) {
 }
 
 export function hasParallaxScenery(levelId) {
-  return Boolean(getStage(levelId));
+  return Object.hasOwn(stages, levelId);
 }
 
 function atmosphereTexture(scene, stage) {
@@ -136,8 +134,32 @@ function fadedSkylineTexture(scene, sourceKey, firstRow, fadeHeight) {
   return key;
 }
 
+export function thrillerPreviewTexture(scene) {
+  const key = 'thriller-preview';
+  if (scene.textures.exists(key)) return key;
+  const stage = stages[3];
+  const texture = scene.textures.createCanvas(key, 320, 180);
+  const context = texture.getContext();
+  context.scale(.25, .25);
+  const atmosphere = scene.textures.get(atmosphereTexture(scene, stage)).getSourceImage();
+  context.drawImage(atmosphere, 0, 0, 1280, 720);
+  stage.planes.forEach(({ scaleX, top, bottom }, index) => {
+    const [firstRow, lastRow] = stage.rows[index];
+    const inset = stage.insets[index];
+    const sourceKey = layerKey(stage, index);
+    const key = index === 1 ? fadedSkylineTexture(scene, sourceKey, firstRow, stage.skylineFade) : sourceKey;
+    const source = scene.textures.get(key).getSourceImage();
+    const width = source.width - inset * 2;
+    context.drawImage(source, inset, firstRow, width, lastRow - firstRow, 0, top, width * scaleX, bottom - top);
+  });
+  // Crop the preview at the walking surface to feature the scenery.
+  texture.add('scenery', 0, 0, 0, 320, 155);
+  texture.refresh();
+  return key;
+}
+
 export function drawParallaxScenery(scene, courseWidth) {
-  const stage = getStage(scene.level.id);
+  const stage = stages[scene.level.id];
   const camera = scene.cameras.main;
   scene.add.image(0, 0, atmosphereTexture(scene, stage)).setOrigin(0)
     .setDisplaySize(camera.width, camera.height).setScrollFactor(0).setDepth(-6);
@@ -196,7 +218,7 @@ function getPavementKey(scene, stage) {
 }
 
 export function drawRecessedStreet(scene, x, width) {
-  const stage = getStage(scene.level.id);
+  const stage = stages[scene.level.id];
   const key = getPavementKey(scene, stage);
   const frame = scene.textures.get(key).get(pavementFrame);
   const top = 620, lowerStreet = 661, depth = lowerStreet - top;
@@ -236,7 +258,7 @@ export function styleParallaxPlatform(scene, block) {
     return;
   }
 
-  const stage = getStage(scene.level.id);
+  const stage = stages[scene.level.id];
   const pavementKey = getPavementKey(scene, stage);
   const texture = scene.textures.get(pavementKey);
 
