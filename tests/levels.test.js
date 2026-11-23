@@ -81,12 +81,13 @@ test('only Billie Jean has the urban enemies and their boss', () => {
   }
 });
 test('Only Smooth Criminal uses the club enemies and boss', () => {
+  const clubKinds = new Set(['gangster', 'bruiser', 'knife']);
   for (const other of Object.values(courses).slice(2)) {
-    assert.ok(other.enemies.every(patrol => patrol.length === 3));
+    assert.ok(other.enemies.every(patrol => !clubKinds.has(patrol[3])));
     assert.notEqual(other.boss?.kind, 'club');
   }
   const course = courses[2];
-  assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])), new Set(['gangster', 'bruiser', 'knife']));
+  assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])), clubKinds);
   const { kind, x, left, right, arenaSection } = course.boss;
   const arena = course.sections[arenaSection];
   assert.equal(kind, 'club');
@@ -96,6 +97,17 @@ test('Only Smooth Criminal uses the club enemies and boss', () => {
   assert.ok(arena.start < left && left < x && x < course.goal && course.goal < right && right < arena.end);
   assert.ok(course.platforms.some(([px, y, width]) => y === 620 && px <= arena.start && px + width === arena.end));
   assert.ok(course.platforms.every(([px, y, width]) => y === 620 || px + width <= arena.start));
+});
+test('Thriller places its three enemies before the crypt and its boss inside it', () => {
+  const course = courses[3];
+  const arena = course.sections[course.boss.arenaSection];
+  assert.deepEqual(new Set(course.enemies.map(patrol => patrol[3])),
+    new Set(['zombie', 'werewolf', 'zombieDancer']));
+  assert.ok(course.enemies.every(([, , right]) => right < arena.start));
+  assert.equal(course.boss.kind, 'deadKing');
+  assert.ok(arena.spawn[0] < course.boss.left && course.boss.x < course.goal);
+  assert.ok(course.platforms.some(([x, y, width]) =>
+    y === 620 && x <= arena.start && x + width === arena.end));
 });
 test('campaign sections connect and checkpoints have clear ground', () => {
   for (const course of Object.values(courses)) {

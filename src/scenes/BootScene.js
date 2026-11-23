@@ -4,6 +4,7 @@ import { preloadParallaxScenery } from '../visuals/parallaxScenery.js';
 import { preloadSpringSprites, registerSpringEffects } from '../visuals/springEnemies.js';
 import { preloadClubSprites, registerClubTextures } from '../visuals/clubEnemies.js';
 import { preloadBossHealthBar } from '../visuals/bossHealthBar.js';
+import { preloadThrillerSprites } from '../visuals/thrillerEnemies.js';
 
 export default class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
@@ -13,6 +14,7 @@ export default class BootScene extends Phaser.Scene {
     preloadParallaxScenery(this);
     preloadSpringSprites(this);
     preloadClubSprites(this);
+    preloadThrillerSprites(this);
     preloadBossHealthBar(this);
     this.load.image('neon-spikes', `${import.meta.env.BASE_URL}assets/neon-spikes.png`);
     this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);
