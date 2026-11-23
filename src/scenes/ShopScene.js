@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { getAppearance } from '../entities/appearance.js';
+import { getPlayerSpritePrefix } from '../entities/playerSprites.js';
 import { characters } from '../data/characters.js';
 import { wardrobePreviewTexture } from '../visuals/wardrobePreview.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
@@ -31,7 +32,7 @@ export default class ShopScene extends Phaser.Scene {
       : this.shop.catalog.filter(item => item.type !== 'character');
     const selected = itemId ?? (this.characters ? this.services.progress.data.character : this.wardrobe ? this.services.progress.data.equippedSkin : undefined);
     this.focus = Math.max(0, this.items.findIndex(item => item.id === selected));
-    createSettingsMenuFrame(this);
+    this.menuHero = createSettingsMenuFrame(this);
     this.text(51, 20, '✦', 36);
     this.text(106, 19, this.characters ? 'Elige tu personaje' : this.wardrobe ? 'Tu vestuario' : 'La tienda del ritmo', 38, textColor, 'bold italic');
     this.balanceText = this.text(1210, 42, '', 22, '#ff9ca8', 'bold').setOrigin(1, 0);
@@ -116,6 +117,12 @@ export default class ShopScene extends Phaser.Scene {
     if (this.characters) {
       if (owned && this.services.progress.data.character === item.id) { this.scene.start('LevelSelect'); return; }
       const result = owned ? this.shop.selectCharacter(item.id) : this.shop.buy(item.id);
+      if (result.ok && owned) {
+        const appearance = getAppearance(levels.find(level => level.world === 4), this.services.progress.data);
+        const prefix = getPlayerSpritePrefix(this, appearance);
+        if (this.menuHero.anims.isPlaying) this.menuHero.play(`${prefix}-dance`);
+        else this.menuHero.setTexture(`${prefix}-idle-0`);
+      }
       this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
       this.feedback.setText(result.ok ? owned ? 'Personaje seleccionado y guardado. Se conservan tu skin y tus compras.' : 'Personaje desbloqueado y guardado. Pulsa de nuevo para seleccionarlo.' : messages[result.reason]);
       this.refresh(); return;

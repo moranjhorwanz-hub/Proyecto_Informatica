@@ -12,7 +12,7 @@ export function createSettingsMenuFrame(scene) {
   createMenuBackdrop(scene, level, true);
   scene.add.rectangle(640, 360, 1280, 720, 0x020610, .6);
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  createPixelMenuCharacter(scene, 165, 634, 1.45, reducedMotion, getAppearance(level, scene.services.progress.data));
+  const hero = createPixelMenuCharacter(scene, 165, 634, 1.45, reducedMotion, getAppearance(level, scene.services.progress.data));
   const frame = scene.add.graphics();
   frame.fillStyle(0x080c17, .97).fillPoints(cut(0, 0, 585, 88, 35), true);
   frame.lineStyle(3, 0xee2543).strokePoints(cut(0, 0, 585, 88, 35), true);
@@ -24,4 +24,5 @@ export function createSettingsMenuFrame(scene) {
   frame.lineStyle(2, 0x9b2942).strokePoints(panel, true);
   frame.fillStyle(0x080c17, .98).fillRect(0, 652, 1280, 68);
   frame.lineStyle(2, 0xee2543).lineBetween(0, 652, 1280, 652);
+  return hero;
 }

@@ -141,6 +141,7 @@ try {
   await waitFor(`p.body.blocked.down || p.body.touching.down`, 'Player must land');
   const initial = await evaluate(`({x:p.x,y:p.y,lives:p.state.lives})`);
   assert.equal(initial.lives, 3);
+  assert.equal(await evaluate('practice.lifeBar.scaleX'), 1, 'Player health bar starts full');
   assert.ok(Math.abs(initial.y - 620) < 2, 'Feet must align with floor');
   // Phase 4: exercise real projectiles, Arcade overlaps and keyboard attacks.
   await evaluate(`window.enemy=practice.combat.enemies.getChildren()[0]; const targetX=p.x+270; enemy.body.reset(targetX,620); enemy.left=targetX;enemy.right=targetX;enemy.health=3;enemy.freeze(10000); true`);
@@ -209,6 +210,7 @@ try {
   // Hazard is a real Arcade overlap, not a direct state call.
   await evaluate(`p.body.reset(1290,600); p.setVelocity(0,0); true`);
   await waitFor('p.state.lives===2', 'Hazard must damage once');
+  assert.equal(await evaluate('practice.lifeBar.scaleX'), 2 / 3, 'Player health bar reflects damage');
   await evaluate(`p.body.reset(1290,600); p.setVelocity(0,0); true`);
   await advance(180);
   assert.equal(await evaluate('p.state.lives'), 2, 'Invulnerability must block repeated overlaps');

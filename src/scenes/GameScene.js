@@ -10,6 +10,9 @@ import { getDifficulty } from '../data/settings.js';
 import { scenery } from './scenery.js';
 import { drawParallaxScenery, hasParallaxScenery, styleParallaxPlatform } from '../visuals/parallaxScenery.js';
 import { createBossHealthBar, updateBossHealthBar } from '../visuals/bossHealthBar.js';
+import { fitMenuText, menuColors, menuPanel, menuText } from '../ui/menuComponents.js';
+
+const lifeBarWidth = 240;
 
 const label = (scene, x, y, value, size = 18, color = '#eceee9') => scene.add.text(x, y, value, {
   fontFamily: 'Arial', fontSize: `${size}px`, color,
@@ -124,28 +127,43 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createHud() {
-    this.add.rectangle(640, 47, 1280, 94, 0x0e1b27, .92).setScrollFactor(0).setDepth(100);
-    label(this, 28, 17, `${this.campaign?'NIVEL':'ENSAYO'} / ${this.level.name.toUpperCase()}`, 18, '#eed29c').setScrollFactor(0).setDepth(101);
-    this.lifeText = label(this, 28, 48, '♥ ♥ ♥', 22, '#f3b1b8').setScrollFactor(0).setDepth(101);
-    this.stateText = label(this, 430, 20, '', 17).setScrollFactor(0).setDepth(101);
-    this.moonText = label(this, 430, 51, '', 15, '#b7eafa').setScrollFactor(0).setDepth(101);
-    label(this, 775, 20, this.character.name, 16, '#f2d28e').setScrollFactor(0).setDepth(101);
-    label(this, 775, 51, this.services.progress.data.settings.difficulty, 15, '#b7eafa').setScrollFactor(0).setDepth(101);
-    const back = label(this, 1134, 20, '← Menú', 19, '#eed29c').setScrollFactor(0).setDepth(101).setInteractive({ useHandCursor: true });
-    back.on('pointerdown', () => this.scene.start('Menu'));
-    const pause = label(this, 1050, 53, 'P · Pausa', 15).setScrollFactor(0).setDepth(101).setInteractive({ useHandCursor: true });
-    pause.on('pointerdown', () => { if (!this.dead) this.setPaused(!this.paused); });
-    this.add.rectangle(640, 703, 1280, 34, 0x0e1b27, .94).setScrollFactor(0).setDepth(100);
-    label(this, 28, 694, 'A/D o ← →  Mover    SHIFT  Correr    ESPACIO  Saltar    S/↓  Agacharse    M  Moonwalk    R  Reiniciar    ESC  Menú', 14).setScrollFactor(0).setDepth(101);
+    const fixed = (object, depth = 101) => object.setScrollFactor(0).setDepth(depth);
+    const text = (x, y, value, size, color) => fixed(menuText(this, x, y, value, size, color));
+    const panel = fixed(menuPanel(this, 16, 12, 1248, 150), 100);
+    panel.lineStyle(1, menuColors.border, .22).lineBetween(32, 84, 1248, 84);
+    fitMenuText(text(34, 23, `${this.campaign?'NIVEL':'ENSAYO'} / ${this.level.name.toUpperCase()}`, 18, menuColors.accentText), 350);
+    text(34, 52, 'Vida', 14, menuColors.muted);
+    fixed(this.add.rectangle(82, 52, lifeBarWidth + 4, 18, 0x30181e)
+      .setOrigin(0).setStrokeStyle(1, menuColors.border, .6));
+    this.lifeBar = fixed(this.add.rectangle(84, 54, lifeBarWidth, 14, 0xe62940).setOrigin(0));
+    this.lifeBar.setScale(this.player.state.lives / this.player.state.stats.lives, 1);
+    this.stateText = text(430, 25, '', 17);
+    this.moonText = text(430, 52, '', 15, menuColors.muted);
+    text(775, 25, this.character.name, 17, menuColors.accentText);
+    text(775, 52, this.services.progress.data.settings.difficulty, 15, menuColors.muted);
+    const button = (x, value, action) => {
+      const hit = fixed(this.add.rectangle(x, 48, 112, 36, menuColors.accent, .45)
+        .setStrokeStyle(1, menuColors.border, .5)).setInteractive({ useHandCursor: true });
+      fitMenuText(text(x, 48, value, 16).setOrigin(.5), 100);
+      hit.on('pointerover', () => hit.setFillStyle(menuColors.accent, .9));
+      hit.on('pointerout', () => hit.setFillStyle(menuColors.accent, .45));
+      hit.on('pointerdown', action);
+    };
+    button(1067, 'P · Pausa', () => { if (!this.dead) this.setPaused(!this.paused); });
+    button(1191, '← Menú', () => this.scene.start('Menu'));
+    fixed(menuPanel(this, 16, 682, 1248, 30), 100);
+    text(640, 697, 'A/D o ← →  Mover    SHIFT  Correr    ESPACIO  Saltar    S/↓  Agacharse    M  Moonwalk    R  Reiniciar    ESC  Menú', 14, menuColors.muted).setOrigin(.5);
     this.overlay = this.add.container(640, 345).setScrollFactor(0).setDepth(110).setVisible(false);
-    this.overlay.add(this.add.rectangle(0, 0, 680, 190, 0x0b1723, .96).setStrokeStyle(1, 0xe4c18b, .65));
-    this.overlayTitle = label(this, 0, -53, '', 36, '#f1d199').setOrigin(.5, 0);
-    this.overlayBody = label(this, 0, 11, '', 19).setOrigin(.5, 0);
+    this.overlay.add(menuPanel(this, -340, -95, 680, 190));
+    this.overlayTitle = menuText(this, 0, -53, '', 36, menuColors.accentText).setOrigin(.5, 0);
+    this.overlayBody = menuText(this, 0, 11, '', 19).setOrigin(.5, 0);
     this.overlay.add([this.overlayTitle, this.overlayBody]);
-    this.notice = label(this, 640, 119, '', 19, '#f1d199').setOrigin(.5, 0).setScrollFactor(0).setDepth(101);
-    this.sectionText = this.levelManager?.course.sections && label(this, 28, 105, '', 16, '#ddf3ff').setScrollFactor(0).setDepth(101);
-    this.combatText = label(this, 640, 148, '', 16, '#d7f3ff').setOrigin(.5, 0).setScrollFactor(0).setDepth(101);
-    label(this, 640, 174, this.campaign?`J · Sombrero   K · Giro   L · ${canUseSnow(this.services.progress.data)?'Nieve disponible':'Nieve disponible en tienda'}`:'L · Nieve habilitada para este ensayo · Muñecos: 2 impactos', 14).setOrigin(.5, 0).setScrollFactor(0).setDepth(101);
+    this.notice = text(640, 91, '', 18, menuColors.accentText).setOrigin(.5, 0);
+    this.sectionText = this.levelManager?.course.sections && text(34, 93, '', 15, menuColors.muted);
+    this.combatText = text(640, 116, '', 16).setOrigin(.5, 0);
+    text(640, 139, this.campaign
+      ? `J · Sombrero   K · Giro   L · ${canUseSnow(this.services.progress.data)?'Nieve disponible':'Nieve disponible en tienda'}`
+      : 'L · Nieve habilitada para este ensayo · Muñecos: 2 impactos', 13, menuColors.muted).setOrigin(.5, 0);
   }
 
   setPaused(value) {
@@ -193,7 +211,7 @@ export default class GameScene extends Phaser.Scene {
       return `${title}: ${kind==='freeze'&&!this.trainingSnow&&!canUseSnow(this.services.progress.data)?'bloqueada':remaining ? `${(remaining / 1000).toFixed(1)} s` : kind === 'hat' && this.combat.hat?.active ? 'en vuelo' : 'listo'}`;
     }).join('     '));
     const state = this.player.state;
-    this.lifeText.setText('♥ '.repeat(state.lives) + '♡ '.repeat(state.stats.lives - state.lives));
+    this.lifeBar.setScale(state.lives / state.stats.lives, 1);
     const poses = { idle: 'En escena', run: this.keys.run.isDown ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
     this.stateText.setText(poses[state.pose]);
     const remaining = Math.max(0, state.nextMoon - this.playTime);

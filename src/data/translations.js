@@ -204,6 +204,7 @@ Disponible en campaña y en el ensayo.|Available in campaign and practice.|Dispo
 Disponible en el ensayo. Desbloquéalo para la campaña por 300 monedas en la tienda.|Available in practice. Unlock it for the campaign for 300 coins in the shop.|Disponible en entraînement. Débloquez-le en campagne pour 300 pièces en boutique.
 Tab · Apartados    Enter · Ensayo    T · Tienda    Esc · Volver|Tab · Sections    Enter · Practice    T · Shop    Esc · Back|Tab · Rubriques    Entrée · Entraînement    T · Boutique    Échap · Retour
 NIVEL|LEVEL|NIVEAU
+Vida|Health|Vie
 ENSAYO|PRACTICE|ENTRAÎNEMENT
 ESPACIO|SPACE|ESPACE
 Salta|Jump|Sautez
