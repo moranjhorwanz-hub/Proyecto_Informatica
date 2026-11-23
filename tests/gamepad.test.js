@@ -99,3 +99,30 @@ test('menu bumpers dispatch the shortcuts shown in each scene', () => {
     assert.deepEqual(keys, [[leftKey, true], [rightKey, false]], sceneKey);
   }
 });
+
+test('direction changes are immediate and held directions repeat only in menus', () => {
+  const pad = makePad();
+  const input = new GamepadInput(() => [pad]);
+  const keys = [];
+  const scene = {
+    input: { keyboard: {} }, sys: { settings: { key: 'Menu' } },
+    onKey: ({ key }) => keys.push(key),
+  };
+  const step = time => { input.poll(); input.navigate(scene, time); };
+  pad.buttons[13].pressed = true;
+  step(0);
+  step(279);
+  assert.deepEqual(keys, ['ArrowDown']);
+  step(280);
+  step(405);
+  assert.deepEqual(keys, ['ArrowDown', 'ArrowDown', 'ArrowDown']);
+
+  pad.buttons[13].pressed = false;
+  pad.buttons[14].pressed = true;
+  step(410);
+  assert.equal(keys.at(-1), 'ArrowLeft');
+  scene.sys.settings.key = 'Game';
+  step(1000);
+  assert.equal(keys.length, 4);
+  assert.equal(input.pressed.size, 0);
+});

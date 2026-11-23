@@ -5,12 +5,11 @@ import LevelManager from '../systems/LevelManager.js';
 import { levels } from '../data/levels.js';
 import { courses } from '../data/courses.js';
 import { getAppearance } from '../entities/appearance.js';
-import { canUseSnow, getCharacter } from '../data/characters.js';
 import { getDifficulty } from '../data/settings.js';
 import { scenery } from './scenery.js';
 import { drawParallaxScenery, hasParallaxScenery, styleParallaxPlatform } from '../visuals/parallaxScenery.js';
 import { createBossHealthBar, updateBossHealthBar } from '../visuals/bossHealthBar.js';
-import { fitMenuText, menuColors, menuPanel, menuText } from '../ui/menuComponents.js';
+import { menuColors, menuPanel, menuText } from '../ui/menuComponents.js';
 
 const lifeBarWidth = 240;
 
@@ -28,7 +27,6 @@ export default class GameScene extends Phaser.Scene {
     this.campaign = data.mode === 'campaign';
     if(this.campaign&&!this.services.progress.data.unlockedLevels.includes(this.level.id)) { this.scene.start('LevelSelect'); return; }
     this.playTime = 0;
-    this.checkpointNoticeUntil = 0;
     this.paused = false;
     this.finished = false;
     this.dead = false;
@@ -76,7 +74,6 @@ export default class GameScene extends Phaser.Scene {
     }
     const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
     this.appearance = getAppearance(this.level, this.services.progress.data);
-    this.character = getCharacter(this.services.progress.data);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
     this.physics.add.collider(this.player, this.solids);
     if(!this.campaign)this.physics.add.overlap(this.player, this.hazard, () => {
@@ -127,44 +124,19 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createHud() {
-    const fixed = (object, depth = 101) => object.setScrollFactor(0).setDepth(depth);
-    const text = (x, y, value, size, color) => fixed(menuText(this, x, y, value, size, color));
-    const panel = fixed(menuPanel(this, 16, 12, 1248, 150), 100);
-    panel.lineStyle(1, menuColors.border, .22).lineBetween(32, 84, 1248, 84);
-    fitMenuText(text(34, 23, `${this.campaign?'NIVEL':'ENSAYO'} / ${this.level.name.toUpperCase()}`, 18, menuColors.accentText), 350);
-    text(34, 52, 'Vida', 14, menuColors.muted);
-    fixed(this.add.rectangle(82, 52, lifeBarWidth + 4, 18, 0x30181e)
-      .setOrigin(0).setStrokeStyle(1, menuColors.border, .6));
-    this.lifeBar = fixed(this.add.rectangle(84, 54, lifeBarWidth, 14, 0xe62940).setOrigin(0));
+    menuText(this, 24, 20, 'Vida', 14).setScrollFactor(0).setDepth(101);
+    this.add.rectangle(72, 20, lifeBarWidth + 4, 18, 0x30181e)
+      .setOrigin(0).setStrokeStyle(1, menuColors.border, .6).setScrollFactor(0).setDepth(100);
+    this.lifeBar = this.add.rectangle(74, 22, lifeBarWidth, 14, 0xe62940)
+      .setOrigin(0).setScrollFactor(0).setDepth(101);
     this.lifeBar.setScale(this.player.state.lives / this.player.state.stats.lives, 1);
-    this.stateText = text(430, 25, '', 17);
-    this.moonText = text(430, 52, '', 15, menuColors.muted);
-    text(775, 25, this.character.name, 17, menuColors.accentText);
-    text(775, 52, this.services.progress.data.settings.difficulty, 15, menuColors.muted);
-    const button = (x, value, action) => {
-      const hit = fixed(this.add.rectangle(x, 48, 112, 36, menuColors.accent, .45)
-        .setStrokeStyle(1, menuColors.border, .5)).setInteractive({ useHandCursor: true });
-      fitMenuText(text(x, 48, value, 16).setOrigin(.5), 100);
-      hit.on('pointerover', () => hit.setFillStyle(menuColors.accent, .9));
-      hit.on('pointerout', () => hit.setFillStyle(menuColors.accent, .45));
-      hit.on('pointerdown', action);
-    };
-    button(1067, 'P · Pausa', () => { if (!this.dead) this.setPaused(!this.paused); });
-    button(1191, '← Menú', () => this.scene.start('Menu'));
-    fixed(menuPanel(this, 16, 682, 1248, 30), 100);
-    text(640, 697, 'A/D o ← →  Mover    SHIFT  Correr    ESPACIO  Saltar    S/↓  Agacharse    M  Moonwalk    R  Reiniciar    ESC  Menú', 14, menuColors.muted).setOrigin(.5);
+
     this.overlay = this.add.container(640, 345).setScrollFactor(0).setDepth(110).setVisible(false);
     this.overlay.add(menuPanel(this, -340, -95, 680, 190));
     this.overlayTitle = menuText(this, 0, -53, '', 36, menuColors.accentText).setOrigin(.5, 0);
     this.overlayBody = menuText(this, 0, 11, '', 19).setOrigin(.5, 0);
     const pauseGamepad = menuText(this, 0, 42, 'Mando: Menu / Options Continuar · View / Share Menú', 17, menuColors.accentText).setOrigin(.5, 0);
     this.overlay.add([this.overlayTitle, this.overlayBody, pauseGamepad]);
-    this.notice = text(640, 91, '', 18, menuColors.accentText).setOrigin(.5, 0);
-    this.sectionText = this.levelManager?.course.sections && text(34, 93, '', 15, menuColors.muted);
-    this.combatText = text(640, 116, '', 16).setOrigin(.5, 0);
-    text(640, 139, this.campaign
-      ? `J · Sombrero   K · Giro   L · ${canUseSnow(this.services.progress.data)?'Nieve disponible':'Nieve disponible en tienda'}`
-      : 'L · Nieve habilitada para este ensayo · Muñecos: 2 impactos', 13, menuColors.muted).setOrigin(.5, 0);
   }
 
   setPaused(value) {
@@ -210,16 +182,8 @@ export default class GameScene extends Phaser.Scene {
       this.centerCameraOnPlayer();
       this.combat.resetProjectiles();
     }
-    this.combatText.setText([['hat', 'J · Sombrero'], ['spin', 'K · Giro'], ['freeze', 'L · Nieve'], ['note', 'N ♪ · Nota musical']].map(([kind, title]) => {
-      const remaining = Math.max(0, this.combat.state.next[kind] - this.playTime);
-      return `${title}: ${kind==='freeze'&&!this.trainingSnow&&!canUseSnow(this.services.progress.data)?'bloqueada':remaining ? `${(remaining / 1000).toFixed(1)} s` : kind === 'hat' && this.combat.hat?.active ? 'en vuelo' : 'listo'}`;
-    }).join('     '));
     const state = this.player.state;
     this.lifeBar.setScale(state.lives / state.stats.lives, 1);
-    const poses = { idle: 'En escena', run: running ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
-    this.stateText.setText(poses[state.pose]);
-    const remaining = Math.max(0, state.nextMoon - this.playTime);
-    this.moonText.setText(remaining ? `M · Recargando ${(remaining / 1000).toFixed(1)} s` : 'M · Moonwalk listo');
     if (!state.lives) {
       this.dead = true;
       this.scene.start('GameOver', {
@@ -238,35 +202,15 @@ export default class GameScene extends Phaser.Scene {
         const entered = manager.checkpoint?.section === arena && this.player.x >= manager.course.sections[arena].start;
         updateBossHealthBar(this.bossHealthBar, boss, entered);
       }
-      if (this.sectionText) {
-        const section = manager.course.sections.findLastIndex(({ start }) => this.player.x >= start);
-        this.sectionText.setText(this.playTime < this.checkpointNoticeUntil
-          ? 'Punto de control guardado'
-          : manager.course.sections[Math.max(0, section)].name);
-      }
-      const bossName = manager.course.boss?.name ?? 'REY DE LA NIEVE';
-      const showBoss = boss?.active && !this.bossHealthBar;
-      this.notice.setText(`Monedas ${manager.coins}/7 · Regalos ${manager.gifts}/${manager.course.gifts.length}${showBoss ? ` · ${bossName} ${boss.health}/${boss.maxHealth}` : ''}`);
-      if(this.player.x>manager.course.goal && !this.finished) {
-        if(!manager.canFinish()) {
-          const undefeatedMessage = manager.course.boss?.kind === 'club'
-            ? 'Derrota al Jefe del Club para abrir la meta'
-            : manager.course.boss?.name
-              ? 'Derrota al Misterioso del Callejón para abrir la meta'
-              : 'Derrota al Rey de la Nieve para abrir la meta';
-          this.notice.setText(boss?.active ? undefeatedMessage : 'Pisa la plataforma de la meta');
-        }
-        else {
-          this.finished=true;
-          this.services.audio.effect('victory');
-          const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,time:Math.max(1,Math.round(this.playTime)),lives:state.lives});
-          this.scene.start('Victory',{levelId:this.level.id,result}); return;
-        }
+      if (this.player.x > manager.course.goal && !this.finished && manager.canFinish()) {
+        this.finished=true;
+        this.services.audio.effect('victory');
+        const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,time:Math.max(1,Math.round(this.playTime)),lives:state.lives});
+        this.scene.start('Victory',{levelId:this.level.id,result}); return;
       }
     } else if (this.player.x > 2420 && !this.finished) {
       this.finished = true;
       this.services.audio.effect('victory');
-      this.notice.setText('¡Ensayo completado! R para repetir · ESC para volver');
     }
   }
 }
