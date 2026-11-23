@@ -7,10 +7,12 @@ import { createMenuCharacter } from '../visuals/menuCharacter.js';
 import { worldCoverTexture } from '../visuals/parallaxScenery.js';
 import { menuText as text, menuPanel, fitMenuText, menuColors } from '../ui/menuComponents.js';
 
+const seasonLevels = levels.filter(level => level.stage === 1);
+
 export default class MenuScene extends Phaser.Scene {
   constructor() { super('Menu'); }
 
-  create() {
+  create({ focus } = {}) {
     this.services=this.registry.get('services');
     const progress=this.services.progress.data;
     this.level=levels.find(level=>level.id===progress.selectedLevel)||levels[0];
@@ -32,8 +34,8 @@ export default class MenuScene extends Phaser.Scene {
       this.backdrop=createMenuBackdrop(this,this.level,this.reducedMotion);
     }
     this.hero=createMenuCharacter(this,this.appearance,this.reducedMotion);
-    this.createHeader();this.createNavigation();this.createStatus();this.createSeasons();
-    this.cameras.main.fadeIn(this.reducedMotion?0:320,10,5,6);
+    this.createHeader();this.createNavigation(focus);this.createStatus();this.createSeasons();
+    if (focus === undefined) this.cameras.main.fadeIn(this.reducedMotion?0:320,10,5,6);
     this.input.keyboard.on('keydown',this.onKey,this);
     this.events.once('shutdown',()=>this.input.keyboard.off('keydown',this.onKey,this));
   }
@@ -51,7 +53,7 @@ export default class MenuScene extends Phaser.Scene {
     text(this,1207,103,'EST. 2026',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
   }
 
-  createNavigation() {
+  createNavigation(focus = 0) {
     menuPanel(this,44,153,285,403);
     text(this,65,173,'ELIGE TU RITMO',11,menuColors.muted).setLetterSpacing(2);
     const entries=[['Jugar','LevelSelect'],['Tienda','Shop'],['Personajes','Characters'],['Skins','Character'],['Ataques','Attacks'],['Configuración','Settings']];
@@ -66,7 +68,7 @@ export default class MenuScene extends Phaser.Scene {
       box.on('pointerover',()=>{this.focus=index;this.highlight();});
       return {key,box,t:title,number,arrow,activate};
     });
-    this.focus=0;this.highlight(true);
+    this.focus=focus;this.highlight(true);
   }
 
   createStatus() {
@@ -93,7 +95,7 @@ export default class MenuScene extends Phaser.Scene {
     const line=this.add.graphics();line.lineStyle(1,menuColors.border,.2).lineBetween(44,588,1236,588);
     text(this,46,606,'EXPLORA LAS ESTACIONES · VISTA PREVIA',10,menuColors.muted).setLetterSpacing(1);
     const width=286, gap=16;
-    this.seasonButtons=[0,3,6,9].map(i=>levels[i]).map((level,index)=>{
+    this.seasonButtons=seasonLevels.map((level,index)=>{
       const x=44+index*(width+gap),selected=level.world===this.level.world;
       const box=this.add.rectangle(x+width/2,651,width,44,selected?menuColors.accent:menuColors.ink,selected?.95:.8).setStrokeStyle(1,menuColors.border,selected?.8:.18).setInteractive({useHandCursor:true});
       const label=fitMenuText(text(this,x+17,641,`${level.subtitle}`,16,menuColors.cream),width-34);
@@ -106,6 +108,7 @@ export default class MenuScene extends Phaser.Scene {
       return {id:level.id,box,label};
     });
     text(this,45,697,'↑ ↓ ELEGIR · ENTER ABRIR · ← → ESTACIÓN',10,menuColors.muted);
+    text(this,430,694,'Mando: ↑ ↓ Elegir · A / ✕ Abrir · ← → Estación',14,menuColors.accentText);
     text(this,1234,697,'KING JACKSON',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
   }
 
@@ -124,7 +127,7 @@ export default class MenuScene extends Phaser.Scene {
 
   select(id) {
     if(id===this.level.id)return;
-    this.services.audio.unlock();this.services.progress.selectLevel(id);this.scene.restart();
+    this.services.audio.unlock();this.services.progress.selectLevel(id);this.scene.restart({ focus: this.focus });
   }
 
   onKey(event) {
@@ -133,8 +136,12 @@ export default class MenuScene extends Phaser.Scene {
     if(['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Enter',' '].includes(key))event.preventDefault();
     if(key==='ArrowDown'||key==='ArrowUp'){this.focus=Phaser.Math.Wrap(this.focus+(key==='ArrowDown'?1:-1),0,this.buttons.length);this.highlight();}
     if(key==='Enter')this.buttons[this.focus].activate();
-    if(key==='ArrowRight')this.select(this.level.id%levels.length+1);
-    if(key==='ArrowLeft')this.select((this.level.id+levels.length-2)%levels.length+1);
+    if (key === 'ArrowLeft' || key === 'ArrowRight') {
+      const step = key === 'ArrowRight' ? 1 : -1;
+      const current = seasonLevels.findIndex(level => level.world === this.level.world);
+      const next = Phaser.Math.Wrap(current + step, 0, seasonLevels.length);
+      this.select(seasonLevels[next].id);
+    }
   }
 
   update(_time,delta) {this.backdrop?.update(this.input.activePointer,delta);}

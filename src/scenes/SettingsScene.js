@@ -13,6 +13,7 @@ export default class SettingsScene extends Phaser.Scene {
     this.services = this.registry.get('services');
     this.draft = { ...this.services.progress.data.settings };
     this.tab = 0;
+    this.controlDevice = 0;
     this.focus = -1;
     createSettingsMenuFrame(this);
     this.content = this.add.group();
@@ -80,7 +81,9 @@ export default class SettingsScene extends Phaser.Scene {
 
     [this.graphicsPage, this.audioPage, this.controlsPage, this.generalPage][this.tab].call(this);
     this.feedback = this.text(377, 584, notice, 17, '#ffd2d9');
-    this.text(35, 675, 'Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar', 16, '#afbfd6');
+    this.text(35, 659, 'Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar', 14, '#afbfd6');
+    this.text(35, 677, 'Mando: LB / L1 y RB / R1 Apartados · Cruceta Elegir o ajustar', 14, '#ff9ca8');
+    this.text(35, 695, 'A / ✕ Aplicar · B / ○ Volver', 14, '#ff9ca8');
     this.button(691, 664, 259, 43, 'Restablecer valores', () => {
       this.draft = { ...DEFAULT_SETTINGS };
       this.renderPage('Valores restablecidos. Pulsa Aplicar para guardarlos.');
@@ -158,16 +161,30 @@ export default class SettingsScene extends Phaser.Scene {
   }
 
   controlsPage() {
-    const controls = [
-      ['Mover', 'A / D  ·  ← / →'], ['Correr', 'SHIFT'], ['Saltar / Doble salto', 'ESPACIO / ESPACIO × 2'],
-      ['Agacharse', 'S / ↓'], ['Moonwalk', 'M'], ['Sombrero / Giro / Nieve / Nota musical', 'J / K / L / N'],
-      ['Pausa / Reiniciar / Menú', 'P / R / ESC'],
-    ];
-    controls.forEach(([label, keys], index) => {
-      const y = 199 + index * 55;
-      this.row(y, label);
-      this.text(1198, y, keys, 21, '#cddff9', 'bold').setOrigin(1, .5);
+    const devices = ['Teclado', 'Mando'];
+    devices.forEach((device, index) => {
+      this.button(377 + index * 180, 176, 168, 38, device, () => {
+        this.controlDevice = index;
+        this.renderPage();
+      }, this.controlDevice === index);
     });
+    const controls = [
+      ['Mover', 'A / D  ·  ← / →', 'Palanca izquierda / Cruceta'],
+      ['Correr', 'SHIFT', 'RT / R2'],
+      ['Saltar / Doble salto', 'ESPACIO / ESPACIO × 2', 'A / ✕  ·  × 2'],
+      ['Agacharse', 'S / ↓', 'Palanca izquierda ↓ / Cruceta ↓'],
+      ['Moonwalk', 'M', 'LB / L1'],
+      ['Sombrero / Giro / Nieve / Nota musical', 'J / K / L / N', 'X / □  ·  B / ○  ·  Y / △  ·  RB / R1'],
+      ['Pausa / Reiniciar / Menú', 'P / R / ESC', 'Menu / Options  ·  R3  ·  View / Share'],
+    ];
+    controls.forEach(([label, keys, buttons], index) => {
+      const y = 238 + index * 46;
+      this.row(y, label);
+      this.text(1198, y, this.controlDevice === 0 ? keys : buttons, 20, '#cddff9', 'bold').setOrigin(1, .5);
+    });
+    if (this.controlDevice === 1) {
+      this.text(379, 551, 'Menús: cruceta para elegir, A / ✕ para confirmar y B / ○ para volver.', 17, '#afbfd6');
+    }
   }
 
   generalPage() {
@@ -193,6 +210,9 @@ export default class SettingsScene extends Phaser.Scene {
       if (!this.adjustments.length) return;
       this.focus = key === 'ArrowUp' && this.focus < 0 ? this.adjustments.length - 1
         : Phaser.Math.Wrap(this.focus + (key === 'ArrowDown' ? 1 : -1), 0, this.adjustments.length);
+      this.renderPage();
+    } else if (this.tab === 2) {
+      this.controlDevice = key === 'ArrowLeft' ? 0 : 1;
       this.renderPage();
     } else if (this.focus < 0) this.selectTab(this.tab + (key === 'ArrowLeft' ? -1 : 1));
     else this.adjustments[this.focus](key === 'ArrowLeft' ? -1 : 1);

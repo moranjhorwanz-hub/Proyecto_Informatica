@@ -71,7 +71,6 @@ export default class LevelManager {
         if (!s.player.state.lives || section <= (this.checkpoint?.section ?? 0)) return;
         this.checkpoint = { section, collected: [...this.collected], time: s.playTime };
         lightMarker();
-        s.checkpointNoticeUntil = s.playTime + 2200;
       });
     }
     s.physics.add.overlap(s.player,this.hazards,(_p,h)=>s.combat.damagePlayer(s.player.x<h.x?-1:1));

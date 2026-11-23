@@ -16,12 +16,17 @@ import {ProgressManager} from './systems/ProgressManager.js';
 import {AudioManager} from './systems/AudioManager.js';
 import {SettingsManager} from './systems/SettingsManager.js';
 import LocalizationPlugin from './systems/LocalizationPlugin.js';
+import { GamepadInput } from './systems/GamepadInput.js';
 const progress=new ProgressManager();
 const audio=new AudioManager(progress.data.settings);
 const settings=new SettingsManager(progress,audio);
 audio.onToggle=()=>settings.update({music:!progress.data.settings.music});
-export const services={progress,audio,settings,shop:new ShopManager(progress)};
+export const services={progress,audio,settings,shop:new ShopManager(progress),gamepad:new GamepadInput()};
 export const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:1280,height:720,backgroundColor:'#10151e',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},plugins:{scene:[{key:'Localization',plugin:LocalizationPlugin,mapping:'localization'}]},physics:{default:'arcade',arcade:{gravity:{y:1000},debug:false}},scene:[BootScene,MenuScene,LevelSelectScene,GameScene,ShopScene,CharacterScene,SettingsScene,GameOverScene,VictoryScene,AttacksScene,CharactersScene],callbacks:{preBoot:game=>game.registry.set('services',services)}});
+game.events.on(Phaser.Core.Events.PRE_STEP, time => {
+  services.gamepad.poll();
+  services.gamepad.navigate(game.scene.getScenes(true).at(-1), time);
+});
 // Development-only handle: browser checks must reuse the existing game, never re-import it.
 if(import.meta.env.DEV)window.__MJA_GAME__=game;
 if(import.meta.hot)import.meta.hot.dispose(()=>{services.audio.stop();game.destroy(true);});
