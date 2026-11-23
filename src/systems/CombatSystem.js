@@ -1,4 +1,4 @@
-import Hat from '../entities/Hat.js';
+import Hat, { HAT_DEFAULTS } from '../entities/Hat.js';
 import SnowEnemy from '../entities/SnowEnemy.js';
 import SnowBoss from '../entities/SnowBoss.js';
 import SpringEnemy from '../entities/SpringEnemy.js';
@@ -118,7 +118,7 @@ export default class CombatSystem {
       if (spinning && spriteTouchesCircle(enemy, this.ring.x, this.ring.y, this.ring.radius)) this.spinHit(enemy);
       if (enemy.active && hat?.active && !hat.hit.has(enemy) && spritesTouch(hat, enemy)) {
         hat.hit.add(enemy);
-        enemy.takeDamage();
+        enemy.takeDamage(HAT_DEFAULTS.damage);
       }
       for (const shot of shots) {
         if (!enemy.active || !shot.active || !spritesTouch(shot, enemy)) continue;
