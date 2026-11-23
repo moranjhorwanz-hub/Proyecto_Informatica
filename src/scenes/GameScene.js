@@ -13,6 +13,7 @@ import { createBossHealthBar, updateBossHealthBar } from '../visuals/bossHealthB
 import { menuColors, menuText } from '../ui/menuComponents.js';
 import { createPauseMenu } from '../ui/pauseMenu.js';
 import { createSpikeTrap } from '../visuals/spikeTrap.js';
+import { createMicrophonePickup } from '../visuals/microphonePickups.js';
 
 const lifeBarWidth = 240;
 const pauseNavigation = { previous: [38], next: [40], confirm: [13] };
@@ -86,6 +87,17 @@ export default class GameScene extends Phaser.Scene {
     if(!this.campaign)this.physics.add.overlap(this.player, this.hazard, () => {
       this.combat.damagePlayer(this.player.x < this.hazard.x ? -1 : 1);
     });
+    if (!this.campaign) {
+      const microphone = createMicrophonePickup(this, 1380, 600, 0);
+      this.physics.add.existing(microphone, true);
+      microphone.body.setSize(25, 25);
+      this.physics.add.overlap(this.player, microphone, () => {
+        if (!microphone.active || !this.player.state.lives) return;
+        this.player.state.restoreLife();
+        microphone.destroy();
+        this.services.audio.effect('hat');
+      });
+    }
     this.cameras.main.startFollow(this.player, true, .12, .12, -125, 0);
     this.centerCameraOnPlayer();
     this.cameras.main.fadeIn(300);
