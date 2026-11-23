@@ -71,6 +71,9 @@ export default class CombatSystem {
     note.refresh();
   }
   damagePlayer(direction) { return this.scene.player.takeDamage(direction); }
+  damageEnemy(enemy, amount) {
+    if (enemy.takeDamage(amount)) this.scene.services.audio.effect('enemy-hit');
+  }
   attack(kind) {
     const s = this.scene, p = s.player;
     if (!this.state.activate(kind, s.playTime, { alive: p.state.lives > 0, hurt: s.playTime < p.state.hurtUntil, snowUnlocked: s.trainingSnow || canUseSnow(s.services.progress.data), hatActive: this.hat?.active })) return false;
@@ -92,7 +95,8 @@ export default class CombatSystem {
   }
   spinHit(enemy) {
     if (!enemy.active || this.spinHits.has(enemy)) return;
-    this.spinHits.add(enemy); enemy.takeDamage(this.spinDamage);
+    this.spinHits.add(enemy);
+    this.damageEnemy(enemy, this.spinDamage);
   }
   update(now, delta) {
     this.enemies.getChildren().slice().forEach(enemy => enemy.update(now));
@@ -118,12 +122,12 @@ export default class CombatSystem {
       if (spinning && spriteTouchesCircle(enemy, this.ring.x, this.ring.y, this.ring.radius)) this.spinHit(enemy);
       if (enemy.active && hat?.active && !hat.hit.has(enemy) && spritesTouch(hat, enemy)) {
         hat.hit.add(enemy);
-        enemy.takeDamage(HAT_DEFAULTS.damage);
+        this.damageEnemy(enemy, HAT_DEFAULTS.damage);
       }
       for (const shot of shots) {
         if (!enemy.active || !shot.active || !spritesTouch(shot, enemy)) continue;
         if (shot.texture.key === 'combat-flake') enemy.freeze(this.state.settings.freezeDuration);
-        enemy.takeDamage();
+        this.damageEnemy(enemy);
         shot.destroy();
       }
       if (!spinning && enemy.active && !enemy.attack && now >= enemy.frozenUntil && spritesTouch(p, enemy)) {

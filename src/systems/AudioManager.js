@@ -51,6 +51,7 @@ export class AudioManager {
     this.loadVictorySound();
     this.loadJumpSound();
     this.loadCoinSound();
+    this.loadEnemyHitSound();
     if (this.inMenu) this.playMenu();
     else if (!this.awaitingRetry && !this.worldMusic) this.play(this.level, this.worldPosition);
   }
@@ -65,6 +66,9 @@ export class AudioManager {
   }
   loadCoinSound() {
     return this.loadClip('coin', 0.6, 1.2);
+  }
+  loadEnemyHitSound() {
+    return this.loadClip('enemy-hit', 2, 2.45);
   }
   loadClip(name, startTime, endTime) {
     if (this[`${name}Loading`] || !this.context?.decodeAudioData) return this[`${name}Loading`];
@@ -152,12 +156,15 @@ export class AudioManager {
   stop() { this.stopMenu(); this.stopMusic(); this.stopVoices(this.sfxVoices); }
   effect(type) {
     if (!this.context || this.effectsLevel === 0) return;
-    if (type === 'damage' || type === 'victory' || type === 'jump' || type === 'coin') {
+    if (type === 'damage' || type === 'victory' || type === 'jump' || type === 'coin' || type === 'enemy-hit') {
       if (!this[`${type}Buffer`]) {
         if (type === 'damage') this.loadDamageSound();
         else if (type === 'victory') this.loadVictorySound();
         else if (type === 'jump') this.loadJumpSound();
-        else this.loadCoinSound();
+        else if (type === 'coin') this.loadCoinSound();
+        else this.loadEnemyHitSound()?.then(() => {
+          if (this['enemy-hitBuffer']) this.effect('enemy-hit');
+        });
         return;
       }
       const source = this.context.createBufferSource();
