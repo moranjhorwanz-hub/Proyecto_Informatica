@@ -5,7 +5,7 @@ import { fitMenuText } from '../ui/menuComponents.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
 import { getAppearance } from '../entities/appearance.js';
 import { updatePixelMenuCharacter } from '../visuals/menuCharacter.js';
-import { worldCoverTexture } from '../visuals/parallaxScenery.js';
+import { thrillerPreviewTexture } from '../visuals/parallaxScenery.js';
 
 // Small illustrations sampled from the original selector artwork.
 const thumbnails = [
@@ -31,8 +31,8 @@ export default class LevelSelectScene extends Phaser.Scene {
       .setWordWrapWidth(265);
     this.season = this.text(38, 212, '', 30, white, 'bold italic');
     this.info = this.text(38, 258, '', 17, muted).setWordWrapWidth(265);
-    this.worldCovers = [1, 2, 3].map(world => worldCoverTexture(this, world));
-    this.worldPreview = this.add.image(38, 303, this.worldCovers[0], 'scenery').setOrigin(0).setScale(.84);
+    const previewKey = thrillerPreviewTexture(this);
+    this.thrillerPreview = this.add.image(38, 303, previewKey, 'scenery').setOrigin(0).setScale(.84);
     this.add.graphics().fillStyle(0x8a1024).fillPoints(cut(350, 114, 377, 49, 23), true);
     this.text(380, 123, 'Niveles', 27, white, 'bold italic');
     this.cards = levels.map((level, index) => this.createCard(level, index));
@@ -71,9 +71,8 @@ export default class LevelSelectScene extends Phaser.Scene {
   }
 
   createThumbnail(level, index, x, y) {
-    const cover = this.worldCovers[level.world - 1];
-    if (cover) {
-      return this.add.image(x, y, cover, 'scenery').setDisplaySize(56, 28);
+    if (level.id === 3) {
+      return this.add.image(x, y, this.thrillerPreview.texture.key, 'scenery').setDisplaySize(56, 28);
     }
     const texture = this.textures.get('level-select');
     const frame = `level-${level.id}`;
@@ -107,9 +106,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     updatePixelMenuCharacter(this.menuHero, getAppearance(level, progress));
     const unlocked = progress.unlockedLevels.includes(level.id);
     this.season.setText(level.subtitle);
-    const cover = this.worldCovers[level.world - 1];
-    this.worldPreview.setVisible(Boolean(cover));
-    if (cover) this.worldPreview.setTexture(cover, 'scenery');
+    this.thrillerPreview.setVisible(level.id === 3);
     this.info.setText(`Dificultad ${level.difficulty} · ${unlocked ? 'Listo para jugar' : 'Nivel bloqueado'}`);
     this.play.surface.setAlpha(unlocked ? 1 : .4);
     this.play.text.setAlpha(unlocked ? 1 : .65);

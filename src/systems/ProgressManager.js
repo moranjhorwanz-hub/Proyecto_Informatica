@@ -31,7 +31,7 @@ export function validateProgress(raw){
  }
  return base;
 }
-export const achievementNames={first:'Primer paso',spring:'Primavera completada',summer:'Verano completado',autumn:'Thriller completado',christmas:'Espíritu navideño',all:'Estrella de las estaciones',perfect:'Actuación perfecta'};
+export const achievementNames={first:'Primer paso',spring:'Primavera completada',summer:'Verano completado',autumn:'Otoño completado',christmas:'Espíritu navideño',all:'Estrella de las estaciones',perfect:'Actuación perfecta'};
 export class ProgressManager {
  constructor(){this.data=validateProgress(readStorage());}
  selectLevel(id){if(!Number.isInteger(id)||id<1||id>levels.length)return;this.data.selectedLevel=id;return writeStorage(this.data);}

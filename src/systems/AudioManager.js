@@ -1,14 +1,11 @@
 import { stageMusic } from '../data/stageMusic.js';
-import { levels } from '../data/levels.js';
 import { validateSettings } from '../data/settings.js';
 
 const worldTracks = {
   1: 'billie-jean-instrumental.mp3',
   2: 'smooth-criminal-instrumental.mp3',
+  3: 'thriller-instrumental.mp3',
 };
-const getTrackFile = levelId => levels[levelId - 1]?.world === 3
-  ? 'thriller-instrumental.mp3'
-  : worldTracks[levelId];
 
 export class AudioManager {
   constructor(settings) {
@@ -115,7 +112,7 @@ export class AudioManager {
     this.stopMenu();
     this.stopMusic(); this.level = Number.isInteger(level) && level >= 1 && level <= 12 ? level : 1;
     if (!this.context || this.muted) return;
-    const trackFile = getTrackFile(this.level);
+    const trackFile = worldTracks[this.level];
     if (trackFile && typeof Audio === 'function') {
       const track = new Audio(`${import.meta.env.BASE_URL}assets/${trackFile}`);
       this.worldMusic = track;
@@ -132,7 +129,7 @@ export class AudioManager {
     this.playStagePattern();
   }
   pauseForRetry() {
-    if (!getTrackFile(this.level)) return undefined;
+    if (!worldTracks[this.level]) return undefined;
     this.awaitingRetry = true;
     const position = this.worldMusic?.currentTime ?? this.worldPosition;
     this.stopMusic();
