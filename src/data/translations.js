@@ -34,6 +34,11 @@ Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar|Tab · Sections    �
 Sombrero / Giro / Nieve|Hat / Spin / Snow|Chapeau / Rotation / Neige
 Sombrero / Giro / Nieve / Nota musical|Hat / Spin / Snow / Musical note|Chapeau / Rotation / Neige / Note de musique
 Mover|Move|Se déplacer
+Teclado|Keyboard|Clavier
+Mando|Controller|Manette
+Palanca izquierda / Cruceta|Left stick / D-pad|Stick gauche / Croix directionnelle
+Palanca izquierda ↓ / Cruceta ↓|Left stick ↓ / D-pad ↓|Stick gauche ↓ / Croix directionnelle ↓
+Menús: cruceta para elegir, A / ✕ para confirmar y B / ○ para volver.|Menus: use the D-pad to navigate, A / ✕ to confirm and B / ○ to go back.|Menus : croix directionnelle pour naviguer, A / ✕ pour confirmer et B / ○ pour revenir.
 Correr|Run|Courir
 Saltar|Jump|Sauter
 Saltar / Doble salto|Jump / Double jump|Saut / Double saut

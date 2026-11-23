@@ -177,9 +177,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(_time, delta) {
-    if (Phaser.Input.Keyboard.JustDown(this.keys.escape)) { this.scene.start('Menu'); return; }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.pause) && !this.dead) this.setPaused(!this.paused);
+    const { held, pressed } = this.services.gamepad;
+    const justPressed = (key, action = key) => Phaser.Input.Keyboard.JustDown(this.keys[key]) || pressed.has(action);
+    if (justPressed('escape', 'back')) { this.scene.start('Menu'); return; }
+    if (justPressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
+    if (justPressed('pause') && !this.dead) this.setPaused(!this.paused);
     if (this.paused || this.dead) return;
     if (this.backdrop) {
       const camera = this.cameras.main;
@@ -189,16 +191,17 @@ export default class GameScene extends Phaser.Scene {
     }
     this.playTime += delta;
     this.levelManager?.update(this.playTime);
+    const running = this.keys.run.isDown || held.has('run');
     this.player.update({
-      left: this.keys.left.isDown || this.keys.a.isDown,
-      right: this.keys.right.isDown || this.keys.d.isDown,
-      down: this.keys.down.isDown || this.keys.s.isDown,
-      run: this.keys.run.isDown,
-      jumpPressed: Phaser.Input.Keyboard.JustDown(this.keys.jump),
-      moonPressed: Phaser.Input.Keyboard.JustDown(this.keys.moon),
+      left: this.keys.left.isDown || this.keys.a.isDown || held.has('left'),
+      right: this.keys.right.isDown || this.keys.d.isDown || held.has('right'),
+      down: this.keys.down.isDown || this.keys.s.isDown || held.has('down'),
+      run: running,
+      jumpPressed: justPressed('jump'),
+      moonPressed: justPressed('moon'),
     }, this.playTime);
     for (const kind of ['hat', 'spin', 'freeze', 'note']) {
-      if (Phaser.Input.Keyboard.JustDown(this.keys[kind])) this.combat.attack(kind);
+      if (justPressed(kind)) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
     if (this.player.y > 850) {
@@ -212,7 +215,7 @@ export default class GameScene extends Phaser.Scene {
     }).join('     '));
     const state = this.player.state;
     this.lifeBar.setScale(state.lives / state.stats.lives, 1);
-    const poses = { idle: 'En escena', run: this.keys.run.isDown ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
+    const poses = { idle: 'En escena', run: running ? 'Corriendo' : 'Caminando', jump: 'En el aire', crouch: 'Agachado', moonwalk: 'Moonwalk', hurt: 'Daño' };
     this.stateText.setText(poses[state.pose]);
     const remaining = Math.max(0, state.nextMoon - this.playTime);
     this.moonText.setText(remaining ? `M · Recargando ${(remaining / 1000).toFixed(1)} s` : 'M · Moonwalk listo');
