@@ -1,5 +1,5 @@
 import { courses } from '../data/courses.js';
-import { hasParallaxScenery } from '../visuals/parallaxScenery.js';
+import { drawRecessedStreet, hasParallaxScenery } from '../visuals/parallaxScenery.js';
 
 export default class LevelManager {
   constructor(scene, checkpoint) {
@@ -14,7 +14,8 @@ export default class LevelManager {
     const s = this.scene, c = this.course;
     s.physics.world.setBounds(0,0,c.width,1000); s.cameras.main.setBounds(0,0,c.width,720);
     c.gaps.forEach(([x,w]) => {
-      if (!hasParallaxScenery(s.level.id)) s.add.rectangle(x,620,w,100,0x07131f).setOrigin(0);
+      if (s.level.id === 2) drawRecessedStreet(s, x, w);
+      else if (!hasParallaxScenery(s.level.id)) s.add.rectangle(x,620,w,100,0x07131f).setOrigin(0);
       s.add.text(x-110,655,'SALTA →',{fontSize:'14px',color:'#f5d397'});
     });
     c.platforms.forEach(rect => s.addPlatform(...rect));
