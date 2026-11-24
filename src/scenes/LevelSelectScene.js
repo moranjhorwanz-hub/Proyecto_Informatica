@@ -107,7 +107,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     const unlocked = progress.unlockedLevels.includes(level.id);
     this.season.setText(level.subtitle);
     this.thrillerPreview.setVisible(level.id === 3);
-    this.info.setText(`Dificultad ${level.difficulty} · ${unlocked ? 'Listo para jugar' : 'Nivel bloqueado'}`);
+    this.info.setText(`${progress.settings.difficulty} · ${unlocked ? 'Listo para jugar' : 'Nivel bloqueado'}`);
     this.play.surface.setAlpha(unlocked ? 1 : .4);
     this.play.text.setAlpha(unlocked ? 1 : .65);
     this.play.hit.input.enabled = unlocked;

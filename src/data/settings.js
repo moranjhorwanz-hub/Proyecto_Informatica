@@ -5,6 +5,7 @@ export const difficulties = Object.freeze({
   'Fácil': Object.freeze({ lives: 4, invulnerability: 1600, enemySpeed: .75, bossHealth: 6, shotInterval: 1.25 }),
   Normal: Object.freeze({ lives: 3, invulnerability: 1300, enemySpeed: 1, bossHealth: 8, shotInterval: 1 }),
   'Difícil': Object.freeze({ lives: 2, invulnerability: 1000, enemySpeed: 1.25, bossHealth: 10, shotInterval: .8 }),
+  Extremo: Object.freeze({ lives: 1, invulnerability: 650, enemySpeed: 1.65, bossHealth: 16, shotInterval: .5, enemyHealthBonus: 2 }),
 });
 export function validSetting(key, value) {
   if (key === 'controls') return validControls(value);

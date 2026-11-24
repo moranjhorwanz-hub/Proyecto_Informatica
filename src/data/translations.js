@@ -92,6 +92,7 @@ Dificultad|Difficulty|Difficulté
 Fácil|Easy|Facile
 Normal|Normal|Normale
 Difícil|Hard|Difficile
+Extremo|Extreme|Extrême
 Activada|On|Activée
 Desactivada|Off|Désactivée
 Pantalla completa|Fullscreen|Plein écran
@@ -102,7 +103,11 @@ No se pudo activar la pantalla completa.|Could not enter fullscreen.|Impossible 
 Preferencias guardadas.|Preferences saved.|Préférences enregistrées.
 No se pudo guardar. Los ajustes no han cambiado.|Could not save. Settings were not changed.|Échec de l'enregistrement. Les réglages restent inchangés.
 Los cambios se guardan automáticamente.|Changes are saved automatically.|Les modifications sont enregistrées automatiquement.
-La dificultad se aplica al siguiente intento.|Difficulty applies to the next attempt.|La difficulté s'applique au prochain essai.
+Dificultad guardada.|Difficulty saved.|Difficulté enregistrée.
+Una sola vida. Los enemigos son más rápidos, resistentes y agresivos.|One life. Enemies are faster, tougher and more aggressive.|Une seule vie. Les ennemis sont plus rapides, résistants et agressifs.
+Listo para jugar|Ready to play|Prêt à jouer
+Nivel bloqueado|Level locked|Niveau verrouillé
+La dificultad se guarda al elegirla y se aplica al volver al juego.|Difficulty saves when selected and takes effect when you return to the game.|La difficulté est enregistrée dès la sélection et s'applique au retour dans le jeu.
 Fácil: 4 vidas, enemigos lentos y jefe de 6 vidas.|Easy: 4 lives, slower enemies and a 6-health boss.|Facile : 4 vies, ennemis lents et boss à 6 points de vie.
 Normal: 3 vidas y ritmo original.|Normal: 3 lives and the original pace.|Normale : 3 vies et rythme d'origine.
 Difícil: 2 vidas, enemigos rápidos y jefe de 10 vidas.|Hard: 2 lives, faster enemies and a 10-health boss.|Difficile : 2 vies, ennemis rapides et boss à 10 points de vie.

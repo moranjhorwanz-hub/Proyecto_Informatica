@@ -236,8 +236,23 @@ export default class SettingsScene extends Phaser.Scene {
 
   generalPage() {
     this.choice(212, 'Idioma', 'language', ['es', 'en', 'fr'], ['Español', 'English', 'Français']);
-    this.choice(280, 'Dificultad', 'difficulty', Object.keys(difficulties));
-    this.text(379, 330, 'La dificultad se aplica al siguiente intento.', 18, '#afbfd6');
+    const choices = Object.keys(difficulties);
+    const current = choices.indexOf(this.draft.difficulty);
+    const index = this.adjustments.push(step => select(Phaser.Math.Wrap(current + step, 0, choices.length))) - 1;
+    const select = choice => {
+      this.focus = index;
+      const difficulty = choices[choice];
+      const result = this.services.settings.update({ difficulty });
+      if (result.ok) this.draft.difficulty = difficulty;
+      this.renderPage(result.ok ? 'Dificultad guardada.' : 'No se pudo guardar. Los ajustes no han cambiado.');
+    };
+    this.row(280, 'Dificultad').setColor(this.focus === index ? '#ff889c' : '#f4f6fd');
+    choices.forEach((label, choice) =>
+      this.button(710 + choice * 125, 260, 116, 40, label, () => select(choice), choice === current));
+    this.text(379, 330, 'La dificultad se guarda al elegirla y se aplica al volver al juego.', 18, '#afbfd6');
+    if (this.draft.difficulty === 'Extremo') {
+      this.text(379, 357, 'Una sola vida. Los enemigos son más rápidos, resistentes y agresivos.', 17, '#ff9ca8');
+    }
     this.choice(400, 'Controles táctiles', 'touchControls', ['auto', 'on', 'off'], ['Automático', 'Activados', 'Desactivados']);
     this.text(379, 450, 'En celular, juega en horizontal para ver mejor los botones.', 18, '#afbfd6');
   }

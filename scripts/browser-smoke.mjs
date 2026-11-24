@@ -148,6 +148,9 @@ try {
   assert.equal(await evaluate('practice.lifeBar.scaleX'), 1, 'Player health bar starts full');
   assert.ok(Math.abs(initial.y - 620) < 2, 'Feet must align with floor');
   // Phase 4: exercise real projectiles, Arcade overlaps and keyboard attacks.
+  await evaluate('window.enemy=practice.combat.enemies.getChildren()[0];const x=p.x-50;enemy.body.reset(x,620);enemy.left=x-70;enemy.right=x;enemy.direction=1;true');
+  await advance(200);
+  assert.ok(await evaluate('enemy.x < enemy.right - 5 && enemy.body.velocity.x < 0'), 'Enemy turns back when pursuit reaches the patrol edge');
   await evaluate('window.enemy=practice.combat.enemies.getChildren()[0];const x=p.x+270;enemy.body.reset(x,620);enemy.left=x;enemy.right=x;true');
   await advance(100);
   await tap('j');
@@ -539,6 +542,7 @@ try {
   await click(170,350);
   await click(1180,212); // French.
   await click(1030,685);
+  await click(1018,280); // Hard is saved immediately.
   assert.equal(await evaluate('document.documentElement.lang'),'fr');
   const settingsShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase8-settings-fr.png',Buffer.from(settingsShot.data,'base64'));
@@ -556,16 +560,34 @@ try {
       assert.equal(await evaluate(`testGame.scene.getScene('Game').combat.enemies.getChildren()[0].speed`),81.25);
     }
   }
-  for(const [difficulty,lives,health,buttonX] of [['Difícil',2,14,670],['Fácil',4,10,190],['Normal',3,12,430]]) {
+  for(const [difficulty,lives,health,buttonX] of [['Extremo',1,20,1143],['Difícil',2,14,1018],['Fácil',4,10,768],['Normal',3,12,893]]) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('Settings');true`);await advance(100);
-    await click(buttonX,525);
+    await click(170,350);
+    await click(buttonX,280);
+    assert.equal(await evaluate('testGame.registry.get("services").progress.data.settings.difficulty'),difficulty);
     await evaluate(`testGame.scene.getScene('Settings').scene.start('Game',{levelId:4,mode:'campaign'});true`);await advance(150);
     assert.equal(await evaluate(`testGame.scene.getScene('Game').player.state.lives`),lives,`${difficulty} lives`);
     assert.equal(await evaluate(`testGame.scene.getScene('Game').combat.boss.health`),health,`${difficulty} boss health`);
+    assert.equal(await evaluate(`testGame.scene.getScene('Game').combat.enemies.getChildren()[0].health`),
+      difficulty === 'Extremo' ? 6 : 4, `${difficulty} enemy health`);
     assert.equal(await evaluate(`testGame.registry.get('services').audio.level`),4,'Season selects its own track');
     await tap('r');await advance(100);
     assert.equal(await evaluate(`testGame.scene.getScene('Game').player.state.lives`),lives,'Restart respects difficulty');
   }
+  await tap('p');
+  await click(654,456);
+  await waitFor(`testGame.scene.isActive('Settings')`, 'In-game Settings opens');
+  await click(170,350);
+  await click(768,280);
+  await tap('Escape','Escape');
+  await waitFor(`testGame.scene.isActive('Game')`, 'Game resumes with the new difficulty');
+  assert.deepEqual(await evaluate(`(()=>{const g=testGame.scene.getScene('Game');return [g.lifeCount.text,g.combat.boss.health,g.combat.boss.speed]})()`),
+    ['4/4',10,67.5]);
+  await click(654,456);
+  await waitFor(`testGame.scene.isActive('Settings')`, 'In-game Settings reopens');
+  await click(170,350);
+  await click(893,280);
+  await tap('Escape','Escape');
   await cdp('Page.reload');await sleep(1500);await evaluate('window.testGame=window.__MJA_GAME__;true');
   manualFrames=false;await waitFor(`testGame.scene.isActive('Menu')`,'Settings reload menu');
   await evaluate('testGame.loop.stop();window.simTime=performance.now();true');manualFrames=true;

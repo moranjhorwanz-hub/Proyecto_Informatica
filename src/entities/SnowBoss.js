@@ -15,7 +15,7 @@ export default class SnowBoss extends SnowEnemy {
     const dodging = super.update(now);
     this.setTint(now<this.frozenUntil?0x72ccff:now<this.hitUntil?0xff9999:0xffffff);
     this.projectiles.getChildren().slice().forEach(shot=>{if(now>=shot.expires)shot.destroy();});
-    if(dodging || Math.abs(this.scene.player.x-this.x)>650 || now<this.frozenUntil)return;
+    if(dodging || !this.scene.player.state.lives || Math.abs(this.scene.player.x-this.x)>650 || now<this.frozenUntil)return;
     if(now>=this.nextShot) {
       this.nextShot=now+(this.health<=this.maxHealth/2?1100:1700)*this.scene.difficulty.shotInterval;
       const shot=this.projectiles.create(this.x,this.y-65,'combat-flake').setScale(1.3).setTint(0xffb3d7);

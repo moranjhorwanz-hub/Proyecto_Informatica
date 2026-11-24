@@ -107,53 +107,35 @@ export default class SpringEnemy extends SnowEnemy {
       this.pose('idle', Math.floor(now / 220) % this.frameCount(this.kind, 'idle'));
       return;
     }
-    this.setTint(now < this.hitUntil ? 0xffaaaa : 0xffffff);
     if (this.attack) {
+      this.setTint(now < this.hitUntil ? 0xffaaaa : 0xffffff);
       this.advanceAttack(now, player);
       return;
     }
-    if (super.update(now)) {
-      this.pose('walk', Math.floor(now / 80) % this.frameCount(this.kind, 'walk'));
-      return;
-    }
-    if (this.isBoss && this.arenaStart !== undefined && player.x >= this.arenaStart && player.state.lives) {
-      this.direction = dx < 0 ? -1 : 1;
-      const room = this.direction > 0 ? this.right - this.x : this.x - this.left;
-      const approachSpeed = Math.max(0, Math.min(this.speed, room * 20, (Math.abs(dx) - 105) * 6));
-      this.setFlipX(dx < 0).setVelocityX(this.direction * approachSpeed);
-    }
+    const maneuvering = super.update(now);
     if (now < this.hitUntil) this.setTint(0xffaaaa);
-    const clip = now < this.hitUntil ? 'hurt' : 'walk';
+    const clip = now < this.hitUntil ? 'hurt' : this.body.velocity.x ? 'walk' : 'idle';
     const frame = clip === 'hurt' ? Math.floor((now - this.hitAt) / 65)
       : Math.floor(now / (thrillerFrameDuration(this.kind, clip) ?? 115)) % this.frameCount(this.kind, clip);
     this.pose(clip, frame);
-    if (!player.state.lives || now < this.nextAttack || Math.abs(player.y - this.y) > 145) return;
+    if (maneuvering || !player.state.lives || now < Math.max(this.nextAttack, this.hitUntil)
+      || !this.body.blocked.down || Math.abs(player.y - this.y) > 145) return;
+    if (this.arenaStart !== undefined && (player.x >= this.arenaStart) !== this.isBoss) return;
     const pattern = patterns[this.kind];
-    if (this.arenaStart !== undefined) {
-      if ((player.x >= this.arenaStart) !== this.isBoss) return;
-      const distance = Math.abs(dx);
-      if (this.kind === 'club' && this.lastAttack !== 'combo' && distance <= moves.combo.range) {
-        this.patternIndex = 1;
-        this.startAttack(now, dx, 'combo');
-        return;
-      }
-      for (let offset = 0; offset < pattern.length; offset++) {
-        const index = (this.patternIndex + offset) % pattern.length;
-        const move = pattern[index];
-        if (distance > moves[move].range) continue;
-        this.patternIndex = (index + 1) % pattern.length;
-        this.startAttack(now, dx, move);
-        break;
-      }
+    const distance = Math.abs(dx);
+    if (this.kind === 'club' && this.lastAttack !== 'combo' && distance <= moves.combo.range) {
+      this.patternIndex = 1;
+      this.startAttack(now, dx, 'combo');
       return;
     }
-    const preferred = pattern[this.patternIndex % pattern.length];
-    const move = this.kind === 'shadow' && Math.abs(dx) <= moves.slash.range ? 'slash'
-      : Math.abs(dx) <= moves[preferred].range ? preferred
-      : this.kind === 'mystery' && Math.abs(dx) > moves.aura.range ? 'eruption' : pattern[0];
-    if (Math.abs(dx) > moves[move].range) return;
-    this.patternIndex++;
-    this.startAttack(now, dx, move);
+    for (let offset = 0; offset < pattern.length; offset++) {
+      const index = (this.patternIndex + offset) % pattern.length;
+      const move = pattern[index];
+      if (distance > moves[move].range) continue;
+      this.patternIndex = (index + 1) % pattern.length;
+      this.startAttack(now, dx, move);
+      break;
+    }
   }
 
   startAttack(now, dx, move) {
@@ -210,10 +192,7 @@ export default class SpringEnemy extends SnowEnemy {
     } else {
       this.pose(move, frame);
     }
-    if (spec.velocity) {
-      const room = this.direction > 0 ? this.right - this.x : this.x - this.left;
-      this.setVelocityX(room > 0 ? Math.min(spec.velocity, room * 20) * this.direction : 0);
-    }
+    if (spec.velocity) this.moveWithinPatrol(this.direction, spec.velocity);
     if (spec.projectile) return;
     if (move === 'combo') {
       // Each extended punch has its own hit window.

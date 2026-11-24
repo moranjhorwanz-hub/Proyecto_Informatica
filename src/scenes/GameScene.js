@@ -122,6 +122,13 @@ export default class GameScene extends Phaser.Scene {
       },
     });
     const refreshAfterSettings = () => {
+      const difficulty = getDifficulty(this.services.progress.data.settings);
+      if (difficulty !== this.difficulty) {
+        this.player.state.applyDifficulty(difficulty);
+        this.combat.applyDifficulty(difficulty);
+        this.difficulty = difficulty;
+        this.refreshLifeHud();
+      }
       this.bindControls();
       this.controlHints.forEach(refresh => refresh());
       this.refreshTouchControls();
@@ -201,7 +208,8 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0).setStrokeStyle(1, menuColors.border, .6).setScrollFactor(0).setDepth(100);
     this.lifeBar = this.add.rectangle(74, 22, lifeBarWidth, 14, 0xe62940)
       .setOrigin(0).setScrollFactor(0).setDepth(101);
-    this.lifeBar.setScale(this.player.state.lives / this.player.state.stats.lives, 1);
+    this.lifeCount = menuText(this, 324, 20, '', 14).setScrollFactor(0).setDepth(101);
+    this.refreshLifeHud();
     this.hatPowerText = menuText(this, 24, 48, '', 16, menuColors.accentText).setScrollFactor(0).setDepth(101);
     this.shieldText = menuText(this, 24, 70, '', 16, '#85edff').setScrollFactor(0).setDepth(101);
     this.energyWaveText = menuText(this, 24, 92, '', 16, '#ffdc81').setScrollFactor(0).setDepth(101);
@@ -216,6 +224,13 @@ export default class GameScene extends Phaser.Scene {
       this.physics.pause(); this.player.anims.pause();
     } else { this.physics.resume(); this.player.anims.resume(); }
     this.pauseMenu.show(value);
+  }
+
+  refreshLifeHud() {
+    const { lives, stats } = this.player.state;
+    this.lifeBar.setScale(lives / stats.lives, 1);
+    const count = `${lives}/${stats.lives}`;
+    if (this.lifeCount.text !== count) this.lifeCount.setText(count);
   }
 
   update(_time, delta) {
@@ -271,7 +286,7 @@ export default class GameScene extends Phaser.Scene {
       this.combat.resetProjectiles();
     }
     const state = this.player.state;
-    this.lifeBar.setScale(state.lives / state.stats.lives, 1);
+    this.refreshLifeHud();
     if (!state.lives) {
       this.dead = true;
       this.scene.start('GameOver', {

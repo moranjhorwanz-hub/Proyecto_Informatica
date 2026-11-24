@@ -28,7 +28,7 @@ test('settings persist as one validated change; a failed save never changes pref
   for(const patch of [{language:'de'},{musicVolume:100.5},{sfxVolume:Infinity},{unknown:true},{}])assert.equal(manager.update(patch).reason,'invalid-settings');
 });
 test('difficulty adjusts lives and immunity while preserving character movement',()=>{
-  for(const [difficulty,lives] of [['Fácil',4],['Normal',3],['Difícil',2]]){
+  for(const [difficulty,lives] of [['Fácil',4],['Normal',3],['Difícil',2],['Extremo',1]]){
     const profile=getDifficulty({difficulty});const state=new PlayerState({...profile,runSpeed:380});
     assert.equal(state.lives,lives);assert.equal(state.stats.runSpeed,380);
     assert.equal(state.takeDamage(100),true);assert.equal(state.lives,lives-1);
@@ -37,6 +37,34 @@ test('difficulty adjusts lives and immunity while preserving character movement'
     assert.equal(state.lives,0);
   }
   assert.equal(getDifficulty({difficulty:'constructor'}),getDifficulty({difficulty:'Normal'}));
+});
+test('Extreme persists and increases enemy pressure beyond Hard', () => {
+  const progress = { data: defaultProgress() };
+  let saved;
+  const manager = new SettingsManager(progress, { configure() {} }, next => {
+    saved = JSON.stringify(next);
+    return true;
+  });
+  assert.equal(manager.update({ difficulty: 'Extremo' }).ok, true);
+  const extreme = getDifficulty(validateProgress(JSON.parse(saved)).settings);
+  const hard = getDifficulty({ difficulty: 'Difícil' });
+  assert.ok(extreme.enemySpeed > hard.enemySpeed);
+  assert.ok(extreme.bossHealth > hard.bossHealth);
+  assert.ok(extreme.shotInterval < hard.shotInterval);
+  assert.equal(extreme.enemyHealthBonus, 2);
+});
+test('changing difficulty during play updates limits without refilling a damaged player', () => {
+  const state = new PlayerState({ runSpeed: 380 });
+  state.applyDifficulty(getDifficulty({ difficulty: 'Fácil' }));
+  assert.equal(state.lives, 4);
+  state.takeDamage(100);
+  state.applyDifficulty(getDifficulty({ difficulty: 'Difícil' }));
+  assert.equal(state.lives, 1);
+  state.applyDifficulty(getDifficulty({ difficulty: 'Fácil' }));
+  assert.equal(state.lives, 3);
+  assert.equal(state.stats.lives, 4);
+  assert.equal(state.stats.invulnerability, 1600);
+  assert.equal(state.stats.runSpeed, 380);
 });
 test('custom controls survive saving and loading, and reject duplicate or reserved keys', () => {
   const progress = { data: defaultProgress() };
