@@ -28,7 +28,7 @@ export default class ShopScene extends Phaser.Scene {
     this.wardrobe = this.scene.key === 'Character';
     this.characters = this.scene.key === 'Characters';
     this.items = this.characters ? characters.map(character => ({ ...character, type: 'character' })) : this.wardrobe
-      ? [{ id: null, type: 'skin', name: 'Vestuario predeterminado', description: 'Recupera el traje del personaje. Michael adapta su vestuario a la estación.' }, ...this.shop.catalog.filter(item => item.type === 'skin')]
+      ? this.shop.catalog.filter(item => item.type === 'skin')
       : this.shop.catalog.filter(item => item.type !== 'character');
     const selected = itemId ?? (this.characters ? this.services.progress.data.character : this.wardrobe ? this.services.progress.data.equippedSkin : undefined);
     this.focus = Math.max(0, this.items.findIndex(item => item.id === selected));
@@ -36,10 +36,7 @@ export default class ShopScene extends Phaser.Scene {
     this.text(51, 20, '✦', 36);
     this.text(106, 19, this.characters ? 'Elige tu personaje' : this.wardrobe ? 'Tu vestuario' : 'La tienda del ritmo', 38, textColor, 'bold italic');
     this.balanceText = this.text(1210, 42, '', 22, '#ff9ca8', 'bold').setOrigin(1, 0);
-    const guidance = this.characters ? 'Cada personaje tiene habilidades propias. Compra una vez y selecciona cuando quieras.'
-      : this.wardrobe ? 'Las skins cambian el vestuario; se conservan los rasgos y habilidades del personaje.'
-      : 'Compra con las monedas ganadas al completar niveles. Sin dinero real.';
-    this.text(1210, 74, guidance, 16, muted).setOrigin(1, 0);
+    if (!this.characters && !this.wardrobe) this.text(1210, 74, 'Compra con las monedas ganadas al completar niveles. Sin dinero real.', 16, muted).setOrigin(1, 0);
     this.rows = this.items.map((item, index) => {
       const y = 124 + index * 62;
       const surface = this.add.graphics();
@@ -113,19 +110,16 @@ export default class ShopScene extends Phaser.Scene {
     this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin && selected.id === 'freeze'); this.hatPreview.setVisible(selected.id === 'hat-power'); this.shieldPreview.setVisible(selected.id === 'shield');
     if (isSkin) {
       const level = levels[data.selectedLevel - 1];
-      const purchases = [...data.purchases, ...(selected.id ? [selected.id] : [])];
-      const appearance = getAppearance(level, this.characters
-        ? { ...data, character: selected.id, purchases }
-        : { ...data, equippedSkin: selected.id, purchases });
+      const appearance = getAppearance(level);
       if (this.characters || this.wardrobe) updatePixelMenuCharacter(this.menuHero, appearance);
       this.preview.setTexture(wardrobePreviewTexture(this, appearance));
       this.preview.setScale(250 / this.preview.height);
     }
     const owned = this.owns(selected);
     const claimLabel = selected.price === 0 ? 'Obtener gratis' : `Comprar · ${selected.price} monedas`;
-    this.actionText.setText(this.characters ? !owned ? claimLabel : data.character === selected.id ? 'Seleccionado · Jugar →' : 'Seleccionar personaje' : this.wardrobe && !owned ? 'Ver en tienda →' : !owned ? claimLabel : selected.type === 'ability' ? 'Desbloqueado · Ver controles →' : data.equippedSkin === selected.id ? 'Equipada · Usar en el juego →' : selected.id === null ? 'Usar vestuario predeterminado' : 'Equipar skin');
+    this.actionText.setText(this.characters ? !owned ? claimLabel : data.character === selected.id ? 'Seleccionado · Jugar →' : 'Seleccionar personaje' : this.wardrobe && !owned ? 'Ver en tienda →' : !owned ? claimLabel : selected.type === 'ability' ? 'Desbloqueado · Ver controles →' : data.equippedSkin === selected.id ? 'Equipada · Usar en el juego →' : 'Equipar skin');
   }
-  owns(item) { return item.id === null || item.id === 'michael' || this.shop.owns(item.id); }
+  owns(item) { return item.id === 'michael' || this.shop.owns(item.id); }
   activate() {
     const item = this.items[this.focus], owned = this.owns(item);
     if (this.wardrobe && !owned) { this.scene.start('Shop', { itemId: item.id }); return; }

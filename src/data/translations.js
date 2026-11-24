@@ -197,6 +197,7 @@ Nieve desbloqueada y guardada. Ya puedes usar L en campaña.|Snow unlocked and s
 Traje guardado. Pulsa de nuevo para equiparlo.|Outfit saved. Press again to equip it.|Tenue enregistrée. Appuyez encore pour l'équiper.
 Rojo Thriller|Thriller red|Rouge Thriller
 Blanco de gala|Gala white|Blanc de gala
+Equilibrado. Camina a 230, corre a 340 px/s y usa los ataques básicos. Viste el traje Blanco de gala.|Balanced. Walks at 230 px/s, runs at 340 px/s and uses basic attacks. Wears the Gala White outfit.|Équilibré. Marche à 230 px/s, court à 340 px/s et utilise les attaques de base. Porte la tenue Blanc de gala.
 Espíritu navideño|Christmas spirit|Esprit de Noël
 Brillo dorado|Golden shine|Éclat doré
 Copo de nieve|Snowflake|Flocon de neige

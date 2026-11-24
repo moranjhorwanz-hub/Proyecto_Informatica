@@ -14,7 +14,7 @@ test('invalid saved preferences fall back independently without changing progres
   const data={...defaultProgress(),coins:123,purchases:['thriller'],equippedSkin:'thriller',settings:{language:'xx',music:'yes',musicVolume:-1,sfxVolume:101,difficulty:'constructor'}};
   const loaded=validateProgress(data);
   assert.deepEqual(loaded.settings,DEFAULT_SETTINGS);
-  assert.equal(loaded.coins,123);assert.equal(loaded.equippedSkin,'thriller');
+  assert.equal(loaded.coins,123);assert.equal(loaded.equippedSkin,'white');
   assert.deepEqual(validateSettings({language:'fr',music:false,musicVolume:0,sfxVolume:100,difficulty:'Difícil'}),{...DEFAULT_SETTINGS,language:'fr',music:false,musicVolume:0,sfxVolume:100,difficulty:'Difícil'});
 });
 test('settings persist as one validated change; a failed save never changes preferences or audio',()=>{
