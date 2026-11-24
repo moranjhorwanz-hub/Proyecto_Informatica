@@ -29,7 +29,7 @@ export function chooseChestReward(random = Math.random) {
 }
 
 export function applyChestReward(kind, player, combat, now) {
-  if (kind === 'coins') return { coins: CHEST_COIN_REWARD, message: '¡Cofre: 100 monedas al completar el nivel!' };
+  if (kind === 'coins') return { coins: CHEST_COIN_REWARD, message: '¡Cofre: 100 monedas guardadas!' };
   if (kind === 'shield') {
     player.shieldHits = Math.min(3, player.shieldHits + 3);
     player.shieldRechargeAt = null;
@@ -47,5 +47,5 @@ export function applyChestReward(kind, player, combat, now) {
     player.restoreLife();
     return { coins: 0, message: '¡Cofre: recuperaste una vida!' };
   }
-  return { coins: CHEST_COIN_REWARD, message: '¡Cofre: 100 monedas al completar el nivel!' };
+  return { coins: CHEST_COIN_REWARD, message: '¡Cofre: 100 monedas guardadas!' };
 }

@@ -33,6 +33,20 @@ test('chest coins are included in level completion rewards', () => {
   assert.equal(progress.completeLevel(1, { time: 1000, chestCoins: 350 }), null);
 });
 
+test('chest coins are saved immediately and failed saves do not change the balance', () => {
+  const progress = new ProgressManager();
+  progress.data = defaultProgress();
+  let saved;
+  assert.equal(progress.grantChestCoins(100, data => { saved = JSON.stringify(data); return true; }), true);
+  assert.equal(progress.data.coins, 100);
+  assert.equal(JSON.parse(saved).coins, 100);
+  assert.equal(progress.grantChestCoins(100, () => false), false);
+  assert.equal(progress.grantChestCoins(100, () => { throw Error('storage'); }), false);
+  assert.equal(progress.data.coins, 100);
+  assert.equal(progress.completeLevel(1, { time: 1000 }).reward, 100);
+  assert.equal(progress.data.coins, 200);
+});
+
 test('every level has three separate chests on safe ground', () => {
   for (const course of Object.values(courses)) {
     const positions = chestPositions(course);

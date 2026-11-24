@@ -104,16 +104,29 @@ export default class LevelManager {
     s.physics.add.overlap(s.player,this.hazards,(_p,h)=>s.player.takeDamage(s.player.x<h.x?-1:1));
     s.physics.add.overlap(s.player,this.pickups,(_p,item)=>{
       if(!item.active || !s.player.state.lives)return;
-      this.collected.add(item.pickupKey);
       if (item.kind === 'chest') {
-        const reward = applyChestReward(chooseChestReward(), s.player.state, s.combat.state, s.playTime);
-        this.chestCoins += reward.coins;
+        if (s.playTime < (item.retryAt ?? 0)) return;
+        item.rewardKind ??= chooseChestReward();
+        const reward = applyChestReward(item.rewardKind, s.player.state, s.combat.state, s.playTime);
+        if (reward.coins && !s.services.progress.grantChestCoins(reward.coins)) {
+          item.retryAt = s.playTime + 2000;
+          const warning = s.add.text(s.player.x, s.player.y - 150, 'No se pudieron guardar las monedas. Inténtalo de nuevo.', { fontFamily: 'Arial', fontSize: '18px', color: '#ffd2d9', backgroundColor: '#301447', padding: { x: 8, y: 5 } }).setOrigin(.5).setDepth(30);
+          s.tweens.add({ targets: warning, alpha: 0, delay: 1500, duration: 500, onComplete: () => warning.destroy() });
+          return;
+        }
+        this.collected.add(item.pickupKey);
+        if (reward.coins && this.checkpoint) {
+          this.checkpoint.collected ??= [];
+          if (!this.checkpoint.collected.includes(item.pickupKey)) this.checkpoint.collected.push(item.pickupKey);
+        }
         item.art.destroy(); item.mark.destroy();
         const notice = s.add.text(s.player.x, s.player.y - 150, reward.message, { fontFamily: 'Arial', fontSize: '18px', color: '#ffe483', backgroundColor: '#301447', padding: { x: 8, y: 5 } }).setOrigin(.5).setDepth(30);
         s.tweens.add({ targets: notice, y: notice.y - 35, alpha: 0, delay: 1800, duration: 600, onComplete: () => notice.destroy() });
       } else if (item.kind === 'coin') {
+        this.collected.add(item.pickupKey);
         this.coins++;
       } else {
+        this.collected.add(item.pickupKey);
         this.gifts++;
         s.player.state.restoreLife();
       }

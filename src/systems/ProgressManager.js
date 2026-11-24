@@ -36,6 +36,13 @@ export const achievementNames={first:'Primer paso',spring:'Primavera completada'
 export class ProgressManager {
  constructor(){this.data=validateProgress(readStorage());}
  selectLevel(id){if(!Number.isInteger(id)||id<1||id>levels.length)return;this.data.selectedLevel=id;return writeStorage(this.data);}
+ grantChestCoins(amount, save=writeStorage) {
+  if(amount!==CHEST_COIN_REWARD||!Number.isSafeInteger(this.data.coins+amount))return false;
+  const next={...this.data,coins:this.data.coins+amount};
+  try { if(!save(next))return false; } catch { return false; }
+  this.data=next;
+  return true;
+ }
  completeLevel(id,{coins=0,gifts=0,chestCoins=0,time,lives}={}) {
   if(!Number.isInteger(id)||!this.data.unlockedLevels.includes(id)||id<1||id>levels.length||!Number.isSafeInteger(time)||time<=0||!Number.isInteger(coins)||coins<0||coins>7||!Number.isInteger(gifts)||gifts<0||gifts>(id===12?3:2)||!Number.isInteger(chestCoins)||chestCoins<0||chestCoins>CHEST_COUNT*CHEST_COIN_REWARD||chestCoins%50!==0)return null;
   const first=!this.data.completedLevels.includes(id);
