@@ -2,6 +2,7 @@ import SnowEnemy from './SnowEnemy.js';
 import { springFrame, springFrameCount, springSpriteGeometry } from '../visuals/springEnemies.js';
 import { clubFrame, clubFrameCount, clubSpriteGeometry, clubProjectiles, clubShotFrame } from '../visuals/clubEnemies.js';
 import { spritesTouch } from '../systems/combatHitboxes.js';
+import { chooseBossAttack } from '../systems/bossAttacks.js';
 import { thrillerFrame, thrillerFrameCount, thrillerFrameDuration, thrillerSprites } from '../visuals/thrillerEnemies.js';
 
 const violet = 0xd66aff;
@@ -40,15 +41,18 @@ const patterns = {
   shadow: ['orb', 'slash'],
   cat: ['pounce', 'scratch'],
   dancer: ['kick', 'sweep', 'punch'],
-  mystery: ['volley', 'eruption', 'aura'],
   gangster: ['direct', 'roundhouse'],
   bruiser: ['rush', 'heavy'],
   knife: ['throw', 'doubleThrow'],
-  club: ['combo', 'wave', 'bossRush'],
   zombie: ['claw', 'bite'],
   werewolf: ['swipe', 'wolfJump'],
   zombieDancer: ['danceSpin', 'danceStrike'],
-  deadKing: ['summon', 'groundSlam', 'kingSpin'],
+};
+
+const bossAttacks = {
+  mystery: { aura: moves.aura, eruption: moves.eruption, volley: { ...moves.volley, minRange: 175 } },
+  club: { combo: moves.combo, bossRush: moves.bossRush, wave: { ...moves.wave, minRange: 195 } },
+  deadKing: { groundSlam: moves.groundSlam, kingSpin: moves.kingSpin, summon: { ...moves.summon, minRange: 220 } },
 };
 
 export default class SpringEnemy extends SnowEnemy {
@@ -62,7 +66,7 @@ export default class SpringEnemy extends SnowEnemy {
     const height = geometry.bodyHeight / geometry.scale;
     this.frameKey = frameKey;
     this.frameCount = thriller ? thrillerFrameCount : club ? clubFrameCount : springFrameCount;
-    this.isBoss = ['club', 'mystery', 'deadKing'].includes(kind);
+    this.isBoss = Boolean(bossAttacks[kind]);
     this.sizeMultiplier = geometry.sizeMultiplier ?? 1;
     this.setOrigin(geometry.x / (geometry.width ?? 256), geometry.y / (geometry.height ?? 256))
       .setScale(geometry.scale * this.sizeMultiplier);
@@ -121,13 +125,13 @@ export default class SpringEnemy extends SnowEnemy {
     if (maneuvering || !player.state.lives || now < Math.max(this.nextAttack, this.hitUntil)
       || !this.body.blocked.down || Math.abs(player.y - this.y) > 145) return;
     if (this.arenaStart !== undefined && (player.x >= this.arenaStart) !== this.isBoss) return;
-    const pattern = patterns[this.kind];
     const distance = Math.abs(dx);
-    if (this.kind === 'club' && this.lastAttack !== 'combo' && distance <= moves.combo.range) {
-      this.patternIndex = 1;
-      this.startAttack(now, dx, 'combo');
+    if (this.isBoss) {
+      const move = chooseBossAttack(bossAttacks[this.kind], distance, this.lastAttack);
+      if (move) this.startAttack(now, dx, move);
       return;
     }
+    const pattern = patterns[this.kind];
     for (let offset = 0; offset < pattern.length; offset++) {
       const index = (this.patternIndex + offset) % pattern.length;
       const move = pattern[index];
@@ -173,7 +177,8 @@ export default class SpringEnemy extends SnowEnemy {
     }
     if (now >= starts + spec.active) {
       this.attack = null;
-      this.nextAttack = now + (this.isBoss ? (this.health * 2 <= this.maxHealth ? 510 : 780) : 650)
+      const recovery = this.health * 2 <= this.maxHealth ? 510 : 780;
+      this.nextAttack = now + (this.isBoss ? recovery + Math.random() * 260 : 650)
         * this.scene.difficulty.shotInterval;
       this.setVelocityX(0);
       return;
