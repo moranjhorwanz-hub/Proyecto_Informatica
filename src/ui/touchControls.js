@@ -12,7 +12,7 @@ export function createTouchControls(scene) {
   const buttons = [
     ['left', '◀', 65, 625, 42], ['right', '▶', 165, 625, 42],
     ['down', '▼', 115, 686, 30], ['run', 'CORRER', 940, 672, 36],
-    ['moon', 'MOON', 360, 675, 34], ['jump', 'SALTO', 1215, 625, 48],
+    ['moon', 'MOON', 250, 660, 34], ['jump', 'SALTO', 1215, 625, 48],
     ['hat', 'SOMBRERO', 1115, 655, 39], ['spin', 'GIRO', 1025, 672, 34],
     ['freeze', 'NIEVE', 1100, 560, 32], ['note', 'NOTA', 1180, 537, 32],
     ['hatPower', 'PODER', 1010, 595, 32], ['pause', 'Ⅱ', 1224, 48, 30],
