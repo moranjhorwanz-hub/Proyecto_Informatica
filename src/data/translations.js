@@ -3,7 +3,7 @@ const rows = `
 Sombrero estelar|Star hat|Chapeau étoilé
 Pulsa B para duplicar el daño del sombrero durante 10 s. Recarga de 30 s.|Press B to double hat damage for 10 s. Cooldown: 30 s.|Appuyez sur B pour doubler les dégâts du chapeau pendant 10 s. Recharge : 30 s.
 Escudo estelar|Star shield|Bouclier étoilé
-Protege de tres golpes enemigos. Se recupera al comenzar cada partida.|Blocks three enemy hits. Restored at the start of each game.|Protège contre trois coups ennemis. Restauré au début de chaque partie.
+Protege de tres golpes enemigos. Se recarga 30 s después de agotarse.|Blocks three enemy hits. Recharges 30 s after depletion.|Protège contre trois coups ennemis. Se recharge 30 s après épuisement.
 Habilidad desbloqueada y guardada.|Ability unlocked and saved.|Capacité débloquée et enregistrée.
 Desbloqueado|Unlocked|Débloqué
 Desbloqueado ? B / LT|Unlocked ? B / LT|D?bloqu? ? B / LT

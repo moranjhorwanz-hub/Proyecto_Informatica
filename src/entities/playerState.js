@@ -19,10 +19,16 @@ export class PlayerState {
     this.invulnerableUntil = 0;
     this.knockback = 0;
     this.shieldHits = 0;
+    this.shieldRechargeEnabled = false;
+    this.shieldRechargeAt = null;
   }
 
   update(input, { grounded, canStand = true }, now) {
     if (this.lives === 0) return { vx: 0, jump: false };
+    if (this.shieldRechargeEnabled && this.shieldRechargeAt !== null && now >= this.shieldRechargeAt) {
+      this.shieldHits = 3;
+      this.shieldRechargeAt = null;
+    }
     if (grounded) this.airJumpAvailable = false;
     if (now < this.hurtUntil) {
       this.pose = 'hurt';
@@ -76,6 +82,7 @@ export class PlayerState {
     if (!this.lives || now < this.invulnerableUntil || now < this.moonUntil) return false;
     if (this.shieldHits > 0) {
       this.shieldHits--;
+      if (this.shieldHits === 0 && this.shieldRechargeEnabled) this.shieldRechargeAt = now + 30000;
       this.invulnerableUntil = now + this.stats.invulnerability;
       return true;
     }

@@ -32,6 +32,7 @@ export function applyChestReward(kind, player, combat, now) {
   if (kind === 'coins') return { coins: CHEST_COIN_REWARD, message: '¡Cofre: 100 monedas al completar el nivel!' };
   if (kind === 'shield') {
     player.shieldHits = Math.min(3, player.shieldHits + 3);
+    player.shieldRechargeAt = null;
     return { coins: 0, message: '¡Cofre: escudo de 3 golpes!' };
   }
   if (kind === 'hatPower') {

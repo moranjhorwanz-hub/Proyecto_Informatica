@@ -158,22 +158,29 @@ export function thrillerPreviewTexture(scene) {
   return key;
 }
 
-export function drawParallaxScenery(scene, courseWidth) {
+export function drawParallaxScenery(scene, courseWidth, gaps) {
   const stage = stages[scene.level.id];
   const camera = scene.cameras.main;
   scene.add.image(0, 0, atmosphereTexture(scene, stage)).setOrigin(0)
     .setDisplaySize(camera.width, camera.height).setScrollFactor(0).setDepth(-6);
 
-  // The street continues behind gaps in the collision floor.
   const streetHeight = camera.height - 620;
-  scene.add.rectangle(0, 620, courseWidth, streetHeight, stage.foundation).setOrigin(0).setDepth(-1);
   const key = getPavementKey(scene, stage);
   const frame = scene.textures.get(key).get(pavementFrame);
   const streetSectionWidth = 48 * 32;
-  for (let x = 0; x < courseWidth; x += streetSectionWidth) {
-    scene.add.tileSprite(x, 620, Math.min(streetSectionWidth, courseWidth - x), streetHeight, key, pavementFrame)
-      .setOrigin(0).setDepth(-1).setAlpha(.6).setTileScale(48 / frame.width, 24 / frame.height);
+  const drawStreet = (start, end) => {
+    scene.add.rectangle(start, 620, end - start, streetHeight, stage.foundation).setOrigin(0).setDepth(-1);
+    for (let x = start; x < end; x += streetSectionWidth) {
+      scene.add.tileSprite(x, 620, Math.min(streetSectionWidth, end - x), streetHeight, key, pavementFrame)
+        .setOrigin(0).setDepth(-1).setAlpha(.6).setTileScale(48 / frame.width, 24 / frame.height);
+    }
+  };
+  let streetStart = 0;
+  for (const [x, width] of scene.level.id === 1 ? gaps : []) {
+    drawStreet(streetStart, x);
+    streetStart = x + width;
   }
+  drawStreet(streetStart, courseWidth);
 
   const layerPlanes = stage.planes ?? planes;
   for (const [index, { speed, scaleX, top, bottom }] of layerPlanes.entries()) {
