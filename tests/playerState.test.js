@@ -1,23 +1,22 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PlayerState, PLAYER_DEFAULTS as config } from '../src/entities/playerState.js';
+import { PlayerState, PLAYER_DEFAULTS as config, initialShieldHits } from '../src/entities/playerState.js';
 const ground = { grounded: true, canStand: true };
 
-test('purchased shield recharges 30 seconds after its third hit', () => {
+test('purchased shield is granted only at the start and does not recharge', () => {
+  assert.equal(initialShieldHits(true, false), 3);
+  assert.equal(initialShieldHits(true, true), 0);
+  assert.equal(initialShieldHits(false, false), 0);
   const state = new PlayerState();
-  state.shieldRechargeEnabled = true;
   state.shieldHits = 3;
   state.takeEnemyDamage(0);
   state.takeEnemyDamage(1300);
   state.takeEnemyDamage(2600);
   assert.equal(state.shieldHits, 0);
-  state.update({}, ground, 32599);
-  assert.equal(state.shieldHits, 0);
   state.update({}, ground, 32600);
-  assert.equal(state.shieldHits, 3);
+  assert.equal(state.shieldHits, 0);
   state.takeEnemyDamage(32600);
-  assert.equal(state.shieldHits, 2);
-  assert.equal(state.lives, 3);
+  assert.equal(state.lives, 2);
 });
 
 test('a shield from a chest does not recharge without the purchased ability', () => {
