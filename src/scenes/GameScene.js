@@ -47,15 +47,16 @@ export default class GameScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(this.level.sky);
     this.backdrop = null;
     if (hasParallaxScenery(this.level.id)) {
-      drawParallaxScenery(this, this.campaign ? courses[this.level.id].width : 2700);
+      const course = this.campaign ? courses[this.level.id] : null;
+      drawParallaxScenery(this, course?.width ?? 2700, course?.gaps ?? practiceGaps);
     } else {
       this.backdrop = scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
     }
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);
-    if (!this.campaign) {
+    if (!this.campaign && !hasParallaxScenery(this.level.id)) {
       for (const [x, width] of practiceGaps) {
-        this.add.rectangle(x, 620, width, 100, 0x07131f).setOrigin(0);
+        this.add.rectangle(x, 620, width, 100, 0x07131f, .95).setOrigin(0);
       }
     }
     this.solids = this.physics.add.staticGroup();
