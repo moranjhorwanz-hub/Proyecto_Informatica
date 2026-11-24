@@ -22,7 +22,7 @@ export default class GameOverScene extends Phaser.Scene {
       fontFamily: 'Arial', fontSize: 34, fontStyle: 'bold', color: '#ffdd50',
     }).setOrigin(.5);
 
-    const retry = () => this.scene.start('Game', { levelId, mode, checkpoint, musicPosition });
+    const retry = () => this.scene.start('Game', { levelId, mode, checkpoint, musicPosition, retrying: true });
     const menu = () => this.scene.start('Menu');
     const settings = () => this.scene.start('Settings', { gameOver: { levelId, mode, coins, checkpoint, musicPosition } });
     const options = [

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import Player from '../entities/Player.js';
+import { initialShieldHits } from '../entities/playerState.js';
 import CombatSystem from '../systems/CombatSystem.js';
 import LevelManager from '../systems/LevelManager.js';
 import { levels } from '../data/levels.js';
@@ -86,8 +87,7 @@ export default class GameScene extends Phaser.Scene {
     const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
     this.appearance = getAppearance(this.level, this.services.progress.data);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
-    this.player.state.shieldRechargeEnabled = this.services.progress.data.abilities.includes('shield');
-    this.player.state.shieldHits = this.player.state.shieldRechargeEnabled ? 3 : 0;
+    this.player.state.shieldHits = initialShieldHits(this.services.progress.data.abilities.includes('shield'), data.retrying);
     this.shieldAura = this.add.ellipse(0, 0, 84, 136, 0x52d9ff, .14).setStrokeStyle(3, 0x85edff, .85).setDepth(9).setVisible(false);
     this.physics.add.collider(this.player, this.solids);
     if(!this.campaign)this.physics.add.overlap(this.player, this.hazard, () => {
@@ -240,7 +240,7 @@ export default class GameScene extends Phaser.Scene {
     const touchPressed = this.touch.takePressed();
     const justPressed = (key, action = key) => this.pressed(key) || pressed.has(action) || touchPressed.has(key);
     if (justPressed('escape', 'back')) { this.scene.start('Menu'); return; }
-    if (justPressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
+    if (justPressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice', retrying: true }); return; }
     if (this.paused) {
       if (justPressed('previous', 'up')) this.pauseMenu.move(-1);
       else if (justPressed('next', 'down')) this.pauseMenu.move(1);
@@ -274,8 +274,7 @@ export default class GameScene extends Phaser.Scene {
     this.combat.update(this.playTime, delta);
     this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
     const shield = this.player.state;
-    const shieldWait = shield.shieldRechargeAt === null ? 0 : Math.max(0, Math.ceil((shield.shieldRechargeAt - this.playTime) / 1000));
-    this.shieldText.setText(shieldWait ? `Escudo: recarga ${shieldWait} s` : shield.shieldHits > 0 || shield.shieldRechargeEnabled ? `Escudo: ${shield.shieldHits} / 3 golpes` : '');
+    this.shieldText.setText(shield.shieldHits > 0 || this.services.progress.data.abilities.includes('shield') ? `Escudo: ${shield.shieldHits} / 3 golpes` : '');
     const waveSeconds = Math.ceil((this.combat.state.energyWaveUntil - this.playTime) / 1000);
     this.energyWaveText.setText(waveSeconds > 0 ? `Ondas de energía: ${waveSeconds} s` : '');
     if (this.services.progress.data.abilities.includes('hat-power') || this.playTime < this.combat.state.hatPowerUntil) {
