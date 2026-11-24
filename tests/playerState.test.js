@@ -3,6 +3,31 @@ import assert from 'node:assert/strict';
 import { PlayerState, PLAYER_DEFAULTS as config } from '../src/entities/playerState.js';
 const ground = { grounded: true, canStand: true };
 
+test('purchased shield recharges 30 seconds after its third hit', () => {
+  const state = new PlayerState();
+  state.shieldRechargeEnabled = true;
+  state.shieldHits = 3;
+  state.takeEnemyDamage(0);
+  state.takeEnemyDamage(1300);
+  state.takeEnemyDamage(2600);
+  assert.equal(state.shieldHits, 0);
+  state.update({}, ground, 32599);
+  assert.equal(state.shieldHits, 0);
+  state.update({}, ground, 32600);
+  assert.equal(state.shieldHits, 3);
+  state.takeEnemyDamage(32600);
+  assert.equal(state.shieldHits, 2);
+  assert.equal(state.lives, 3);
+});
+
+test('a shield from a chest does not recharge without the purchased ability', () => {
+  const state = new PlayerState();
+  state.shieldHits = 1;
+  state.takeEnemyDamage(0);
+  state.update({}, ground, 30000);
+  assert.equal(state.shieldHits, 0);
+});
+
 test('shield absorbs three separate enemy hits but not hazards', () => {
   const state = new PlayerState();
   state.shieldHits = 3;

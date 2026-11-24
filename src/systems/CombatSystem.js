@@ -25,16 +25,17 @@ export default class CombatSystem {
       const enemy = kind
         ? new SpringEnemy(scene, { x, left, right, kind,
           speed: speed * ({ shadow: 1.1, cat: 1.8, dancer: 1.5, bruiser: .85, knife: .92 }[kind] ?? 1),
-          health: { cat: 2, bruiser: 4 }[kind] ?? 3, shots: this.enemyProjectiles })
+          health: { cat: 4, bruiser: 6 }[kind] ?? 5, shots: this.enemyProjectiles })
         : new SnowEnemy(scene, x, left, right, patrolTexture);
       if (!kind) enemy.speed = speed;
       this.enemies.add(enemy);
     });
     if (course?.boss) {
+      const bossHealth = scene.difficulty.bossHealth + 4;
       this.boss = course.boss.kind
-        ? new SpringEnemy(scene, { ...course.boss, health: course.boss.health + scene.difficulty.bossHealth - 8,
+        ? new SpringEnemy(scene, { ...course.boss, health: course.boss.health + bossHealth - 8,
           speed: 118 * scene.difficulty.enemySpeed, shots: this.enemyProjectiles })
-        : new SnowBoss(scene, { ...course.boss, health: scene.difficulty.bossHealth,
+        : new SnowBoss(scene, { ...course.boss, health: bossHealth,
           texture: levelEnemyTexture(scene, scene.level, true) });
       this.enemies.add(this.boss);
     }
@@ -112,6 +113,18 @@ export default class CombatSystem {
     if (!enemy.active || this.spinHits.has(enemy)) return;
     this.spinHits.add(enemy);
     this.damageEnemy(enemy, this.spinDamage);
+  }
+  playerShotApproaching(enemy) {
+    const { center, halfHeight } = enemy.body;
+    const approaching = shot => {
+      const { velocity, center: origin, halfHeight: shotHalfHeight } = shot.body;
+      if (!velocity.x) return false;
+      const arrival = (center.x - origin.x) / velocity.x;
+      return arrival >= .09 && arrival <= .36
+        && Math.abs(center.y - origin.y - velocity.y * arrival) <= halfHeight + shotHalfHeight;
+    };
+    return (this.hat?.active && !this.hat.hit.has(enemy) && approaching(this.hat))
+      || this.projectiles.getChildren().some(shot => shot.active && approaching(shot));
   }
   update(now, delta) {
     this.enemies.getChildren().slice().forEach(enemy => enemy.update(now));
