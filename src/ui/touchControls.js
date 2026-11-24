@@ -15,7 +15,7 @@ export function createTouchControls(scene) {
     ['moon', 'MOON', 250, 660, 34], ['jump', 'SALTO', 1215, 625, 48],
     ['hat', 'SOMBRERO', 1115, 655, 39], ['spin', 'GIRO', 1025, 672, 34],
     ['freeze', 'NIEVE', 1100, 560, 32], ['note', 'NOTA', 1180, 537, 32],
-    ['hatPower', 'PODER', 1010, 595, 32], ['pause', 'Ⅱ', 1224, 48, 30],
+    ['hatPower', 'PODER', 1010, 595, 32], ['shield', 'ESCUDO', 920, 595, 34], ['pause', 'Ⅱ', 1224, 48, 30],
   ];
   for (const [action, label, x, y, radius] of buttons) {
     const circle = scene.add.circle(x, y, radius, 0x121b30, .72).setStrokeStyle(2, 0xffc36c, .9).setInteractive();

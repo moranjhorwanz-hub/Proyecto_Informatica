@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import Player from '../entities/Player.js';
-import { initialShieldHits } from '../entities/playerState.js';
 import CombatSystem from '../systems/CombatSystem.js';
 import LevelManager from '../systems/LevelManager.js';
 import { levels } from '../data/levels.js';
@@ -87,7 +86,7 @@ export default class GameScene extends Phaser.Scene {
     const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
     this.appearance = getAppearance(this.level, this.services.progress.data);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
-    this.player.state.shieldHits = initialShieldHits(this.services.progress.data.abilities.includes('shield'), data.retrying);
+    this.player.state.shieldUsed = Boolean(data.retrying);
     this.shieldAura = this.add.ellipse(0, 0, 84, 136, 0x52d9ff, .14).setStrokeStyle(3, 0x85edff, .85).setDepth(9).setVisible(false);
     this.physics.add.collider(this.player, this.solids);
     if(!this.campaign)this.physics.add.overlap(this.player, this.hazard, () => {
@@ -157,7 +156,7 @@ export default class GameScene extends Phaser.Scene {
     keyboard.resetKeys();
     keyboard.removeCapture(this.keyCaptures);
     this.controls = this.services.progress.data.settings.controls;
-    const bindings = { ...this.controls, hatPower: ['B'], escape: [menuKey], ...pauseNavigation };
+    const bindings = { ...this.controls, hatPower: ['B'], shield: ['E'], escape: [menuKey], ...pauseNavigation };
     const existingCaptures = new Set(keyboard.getCaptures());
     this.keyCaptures = [...new Set(Object.values(bindings).flat())].filter(code => !existingCaptures.has(code));
     this.keys = Object.fromEntries(Object.entries(bindings)
@@ -268,13 +267,14 @@ export default class GameScene extends Phaser.Scene {
       moonPressed: justPressed('moon'),
     }, this.playTime);
     if (justPressed('hatPower')) this.combat.activateHatPower();
+    if (justPressed('shield', 'up')) this.player.state.activateShield(this.services.progress.data.abilities.includes('shield'), this.playTime);
     for (const kind of ['hat', 'spin', 'freeze', 'note']) {
       if (justPressed(kind)) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
     this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
     const shield = this.player.state;
-    this.shieldText.setText(shield.shieldHits > 0 || this.services.progress.data.abilities.includes('shield') ? `Escudo: ${shield.shieldHits} / 3 golpes` : '');
+    this.shieldText.setText(shield.shieldHits > 0 ? `Escudo: ${shield.shieldHits} / 3 golpes` : this.services.progress.data.abilities.includes('shield') ? shield.shieldUsed ? 'Escudo agotado' : 'E / ↑: escudo listo' : '');
     const waveSeconds = Math.ceil((this.combat.state.energyWaveUntil - this.playTime) / 1000);
     this.energyWaveText.setText(waveSeconds > 0 ? `Ondas de energía: ${waveSeconds} s` : '');
     if (this.services.progress.data.abilities.includes('hat-power') || this.playTime < this.combat.state.hatPowerUntil) {

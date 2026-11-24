@@ -124,6 +124,7 @@ export default class AttacksScene extends Phaser.Scene {
       ? 'Disponible en campaña y en el ensayo.'
       : 'Disponible en el ensayo. Desbloquéalo para la campaña por 300 monedas en la tienda.',
     20, 'normal', '#afbfd6');
+    this.text(379, 486, 'Escudo: E / ↑ en mando / ESCUDO en celular. Una vez por partida.', 18, 'normal', '#afbfd6');
   }
 
   onKey(event) {

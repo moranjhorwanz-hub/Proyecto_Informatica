@@ -4,7 +4,6 @@ export const PLAYER_DEFAULTS = Object.freeze({
   moonSpeed: 300, moonDuration: 620, moonCooldown: 1800,
   invulnerability: 1300, hurtDuration: 260,
 });
-export const initialShieldHits = (owned, retrying) => owned && !retrying ? 3 : 0;
 
 export class PlayerState {
   constructor(tuning = {}) {
@@ -20,6 +19,14 @@ export class PlayerState {
     this.invulnerableUntil = 0;
     this.knockback = 0;
     this.shieldHits = 0;
+    this.shieldUsed = false;
+  }
+
+  activateShield(owned, now) {
+    if (!owned || this.shieldUsed || !this.lives || now < this.hurtUntil || this.shieldHits > 0) return false;
+    this.shieldHits = 3;
+    this.shieldUsed = true;
+    return true;
   }
 
   update(input, { grounded, canStand = true }, now) {
