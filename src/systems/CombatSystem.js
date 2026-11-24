@@ -71,6 +71,20 @@ export default class CombatSystem {
     note.refresh();
   }
   damagePlayer(direction) { return this.scene.player.takeEnemyDamage(direction); }
+  damageEnemy(enemy, amount) {
+    const bounds = enemy.getBounds();
+    const x = bounds.centerX, y = bounds.centerY;
+    if (!enemy.takeDamage(amount)) return;
+    this.scene.services.audio.effect('enemy-hit');
+    if (!this.state.energyWaveActive(this.scene.playTime)) return;
+    const wave = this.scene.add.circle(x, y, 12, 0xffd25b, .15).setStrokeStyle(4, 0xffd66d).setDepth(15);
+    this.scene.tweens.add({ targets: wave, scale: 10, alpha: 0, duration: 350, onComplete: () => wave.destroy() });
+    for (const other of this.enemies.getChildren().slice()) {
+      if (other !== enemy && other.active && spriteTouchesCircle(other, x, y, 120)) {
+        if (other.takeDamage(1)) this.scene.services.audio.effect('enemy-hit');
+      }
+    }
+  }
   attack(kind) {
     const s = this.scene, p = s.player;
     if (!this.state.activate(kind, s.playTime, { alive: p.state.lives > 0, hurt: s.playTime < p.state.hurtUntil, snowUnlocked: s.trainingSnow || canUseSnow(s.services.progress.data), hatActive: this.hat?.active })) return false;
@@ -96,7 +110,8 @@ export default class CombatSystem {
   }
   spinHit(enemy) {
     if (!enemy.active || this.spinHits.has(enemy)) return;
-    this.spinHits.add(enemy); enemy.takeDamage(this.spinDamage);
+    this.spinHits.add(enemy);
+    this.damageEnemy(enemy, this.spinDamage);
   }
   update(now, delta) {
     this.enemies.getChildren().slice().forEach(enemy => enemy.update(now));
@@ -123,12 +138,12 @@ export default class CombatSystem {
       if (spinning && spriteTouchesCircle(enemy, this.ring.x, this.ring.y, this.ring.radius)) this.spinHit(enemy);
       if (enemy.active && hat?.active && !hat.hit.has(enemy) && spritesTouch(hat, enemy)) {
         hat.hit.add(enemy);
-        enemy.takeDamage(this.state.hatDamage(now, HAT_DEFAULTS.damage));
+        this.damageEnemy(enemy, this.state.hatDamage(now, HAT_DEFAULTS.damage));
       }
       for (const shot of shots) {
         if (!enemy.active || !shot.active || !spritesTouch(shot, enemy)) continue;
         if (shot.texture.key === 'combat-flake') enemy.freeze(this.state.settings.freezeDuration);
-        enemy.takeDamage();
+        this.damageEnemy(enemy);
         shot.destroy();
       }
       if (!spinning && enemy.active && !enemy.attack && now >= enemy.frozenUntil && spritesTouch(p, enemy)) {

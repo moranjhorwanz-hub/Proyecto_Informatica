@@ -14,6 +14,7 @@ import { menuColors, menuText } from '../ui/menuComponents.js';
 import { createPauseMenu } from '../ui/pauseMenu.js';
 import { createSpikeTrap } from '../visuals/spikeTrap.js';
 import { createMicrophonePickup } from '../visuals/microphonePickups.js';
+import { createTouchControls, touchControlsEnabled } from '../ui/touchControls.js';
 
 const lifeBarWidth = 240;
 const pauseNavigation = { previous: [38], next: [40], confirm: [13] };
@@ -109,6 +110,8 @@ export default class GameScene extends Phaser.Scene {
     this.levelManager?.connect();
     this.bindControls();
     this.createHud();
+    this.touch = createTouchControls(this);
+    this.refreshTouchControls();
     this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
     this.pauseMenu = createPauseMenu(this, {
       resume: () => this.setPaused(false),
@@ -121,6 +124,7 @@ export default class GameScene extends Phaser.Scene {
     const refreshAfterSettings = () => {
       this.bindControls();
       this.controlHints.forEach(refresh => refresh());
+      this.refreshTouchControls();
       this.pauseMenu.show(true);
     };
     this.events.on('resume', refreshAfterSettings);
@@ -131,6 +135,12 @@ export default class GameScene extends Phaser.Scene {
       this.events.off('resume', refreshAfterSettings);
       this.input.keyboard.removeCapture(this.keyCaptures);
     });
+  }
+
+  refreshTouchControls() {
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+    this.touchEnabled = touchControlsEnabled(this.services.progress.data.settings.touchControls, coarse);
+    this.touch.show(this.touchEnabled && !this.paused);
   }
 
   bindControls() {
@@ -194,12 +204,14 @@ export default class GameScene extends Phaser.Scene {
     this.lifeBar.setScale(this.player.state.lives / this.player.state.stats.lives, 1);
     this.hatPowerText = menuText(this, 24, 48, '', 16, menuColors.accentText).setScrollFactor(0).setDepth(101);
     this.shieldText = menuText(this, 24, 70, '', 16, '#85edff').setScrollFactor(0).setDepth(101);
+    this.energyWaveText = menuText(this, 24, 92, '', 16, '#ffdc81').setScrollFactor(0).setDepth(101);
   }
 
   setPaused(value) {
     if (this.paused === value) return;
     this.paused = value;
     this.input.keyboard.resetKeys();
+    this.touch.show(this.touchEnabled && !value);
     if (value) {
       this.physics.pause(); this.player.anims.pause();
     } else { this.physics.resume(); this.player.anims.resume(); }
@@ -208,7 +220,8 @@ export default class GameScene extends Phaser.Scene {
 
   update(_time, delta) {
     const { held, pressed } = this.services.gamepad;
-    const justPressed = (key, action = key) => this.pressed(key) || pressed.has(action);
+    const touchPressed = this.touch.takePressed();
+    const justPressed = (key, action = key) => this.pressed(key) || pressed.has(action) || touchPressed.has(key);
     if (justPressed('escape', 'back')) { this.scene.start('Menu'); return; }
     if (justPressed('restart')) { this.scene.restart({ levelId: this.level.id, mode:this.campaign?'campaign':'practice' }); return; }
     if (this.paused) {
@@ -228,11 +241,11 @@ export default class GameScene extends Phaser.Scene {
     }
     this.playTime += delta;
     this.levelManager?.update(this.playTime);
-    const running = this.held('run') || held.has('run');
+    const running = this.held('run') || held.has('run') || this.touch.held.has('run');
     this.player.update({
-      left: this.held('left') || held.has('left'),
-      right: this.held('right') || held.has('right'),
-      down: this.held('down') || held.has('down'),
+      left: this.held('left') || held.has('left') || this.touch.held.has('left'),
+      right: this.held('right') || held.has('right') || this.touch.held.has('right'),
+      down: this.held('down') || held.has('down') || this.touch.held.has('down'),
       run: running,
       jumpPressed: justPressed('jump'),
       moonPressed: justPressed('moon'),
@@ -243,13 +256,15 @@ export default class GameScene extends Phaser.Scene {
     }
     this.combat.update(this.playTime, delta);
     this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
-    if (this.services.progress.data.abilities.includes('shield')) this.shieldText.setText(`Escudo: ${this.player.state.shieldHits} / 3 golpes`);
-    if (this.services.progress.data.abilities.includes('hat-power')) {
+    this.shieldText.setText(this.player.state.shieldHits > 0 || this.services.progress.data.abilities.includes('shield') ? `Escudo: ${this.player.state.shieldHits} / 3 golpes` : '');
+    const waveSeconds = Math.ceil((this.combat.state.energyWaveUntil - this.playTime) / 1000);
+    this.energyWaveText.setText(waveSeconds > 0 ? `Ondas de energía: ${waveSeconds} s` : '');
+    if (this.services.progress.data.abilities.includes('hat-power') || this.playTime < this.combat.state.hatPowerUntil) {
       const combat = this.combat.state;
       const active = Math.ceil((combat.hatPowerUntil - this.playTime) / 1000);
       const cooldown = Math.ceil((combat.nextHatPower - this.playTime) / 1000);
       this.hatPowerText.setText(active > 0 ? `Sombrero estelar: ${active} s` : cooldown > 0 ? `Sombrero estelar: recarga ${cooldown} s` : 'B / LT: Sombrero estelar listo');
-    }
+    } else this.hatPowerText.setText('');
     if (this.player.y > 850) {
       this.player.respawn(...(this.levelManager?.spawn || [130,600]));
       this.centerCameraOnPlayer();
@@ -278,7 +293,7 @@ export default class GameScene extends Phaser.Scene {
       if (this.player.x > manager.course.goal && !this.finished && manager.canFinish()) {
         this.finished=true;
         this.services.audio.effect('victory');
-        const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,time:Math.max(1,Math.round(this.playTime)),lives:state.lives});
+        const result=this.services.progress.completeLevel(this.level.id,{coins:manager.coins,gifts:manager.gifts,chestCoins:manager.chestCoins,time:Math.max(1,Math.round(this.playTime)),lives:state.lives});
         this.scene.start('Victory',{levelId:this.level.id,result}); return;
       }
     } else if (this.player.x > 2420 && !this.finished) {

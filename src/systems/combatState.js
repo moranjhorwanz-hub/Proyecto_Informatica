@@ -2,7 +2,8 @@ export const COMBAT_DEFAULTS = Object.freeze({ hatCooldown: 500, spinCooldown: 1
 
 // Uses the scene's simulation clock, so pausing also pauses cooldowns.
 export class CombatState {
-  constructor(tuning = {}) { this.settings = Object.freeze({ ...COMBAT_DEFAULTS, ...tuning }); this.next = { hat: 0, spin: 0, freeze: 0, note: 0 }; this.spinUntil = 0; this.hatPowerUntil = 0; this.nextHatPower = 0; }
+  constructor(tuning = {}) { this.settings = Object.freeze({ ...COMBAT_DEFAULTS, ...tuning }); this.next = { hat: 0, spin: 0, freeze: 0, note: 0 }; this.spinUntil = 0; this.hatPowerUntil = 0; this.nextHatPower = 0; this.energyWaveUntil = 0; }
+  energyWaveActive(now) { return now < this.energyWaveUntil; }
   activateHatPower(now, { unlocked = false, alive = true, hurt = false } = {}) {
     if (!unlocked || !alive || hurt || now < this.nextHatPower) return false;
     this.hatPowerUntil = now + this.settings.hatPowerDuration;
