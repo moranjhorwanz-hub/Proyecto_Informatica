@@ -17,6 +17,7 @@ import { createMicrophonePickup } from '../visuals/microphonePickups.js';
 
 const lifeBarWidth = 240;
 const pauseNavigation = { previous: [38], next: [40], confirm: [13] };
+const practiceGaps = [[710, 140], [1800, 150]];
 
 const label = (scene, x, y, value, size = 18, color = '#eceee9') => scene.add.text(x, y, value, {
   fontFamily: 'Arial', fontSize: `${size}px`, color,
@@ -51,9 +52,9 @@ export default class GameScene extends Phaser.Scene {
     }
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);
-    if (!this.campaign && !hasParallaxScenery(this.level.id)) {
-      for (const [x, width] of [[710, 140], [1800, 150]]) {
-        this.add.rectangle(x, 620, width, 100, 0x07131f, .95).setOrigin(0);
+    if (!this.campaign) {
+      for (const [x, width] of practiceGaps) {
+        this.add.rectangle(x, 620, width, 100, 0x07131f).setOrigin(0);
       }
     }
     this.solids = this.physics.add.staticGroup();
