@@ -111,11 +111,6 @@ export default class GameScene extends Phaser.Scene {
     this.createHud();
     this.touch = createTouchControls(this);
     this.refreshTouchControls();
-    this.touchToggle = this.add.text(1060, 18, 'CELULAR', { fontFamily: 'Arial', fontSize: '16px', fontStyle: 'bold', color: '#ffffff', backgroundColor: '#592137', padding: { x: 12, y: 8 } }).setScrollFactor(0).setDepth(106).setInteractive({ useHandCursor: true });
-    this.touchToggle.on('pointerdown', () => {
-      const result = this.services.settings.update({ touchControls: this.touchEnabled ? 'off' : 'on' });
-      if (result.ok) this.refreshTouchControls();
-    });
     this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
     this.pauseMenu = createPauseMenu(this, {
       resume: () => this.setPaused(false),
@@ -216,7 +211,6 @@ export default class GameScene extends Phaser.Scene {
     this.paused = value;
     this.input.keyboard.resetKeys();
     this.touch.show(this.touchEnabled && !value);
-    this.touchToggle.setVisible(!value);
     if (value) {
       this.physics.pause(); this.player.anims.pause();
     } else { this.physics.resume(); this.player.anims.resume(); }
