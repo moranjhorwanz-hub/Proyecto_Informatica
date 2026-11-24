@@ -112,7 +112,10 @@ export default class SpringEnemy extends SnowEnemy {
       this.advanceAttack(now, player);
       return;
     }
-    super.update(now);
+    if (super.update(now)) {
+      this.pose('walk', Math.floor(now / 80) % this.frameCount(this.kind, 'walk'));
+      return;
+    }
     if (this.isBoss && this.arenaStart !== undefined && player.x >= this.arenaStart && player.state.lives) {
       this.direction = dx < 0 ? -1 : 1;
       const room = this.direction > 0 ? this.right - this.x : this.x - this.left;

@@ -148,6 +148,13 @@ try {
   assert.equal(await evaluate('practice.lifeBar.scaleX'), 1, 'Player health bar starts full');
   assert.ok(Math.abs(initial.y - 620) < 2, 'Feet must align with floor');
   // Phase 4: exercise real projectiles, Arcade overlaps and keyboard attacks.
+  await evaluate('window.enemy=practice.combat.enemies.getChildren()[0];const x=p.x+270;enemy.body.reset(x,620);enemy.left=x;enemy.right=x;true');
+  await advance(100);
+  await tap('j');
+  await advance(320);
+  assert.ok(await evaluate('enemy.nextDodge > practice.playTime && enemy.y < 600'), 'Enemy jumps over an approaching hat');
+  assert.equal(await evaluate('enemy.health'), 4, 'Enemy keeps its extra health after dodging');
+  await advance(1800);
   await evaluate(`window.enemy=practice.combat.enemies.getChildren()[0]; const targetX=p.x+270; enemy.body.reset(targetX,620); enemy.left=targetX;enemy.right=targetX;enemy.health=3;enemy.freeze(10000); true`);
   await tap('j');
   await advance(450);
@@ -157,7 +164,7 @@ try {
   await evaluate('enemy.body.reset(230,620);enemy.left=230;enemy.right=230;true');
   await tap('l');
   assert.ok(await evaluate('!enemy.active'), 'Snow projectile delivers second hit');
-  await evaluate(`window.enemy=practice.combat.enemies.getChildren()[0]; enemy.body.reset(210,620);enemy.left=210;enemy.right=210;true`);
+  await evaluate(`window.enemy=practice.combat.enemies.getChildren()[0]; enemy.body.reset(210,620);enemy.left=210;enemy.right=210;enemy.health=2;enemy.nextDodge=Infinity;true`);
   await advance(3100);
   await tap('l');
   assert.ok(await evaluate('enemy.frozenUntil > practice.playTime'), 'Snow freezes surviving enemy');
@@ -309,12 +316,12 @@ try {
       await advance(200);
       assert.ok(await evaluate('boss.projectiles.getLength()>0'),'Boss fires snow projectiles');
       // Real keyboard throws and spins; position each encounter to avoid pathfinding in this smoke test.
-      for(let hit=0;hit<4;hit++) {
-        await evaluate('boss.body.reset(3440,620);boss.left=3440;boss.right=3440;boss.nextShot=practice.playTime+5000;p.body.reset(3370,620);p.state.facing=1;p.state.hurtUntil=0;p.setVelocity(0,0);true');
+      for(let hit=0;hit<6;hit++) {
+        await evaluate('boss.body.reset(3440,620);boss.left=3440;boss.right=3440;boss.nextDodge=Infinity;boss.nextShot=practice.playTime+5000;p.body.reset(3370,620);p.state.facing=1;p.state.hurtUntil=0;p.setVelocity(0,0);true');
         await tap('j');
         await advance(1900);
       }
-      assert.equal(await evaluate('boss.active'),false,'Four hat hits defeat boss');
+      assert.equal(await evaluate('boss.active'),false,'Six hat hits defeat boss');
     }
     await evaluate('practice.cameras.main.stopFollow();practice.cameras.main.centerOn(p.x,360);true');
     await advance(30);
@@ -455,9 +462,9 @@ try {
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
   assert.equal(await evaluate(`testGame.registry.get('services').shop.owns('freeze')`),false,'Innate ability needs no separate snow purchase');
   await evaluate(`testGame.scene.getScene('Characters').scene.start('Game',{levelId:1,mode:'campaign'});true`);await advance(150);
-  await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.enemy=practice.combat.enemies.getChildren()[0];enemy.body.reset(230,620);enemy.left=230;enemy.right=230;true`);
+  await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.enemy=practice.combat.enemies.getChildren()[0];enemy.body.reset(230,620);enemy.left=230;enemy.right=230;enemy.nextDodge=Infinity;true`);
   await tap('l');
-  assert.equal(await evaluate('enemy.health'),1,'Innate snow causes a real hit');
+  assert.equal(await evaluate('enemy.health'),3,'Innate snow causes a real hit');
   assert.ok(await evaluate('enemy.frozenUntil-practice.playTime>2100'),'King freeze lasts 2.4 seconds');
   const kingCooldown=await evaluate('practice.combat.state.next.freeze');
   await advance(1900);await tap('l');
@@ -473,7 +480,7 @@ try {
   await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.enemy=practice.combat.enemies.getChildren()[0];enemy.body.reset(245,620);enemy.left=245;enemy.right=245;true`);
   assert.equal(await evaluate('practice.combat.attack("freeze")'),false,'Switching away removes innate snow');
   await tap('k');
-  assert.equal(await evaluate('enemy.active'),false,'Golden spin kills two-health enemy at 115 px');
+  assert.equal(await evaluate('enemy.health'),2,'Golden spin deals two damage at 115 px');
   assert.ok(await evaluate('practice.combat.state.next.spin-practice.playTime<1200'),'Golden spin uses 1.2 second cooldown');
   await evaluate('p.body.reset(760,880);p.setVelocity(0,0);true');await advance(100);
   assert.equal(await evaluate('p.state.lives'),2,'Character still loses life on fall');
@@ -549,7 +556,7 @@ try {
       assert.equal(await evaluate(`testGame.scene.getScene('Game').combat.enemies.getChildren()[0].speed`),81.25);
     }
   }
-  for(const [difficulty,lives,health,buttonX] of [['Difícil',2,10,670],['Fácil',4,6,190],['Normal',3,8,430]]) {
+  for(const [difficulty,lives,health,buttonX] of [['Difícil',2,14,670],['Fácil',4,10,190],['Normal',3,12,430]]) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('Settings');true`);await advance(100);
     await click(buttonX,525);
     await evaluate(`testGame.scene.getScene('Settings').scene.start('Game',{levelId:4,mode:'campaign'});true`);await advance(150);
