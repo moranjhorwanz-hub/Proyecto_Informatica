@@ -30,9 +30,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     this.text(38, 133, 'Completa cada nivel para desbloquear el siguiente.', 19, muted)
       .setWordWrapWidth(265);
     this.season = this.text(38, 212, '', 30, white, 'bold italic');
-    this.info = this.text(38, 258, '', 17, muted).setWordWrapWidth(265);
-    const previewKey = thrillerPreviewTexture(this);
-    this.thrillerPreview = this.add.image(38, 303, previewKey, 'scenery').setOrigin(0).setScale(.84);
+    this.thrillerPreviewKey = thrillerPreviewTexture(this);
     this.add.graphics().fillStyle(0x8a1024).fillPoints(cut(350, 114, 377, 49, 23), true);
     this.text(380, 123, 'Niveles', 27, white, 'bold italic');
     this.cards = levels.map((level, index) => this.createCard(level, index));
@@ -72,7 +70,7 @@ export default class LevelSelectScene extends Phaser.Scene {
 
   createThumbnail(level, index, x, y) {
     if (level.id === 3) {
-      return this.add.image(x, y, this.thrillerPreview.texture.key, 'scenery').setDisplaySize(56, 28);
+      return this.add.image(x, y, this.thrillerPreviewKey, 'scenery').setDisplaySize(56, 28);
     }
     const texture = this.textures.get('level-select');
     const frame = `level-${level.id}`;
@@ -106,8 +104,6 @@ export default class LevelSelectScene extends Phaser.Scene {
     updatePixelMenuCharacter(this.menuHero, getAppearance(level, progress));
     const unlocked = progress.unlockedLevels.includes(level.id);
     this.season.setText(level.subtitle);
-    this.thrillerPreview.setVisible(level.id === 3);
-    this.info.setText(`${progress.settings.difficulty} · ${unlocked ? 'Listo para jugar' : 'Nivel bloqueado'}`);
     this.play.surface.setAlpha(unlocked ? 1 : .4);
     this.play.text.setAlpha(unlocked ? 1 : .65);
     this.play.hit.input.enabled = unlocked;
