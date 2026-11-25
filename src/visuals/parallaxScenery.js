@@ -203,7 +203,7 @@ export function drawParallaxScenery(scene, courseWidth, gaps) {
     }
   };
   let streetStart = 0;
-  for (const [x, width] of scene.level.id === 1 ? gaps : []) {
+  for (const [x, width] of gaps) {
     drawStreet(streetStart, x);
     streetStart = x + width;
   }
@@ -253,20 +253,24 @@ function getPavementKey(scene, stage) {
 
 export function drawRecessedStreet(scene, x, width) {
   const stage = stages[scene.level.id];
-  const key = getPavementKey(scene, stage);
-  const frame = scene.textures.get(key).get(pavementFrame);
   const top = 620, lowerStreet = 661, depth = lowerStreet - top;
-  scene.add.rectangle(x, top, width, depth, 0x35303c).setOrigin(0);
-  scene.add.tileSprite(x, top, width, depth, key, pavementFrame)
-    .setOrigin(0).setTileScale(48 / frame.width, 16 / frame.height).setAlpha(.34);
-  scene.add.tileSprite(x, lowerStreet, width, 720 - lowerStreet, key, pavementFrame)
-    .setOrigin(0).setTileScale(48 / frame.width, 24 / frame.height).setAlpha(.85);
-  scene.add.rectangle(x, lowerStreet, width, 2, stage.trim, .6).setOrigin(0);
+  const floorHeight = 720 - lowerStreet;
+  const trim = stage?.trim ?? scene.level.accent;
+  scene.add.rectangle(x, top, width, depth, 0x090e1b, .55).setOrigin(0);
+  scene.add.rectangle(x, lowerStreet, width, floorHeight, stage?.foundation ?? scene.level.land).setOrigin(0);
+  if (stage) {
+    const key = getPavementKey(scene, stage);
+    const frame = scene.textures.get(key).get(pavementFrame);
+    scene.add.tileSprite(x, lowerStreet, width, floorHeight, key, pavementFrame).setOrigin(0)
+      .setTileScale(stage.fullHeightPavement ? 1 : 48 / frame.width,
+        (stage.fullHeightPavement ? floorHeight : 24) / frame.height).setAlpha(.75);
+  }
+  scene.add.rectangle(x, lowerStreet, width, 2, trim, .6).setOrigin(0);
 
   const edges = scene.add.graphics();
-  edges.fillStyle(0x76594d).fillTriangle(x, top, x + 16, lowerStreet, x, lowerStreet);
-  edges.fillStyle(0x58404a).fillTriangle(x + width, top, x + width - 16, lowerStreet, x + width, lowerStreet);
-  edges.lineStyle(3, stage.trim)
+  edges.fillStyle(trim, .36).fillTriangle(x, top, x + 16, lowerStreet, x, lowerStreet);
+  edges.fillStyle(trim, .24).fillTriangle(x + width, top, x + width - 16, lowerStreet, x + width, lowerStreet);
+  edges.lineStyle(2, trim, .85)
     .lineBetween(x, top, x + 16, lowerStreet)
     .lineBetween(x + width, top, x + width - 16, lowerStreet);
 }
