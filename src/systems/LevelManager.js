@@ -55,17 +55,11 @@ export default class LevelManager {
   }
   createChest(x, y, index) {
     const s = this.scene;
-    const art = s.add.graphics().setDepth(5);
-    art.fillStyle(0x592276).fillRoundedRect(x - 32, y - 25, 64, 50, 6);
-    art.fillStyle(0xb833d1).fillRect(x - 23, y - 19, 46, 36);
-    art.lineStyle(6, 0xf8ad46).strokeRoundedRect(x - 32, y - 25, 64, 50, 6);
-    art.lineStyle(5, 0xffd174).lineBetween(x - 31, y, x + 31, y);
-    art.fillStyle(0x76218f).fillCircle(x, y, 12).lineStyle(3, 0xffd174).strokeCircle(x, y, 12);
-    const mark = s.add.text(x, y, '?', { fontFamily: 'Arial', fontSize: '22px', fontStyle: 'bold', color: '#ffe483' }).setOrigin(.5).setDepth(6);
+    const art = s.add.image(x, y, 'chest').setDisplaySize(88, 59).setDepth(5);
     const chest = s.add.zone(x, y, 64, 50);
-    chest.kind = 'chest'; chest.pickupKey = `chest-${index}`; chest.art = art; chest.mark = mark;
+    chest.kind = 'chest'; chest.pickupKey = `chest-${index}`; chest.art = art;
     this.pickups.add(chest);
-    this.floatingChests.push({ chest, art, mark, baseY: y, phase: index * 1.7 });
+    this.floatingChests.push({ chest, art, baseY: y, phase: index * 1.7 });
   }
   pickup(x,y,kind,index) {
     const key = `${kind}-${index}`;
@@ -116,7 +110,7 @@ export default class LevelManager {
           this.checkpoint.collected ??= [];
           if (!this.checkpoint.collected.includes(item.pickupKey)) this.checkpoint.collected.push(item.pickupKey);
         }
-        item.art.destroy(); item.mark.destroy();
+        item.art.destroy();
         const notice = s.add.text(s.player.x, s.player.y - 150, reward.message, { fontFamily: 'Arial', fontSize: '18px', color: '#ffe483', backgroundColor: '#301447', padding: { x: 8, y: 5 } }).setOrigin(.5).setDepth(30);
         s.tweens.add({ targets: notice, y: notice.y - 35, alpha: 0, delay: 1800, duration: 600, onComplete: () => notice.destroy() });
       } else if (item.kind === 'coin') {
@@ -134,11 +128,10 @@ export default class LevelManager {
   update(now) {
     const s=this.scene;
     this.floatingChests = this.floatingChests.filter(({ chest }) => chest.active);
-    for (const { chest, art, mark, baseY, phase } of this.floatingChests) {
+    for (const { chest, art, baseY, phase } of this.floatingChests) {
       const offset = Math.sin(now / 550 + phase) * 8;
       chest.y = baseY + offset;
-      art.y = offset;
-      mark.y = baseY + offset;
+      art.y = baseY + offset;
       chest.body.updateFromGameObject();
     }
     this.moving.forEach(({block,x,range,period})=>{
