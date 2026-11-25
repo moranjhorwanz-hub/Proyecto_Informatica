@@ -40,10 +40,10 @@ export function createPauseMenu(scene, actions) {
     .setFontStyle('bold italic').setStroke('#3c2844', 5).setShadow(0, 4, '#ff344e', 12, true, true);
   root.add(title);
 
-  const options = [['Continuar', actions.resume], ['Menú principal', actions.menu], ['Configuración', actions.settings]];
+  const options = [['Continuar', actions.resume], ['Reiniciar partida', actions.restart], ['Menú principal', actions.menu], ['Configuración', actions.settings]];
   let selected = 0;
   const rows = options.map(([label, action], index) => {
-    const y = 274 + index * 77;
+    const y = 262 + index * 61;
     const graphics = scene.add.graphics();
     const text = menuText(scene, 654, y + 28, label, 30).setOrigin(.5).setFontStyle('bold');
     const hit = scene.add.zone(654, y + 28, 386, 56).setInteractive({ useHandCursor: true });

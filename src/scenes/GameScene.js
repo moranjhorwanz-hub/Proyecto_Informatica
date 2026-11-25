@@ -113,6 +113,7 @@ export default class GameScene extends Phaser.Scene {
     this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
     this.pauseMenu = createPauseMenu(this, {
       resume: () => this.setPaused(false),
+      restart: () => this.scene.restart({ levelId: this.level.id, mode: this.campaign ? 'campaign' : 'practice', retrying: true }),
       menu: () => this.scene.start('Menu'),
       settings: () => {
         this.scene.launch('Settings', { fromPause: true });
