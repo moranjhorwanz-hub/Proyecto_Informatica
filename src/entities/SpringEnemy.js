@@ -4,6 +4,7 @@ import { clubFrame, clubFrameCount, clubSpriteGeometry, clubProjectiles, clubSho
 import { spritesTouch } from '../systems/combatHitboxes.js';
 import { chooseBossAttack } from '../systems/bossAttacks.js';
 import { thrillerFrame, thrillerFrameCount, thrillerFrameDuration, thrillerSprites } from '../visuals/thrillerEnemies.js';
+import { gangFrame, gangFrameCount, gangGeometry } from '../visuals/gangEnemies.js';
 
 const violet = 0xd66aff;
 const red = 0xff676e;
@@ -36,6 +37,15 @@ const moves = {
   summon: { range: 555, windup: 620, active: 260, impactFrame: 2, projectile: true },
   groundSlam: { range: 155, windup: 620, active: 250, impactFrame: 2, groundRadius: 108 },
   kingSpin: { range: 270, windup: 510, active: 510, impactFrame: 2, velocity: 310 },
+  jab: { range: 86, windup: 280, active: 180, impactFrame: 2 },
+  streetKick: { range: 116, windup: 350, active: 200, impactFrame: 2 },
+  streetCombo: { range: 108, windup: 330, active: 330, impactFrame: 1, velocity: 110 },
+  streetRush: { range: 205, windup: 420, active: 350, impactFrame: 1, velocity: 310 },
+  chainWhip: { range: 155, windup: 440, active: 205, impactFrame: 1 },
+  chainSwing: { range: 128, windup: 410, active: 300, impactFrame: 2 },
+  leaderCombo: { range: 155, windup: 350, active: 610, impactFrame: 2, velocity: 135 },
+  leaderSpin: { range: 225, windup: 440, active: 450, impactFrame: 2, velocity: 255 },
+  leaderRush: { range: 375, windup: 520, active: 590, impactFrame: 1, velocity: 435 },
 };
 const patterns = {
   shadow: ['orb', 'slash'],
@@ -47,25 +57,31 @@ const patterns = {
   zombie: ['claw', 'bite'],
   werewolf: ['swipe', 'wolfJump'],
   zombieDancer: ['danceSpin', 'danceStrike'],
+  punk: ['jab', 'streetKick'],
+  streetFighter: ['streetCombo', 'streetRush'],
+  chainBruiser: ['chainWhip', 'chainSwing'],
 };
 
 const bossAttacks = {
   mystery: { aura: moves.aura, eruption: moves.eruption, volley: { ...moves.volley, minRange: 175 } },
   club: { combo: moves.combo, bossRush: moves.bossRush, wave: { ...moves.wave, minRange: 195 } },
   deadKing: { groundSlam: moves.groundSlam, kingSpin: moves.kingSpin, summon: { ...moves.summon, minRange: 220 } },
+  gangLeader: { leaderCombo: moves.leaderCombo, leaderSpin: moves.leaderSpin,
+    leaderRush: { ...moves.leaderRush, minRange: 170 } },
 };
 
 export default class SpringEnemy extends SnowEnemy {
   constructor(scene, { x, left, right, kind, health, speed, shots }) {
     const club = clubSpriteGeometry[kind];
     const thriller = thrillerSprites[kind];
-    const frameKey = thriller ? thrillerFrame : club ? clubFrame : springFrame;
+    const gang = gangGeometry[kind];
+    const frameKey = gang ? gangFrame : thriller ? thrillerFrame : club ? clubFrame : springFrame;
     super(scene, x, left, right, frameKey(kind, 'idle'));
-    const geometry = thriller ?? club ?? springSpriteGeometry[kind];
+    const geometry = gang ?? thriller ?? club ?? springSpriteGeometry[kind];
     const width = geometry.bodyWidth / geometry.scale;
     const height = geometry.bodyHeight / geometry.scale;
     this.frameKey = frameKey;
-    this.frameCount = thriller ? thrillerFrameCount : club ? clubFrameCount : springFrameCount;
+    this.frameCount = gang ? gangFrameCount : thriller ? thrillerFrameCount : club ? clubFrameCount : springFrameCount;
     this.isBoss = Boolean(bossAttacks[kind]);
     this.sizeMultiplier = geometry.sizeMultiplier ?? 1;
     this.setOrigin(geometry.x / (geometry.width ?? 256), geometry.y / (geometry.height ?? 256))
@@ -78,12 +94,12 @@ export default class SpringEnemy extends SnowEnemy {
     this.nextAttack = 0;
     this.patternIndex = 0;
     this.waveIndex = 0;
-    if (club || thriller) {
+    if (club || thriller || gang) {
       const course = scene.levelManager.course;
       this.arenaStart = course.sections[course.boss.arenaSection].start;
     }
     this.hitUntil = 0;
-    this.color = club || kind === 'dancer' ? red : violet;
+    this.color = club || gang || kind === 'dancer' ? red : violet;
     this.effect = scene.add.graphics().setDepth(9);
     if (kind === 'mystery') {
       this.eruption = scene.add.image(0, 620, 'spring-eruption-0').setOrigin(.5, 1).setDepth(9).setVisible(false);
