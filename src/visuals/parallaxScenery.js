@@ -61,6 +61,29 @@ const stages = {
     foundation: 0x272727,
     trim: 0x7d8c65,
   },
+  4: {
+    folder: 'bad',
+    layers: [
+      '01_Cielo_Luna_Nubes', '02_Skyline_Nueva_York', '03_Edificios_Anuncios',
+      '05_Cables_Tuberias_Humo', '04_Metro_Aceras_Contenedores',
+    ],
+    rows: [[120, 265], [228, 413], [368, 568], [573, 735], [573, 747]],
+    insets: [0, 16, 18, 8, 18],
+    planes: [
+      { speed: 0, scaleX: .76, top: 88, bottom: 232 },
+      { speed: .12, scaleX: .81, top: 210, bottom: 443 },
+      { speed: .29, scaleX: .86, top: 345, bottom: 593 },
+      { speed: .51, scaleX: .93, top: 470, bottom: 591 },
+      { speed: .75, scaleX: 1, top: 461, bottom: 622 },
+    ],
+    // Overlap adjacent tiles to cover pixel rounding during camera movement.
+    tileOverlap: 1,
+    atmosphere: [0x060e20, 0x263b55, 0x20293a],
+    pavement: [4, 1128, 732, 124, 14],
+    fullHeightPavement: true,
+    foundation: 0x263247,
+    trim: 0x788ea4,
+  },
 };
 const layerKey = (stage, index) => `${stage.folder}-layer-${index + 1}`;
 const pavementFrame = 'pavement';
@@ -172,7 +195,11 @@ export function drawParallaxScenery(scene, courseWidth, gaps) {
     scene.add.rectangle(start, 620, end - start, streetHeight, stage.foundation).setOrigin(0).setDepth(-1);
     for (let x = start; x < end; x += streetSectionWidth) {
       scene.add.tileSprite(x, 620, Math.min(streetSectionWidth, end - x), streetHeight, key, pavementFrame)
-        .setOrigin(0).setDepth(-1).setAlpha(.6).setTileScale(48 / frame.width, 24 / frame.height);
+        .setOrigin(0).setDepth(-1).setAlpha(.6)
+        .setTileScale(
+          stage.fullHeightPavement ? 1 : 48 / frame.width,
+          stage.fullHeightPavement ? streetHeight / frame.height : 24 / frame.height,
+        );
     }
   };
   let streetStart = 0;
@@ -195,7 +222,7 @@ export function drawParallaxScenery(scene, courseWidth, gaps) {
     const inset = stage.insets?.[index] ?? (index === 0 || foreground ? 0 : 16);
     const width = texture.get().width - inset * 2;
     if (!texture.has('plane')) texture.add('plane', 0, inset, foreground ? 0 : firstRow, width, height);
-    const tileWidth = width * scaleX;
+    const tileWidth = width * scaleX - (stage.tileOverlap ?? 0);
     const planeTop = foreground?.top ?? top;
     const planeBottom = foreground?.bottom ?? (index === 2 ? stage.facadeBottom ?? bottom : bottom);
     const depth = index - layerPlanes.length;
@@ -271,7 +298,9 @@ export function styleParallaxPlatform(scene, block) {
 
   block.setFillStyle(stage.foundation);
   const surface = scene.add.tileSprite(x, y, width, height, pavementKey, pavementFrame).setOrigin(0);
-  if (scene.campaign) {
+  if (stage.fullHeightPavement) {
+    surface.setTileScale(1, height / texture.get(pavementFrame).height).setAlpha(.6);
+  } else if (scene.campaign) {
     const frame = texture.get(pavementFrame);
     surface.setTileScale(48 / frame.width, 24 / frame.height);
   }
