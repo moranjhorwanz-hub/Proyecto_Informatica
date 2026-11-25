@@ -1,0 +1,150 @@
+{
+  "01_Pandillero": {
+    "01_Quieto": [
+      "01_Pandillero/01_Quieto/quieto_01.png",
+      "01_Pandillero/01_Quieto/quieto_02.png"
+    ],
+    "02_Caminar": [
+      "01_Pandillero/02_Caminar/caminar_01.png",
+      "01_Pandillero/02_Caminar/caminar_02.png",
+      "01_Pandillero/02_Caminar/caminar_03.png",
+      "01_Pandillero/02_Caminar/caminar_04.png"
+    ],
+    "03_Ataque_1_Punetazo": [
+      "01_Pandillero/03_Ataque_1_Punetazo/ataque1_punetazo_01.png",
+      "01_Pandillero/03_Ataque_1_Punetazo/ataque1_punetazo_02.png",
+      "01_Pandillero/03_Ataque_1_Punetazo/ataque1_punetazo_03.png",
+      "01_Pandillero/03_Ataque_1_Punetazo/ataque1_punetazo_04.png"
+    ],
+    "04_Ataque_2_Patada": [
+      "01_Pandillero/04_Ataque_2_Patada/ataque2_patada_01.png",
+      "01_Pandillero/04_Ataque_2_Patada/ataque2_patada_02.png",
+      "01_Pandillero/04_Ataque_2_Patada/ataque2_patada_03.png",
+      "01_Pandillero/04_Ataque_2_Patada/ataque2_patada_04.png"
+    ],
+    "05_Recibir_Dano": [
+      "01_Pandillero/05_Recibir_Dano/recibir_dano_01.png",
+      "01_Pandillero/05_Recibir_Dano/recibir_dano_02.png",
+      "01_Pandillero/05_Recibir_Dano/recibir_dano_03.png"
+    ],
+    "06_Derrota": [
+      "01_Pandillero/06_Derrota/derrota_01.png",
+      "01_Pandillero/06_Derrota/derrota_02.png",
+      "01_Pandillero/06_Derrota/derrota_03.png"
+    ]
+  },
+  "02_Peleador_Callejero": {
+    "01_Quieto": [
+      "02_Peleador_Callejero/01_Quieto/quieto_01.png",
+      "02_Peleador_Callejero/01_Quieto/quieto_02.png"
+    ],
+    "02_Caminar": [
+      "02_Peleador_Callejero/02_Caminar/caminar_01.png",
+      "02_Peleador_Callejero/02_Caminar/caminar_02.png",
+      "02_Peleador_Callejero/02_Caminar/caminar_03.png",
+      "02_Peleador_Callejero/02_Caminar/caminar_04.png"
+    ],
+    "03_Ataque_1_Combo": [
+      "02_Peleador_Callejero/03_Ataque_1_Combo/ataque1_combo_01.png",
+      "02_Peleador_Callejero/03_Ataque_1_Combo/ataque1_combo_02.png",
+      "02_Peleador_Callejero/03_Ataque_1_Combo/ataque1_combo_03.png",
+      "02_Peleador_Callejero/03_Ataque_1_Combo/ataque1_combo_04.png",
+      "02_Peleador_Callejero/03_Ataque_1_Combo/ataque1_combo_05.png"
+    ],
+    "04_Ataque_2_Embestida": [
+      "02_Peleador_Callejero/04_Ataque_2_Embestida/ataque2_embestida_01.png",
+      "02_Peleador_Callejero/04_Ataque_2_Embestida/ataque2_embestida_02.png",
+      "02_Peleador_Callejero/04_Ataque_2_Embestida/ataque2_embestida_03.png"
+    ],
+    "05_Recibir_Dano": [
+      "02_Peleador_Callejero/05_Recibir_Dano/recibir_dano_01.png",
+      "02_Peleador_Callejero/05_Recibir_Dano/recibir_dano_02.png",
+      "02_Peleador_Callejero/05_Recibir_Dano/recibir_dano_03.png"
+    ],
+    "06_Derrota": [
+      "02_Peleador_Callejero/06_Derrota/derrota_01.png",
+      "02_Peleador_Callejero/06_Derrota/derrota_02.png",
+      "02_Peleador_Callejero/06_Derrota/derrota_03.png"
+    ]
+  },
+  "03_Maton_Con_Cadena": {
+    "01_Quieto": [
+      "03_Maton_Con_Cadena/01_Quieto/quieto_01.png",
+      "03_Maton_Con_Cadena/01_Quieto/quieto_02.png"
+    ],
+    "02_Caminar": [
+      "03_Maton_Con_Cadena/02_Caminar/caminar_01.png",
+      "03_Maton_Con_Cadena/02_Caminar/caminar_02.png",
+      "03_Maton_Con_Cadena/02_Caminar/caminar_03.png",
+      "03_Maton_Con_Cadena/02_Caminar/caminar_04.png",
+      "03_Maton_Con_Cadena/02_Caminar/caminar_05.png"
+    ],
+    "03_Ataque_1_Latigazo": [
+      "03_Maton_Con_Cadena/03_Ataque_1_Latigazo/ataque1_latigazo_01.png",
+      "03_Maton_Con_Cadena/03_Ataque_1_Latigazo/ataque1_latigazo_02.png",
+      "03_Maton_Con_Cadena/03_Ataque_1_Latigazo/ataque1_latigazo_03.png"
+    ],
+    "04_Ataque_2_Golpe_Circular": [
+      "03_Maton_Con_Cadena/04_Ataque_2_Golpe_Circular/ataque2_golpe_circular_01.png",
+      "03_Maton_Con_Cadena/04_Ataque_2_Golpe_Circular/ataque2_golpe_circular_02.png",
+      "03_Maton_Con_Cadena/04_Ataque_2_Golpe_Circular/ataque2_golpe_circular_03.png",
+      "03_Maton_Con_Cadena/04_Ataque_2_Golpe_Circular/ataque2_golpe_circular_04.png"
+    ],
+    "05_Recibir_Dano": [
+      "03_Maton_Con_Cadena/05_Recibir_Dano/recibir_dano_01.png",
+      "03_Maton_Con_Cadena/05_Recibir_Dano/recibir_dano_02.png",
+      "03_Maton_Con_Cadena/05_Recibir_Dano/recibir_dano_03.png"
+    ],
+    "06_Derrota": [
+      "03_Maton_Con_Cadena/06_Derrota/derrota_01.png",
+      "03_Maton_Con_Cadena/06_Derrota/derrota_02.png",
+      "03_Maton_Con_Cadena/06_Derrota/derrota_03.png"
+    ]
+  },
+  "04_Lider_De_La_Pandilla": {
+    "01_Quieto": [
+      "04_Lider_De_La_Pandilla/01_Quieto/quieto_01.png",
+      "04_Lider_De_La_Pandilla/01_Quieto/quieto_02.png"
+    ],
+    "02_Caminar": [
+      "04_Lider_De_La_Pandilla/02_Caminar/caminar_01.png",
+      "04_Lider_De_La_Pandilla/02_Caminar/caminar_02.png",
+      "04_Lider_De_La_Pandilla/02_Caminar/caminar_03.png",
+      "04_Lider_De_La_Pandilla/02_Caminar/caminar_04.png"
+    ],
+    "03_Ataque_1_Combo_Rapido": [
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_01.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_02.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_03.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_04.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_05.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_06.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_07.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_08.png",
+      "04_Lider_De_La_Pandilla/03_Ataque_1_Combo_Rapido/ataque1_combo_rapido_09.png"
+    ],
+    "04_Ataque_2_Patada_Giratoria": [
+      "04_Lider_De_La_Pandilla/04_Ataque_2_Patada_Giratoria/ataque2_patada_giratoria_01.png",
+      "04_Lider_De_La_Pandilla/04_Ataque_2_Patada_Giratoria/ataque2_patada_giratoria_02.png",
+      "04_Lider_De_La_Pandilla/04_Ataque_2_Patada_Giratoria/ataque2_patada_giratoria_03.png",
+      "04_Lider_De_La_Pandilla/04_Ataque_2_Patada_Giratoria/ataque2_patada_giratoria_04.png",
+      "04_Lider_De_La_Pandilla/04_Ataque_2_Patada_Giratoria/ataque2_patada_giratoria_05.png",
+      "04_Lider_De_La_Pandilla/04_Ataque_2_Patada_Giratoria/ataque2_patada_giratoria_06.png"
+    ],
+    "05_Ataque_3_Embestida": [
+      "04_Lider_De_La_Pandilla/05_Ataque_3_Embestida/ataque3_embestida_01.png",
+      "04_Lider_De_La_Pandilla/05_Ataque_3_Embestida/ataque3_embestida_02.png",
+      "04_Lider_De_La_Pandilla/05_Ataque_3_Embestida/ataque3_embestida_03.png"
+    ],
+    "06_Recibir_Dano": [
+      "04_Lider_De_La_Pandilla/06_Recibir_Dano/recibir_dano_01.png",
+      "04_Lider_De_La_Pandilla/06_Recibir_Dano/recibir_dano_02.png",
+      "04_Lider_De_La_Pandilla/06_Recibir_Dano/recibir_dano_03.png"
+    ],
+    "07_Derrota": [
+      "04_Lider_De_La_Pandilla/07_Derrota/derrota_01.png",
+      "04_Lider_De_La_Pandilla/07_Derrota/derrota_02.png",
+      "04_Lider_De_La_Pandilla/07_Derrota/derrota_03.png"
+    ]
+  }
+}

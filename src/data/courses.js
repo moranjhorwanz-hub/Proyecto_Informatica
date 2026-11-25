@@ -173,3 +173,24 @@ thriller.boss = {
  left: cryptStart + 125, right: thriller.width - 110, health: 18,
  arenaSection: thriller.sections.length - 1,
 };
+
+const bad = courses[4];
+const gangPatrols = ['punk', 'streetFighter', 'chainBruiser'];
+const gangArenaStart = bad.width - 150;
+const gangFloor = bad.platforms.find(([x, y, width]) => y === 620 && x + width === bad.width);
+gangFloor[2] += 500;
+bad.width += 500;
+bad.goal = bad.width - 160;
+bad.enemies = bad.enemies.map(([x, left, right], index) => [
+ x, left, right, gangPatrols[index % gangPatrols.length],
+]);
+bad.hazards = bad.hazards.filter(([x,, width]) => x + width <= gangArenaStart);
+bad.sections.at(-1).end = gangArenaStart;
+bad.sections.push({
+ name: 'La guarida', start: gangArenaStart, end: bad.width, spawn: [gangArenaStart + 64, 600],
+});
+bad.boss = {
+ kind: 'gangLeader', name: 'Líder de la Pandilla', x: bad.width - 230,
+ left: gangArenaStart + 125, right: bad.width - 100, health: 18,
+ arenaSection: bad.sections.length - 1,
+};

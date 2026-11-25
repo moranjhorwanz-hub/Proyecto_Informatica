@@ -5,6 +5,7 @@ import { preloadSpringSprites, registerSpringEffects } from '../visuals/springEn
 import { preloadClubSprites, registerClubTextures } from '../visuals/clubEnemies.js';
 import { preloadBossHealthBar } from '../visuals/bossHealthBar.js';
 import { preloadThrillerSprites } from '../visuals/thrillerEnemies.js';
+import { preloadGangSprites } from '../visuals/gangEnemies.js';
 import { preloadMicrophones, registerMicrophones } from '../visuals/microphonePickups.js';
 import { registerVinylPickup } from '../visuals/vinylPickup.js';
 
@@ -17,6 +18,7 @@ export default class BootScene extends Phaser.Scene {
     preloadSpringSprites(this);
     preloadClubSprites(this);
     preloadThrillerSprites(this);
+    preloadGangSprites(this);
     preloadBossHealthBar(this);
     preloadMicrophones(this);
     this.load.image('player-health-hud', `${import.meta.env.BASE_URL}assets/vida%20del%20personaje.png`);

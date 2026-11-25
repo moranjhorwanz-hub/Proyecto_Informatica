@@ -12,6 +12,10 @@ const bars = {
     fillBounds: { x: 585, y: 352, width: 1413, height: 94 },
     hasVioletFill: true,
   },
+  gangLeader: {
+    artwork: 'gang-boss-health', top: 20, height: 665, scale: .28,
+    fillBounds: { x: 317, y: 395, width: 1692, height: 119 },
+  },
 };
 
 export function preloadBossHealthBar(scene) {
