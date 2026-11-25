@@ -8,7 +8,7 @@ import { getAppearance } from '../entities/appearance.js';
 import { getDifficulty } from '../data/settings.js';
 import { keyLabel, menuKey } from '../data/controls.js';
 import { scenery } from './scenery.js';
-import { drawParallaxScenery, hasParallaxScenery, styleParallaxPlatform } from '../visuals/parallaxScenery.js';
+import { drawParallaxScenery, drawRecessedStreet, hasParallaxScenery, styleParallaxPlatform } from '../visuals/parallaxScenery.js';
 import { createBossHealthBar, updateBossHealthBar } from '../visuals/bossHealthBar.js';
 import { menuColors, menuText } from '../ui/menuComponents.js';
 import { createPauseMenu } from '../ui/pauseMenu.js';
@@ -46,19 +46,16 @@ export default class GameScene extends Phaser.Scene {
     });
     this.cameras.main.setBackgroundColor(this.level.sky);
     this.backdrop = null;
+    const course = this.campaign ? courses[this.level.id] : null;
+    const gaps = course?.gaps ?? practiceGaps;
     if (hasParallaxScenery(this.level.id)) {
-      const course = this.campaign ? courses[this.level.id] : null;
-      drawParallaxScenery(this, course?.width ?? 2700, course?.gaps ?? practiceGaps);
+      drawParallaxScenery(this, course?.width ?? 2700, gaps);
     } else {
       this.backdrop = scenery(this, this.level, this.services.progress.data.settings.graphicsQuality);
     }
     this.physics.world.setBounds(0, 0, 2700, 1000);
     this.cameras.main.setBounds(0, 0, 2700, 720);
-    if (!this.campaign && !hasParallaxScenery(this.level.id)) {
-      for (const [x, width] of practiceGaps) {
-        this.add.rectangle(x, 620, width, 100, 0x07131f, .95).setOrigin(0);
-      }
-    }
+    for (const [x, width] of gaps) drawRecessedStreet(this, x, width);
     this.solids = this.physics.add.staticGroup();
     if(this.campaign) {
       this.levelManager=new LevelManager(this, data.checkpoint); this.levelManager.build();
