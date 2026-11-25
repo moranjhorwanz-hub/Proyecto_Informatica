@@ -26,8 +26,8 @@ export class ShopManager {
   }
   equip(id) {
     const item = findShopItem(id), data = this.progress.data;
-    if (id !== null && item?.type !== 'skin') return { ok: false, reason: 'not-a-skin' };
-    if (id !== null && !this.owns(id)) return { ok: false, reason: 'not-owned' };
+    if (item?.type !== 'skin') return { ok: false, reason: 'not-a-skin' };
+    if (!this.owns(id)) return { ok: false, reason: 'not-owned' };
     if (data.equippedSkin === id) return { ok: true, unchanged: true };
     return this.commit({ ...data, equippedSkin: id });
   }

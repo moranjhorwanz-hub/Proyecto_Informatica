@@ -10,7 +10,7 @@ const stages = [
  ['Billie Jean','Billie Jean',0x050a24,0xffd78c],
  ['Smooth Criminal','Smooth Criminal',0x091322,0xffcc8b],
  ['Thriller','Thriller',0x24243e,0xf1a057],
- ['Avenida de neón','Beat It',0x30233f,0xf17d68],
+ ['Bad','Bad',0x060e20,0xf17d68],
  ['Noche de baile','Rock with You',0x20365c,0x9ee3f3],
  ['Gran escenario','Wanna Be Startin’ Somethin’',0x433455,0xffcf72],
  ['Bosque encantado','Black or White',0x24243e,0xf1a057],

@@ -5,6 +5,7 @@ const worldTracks = {
   1: 'billie-jean-instrumental.mp3',
   2: 'smooth-criminal-instrumental.mp3',
   3: 'thriller-instrumental.mp3',
+  4: 'bad-instrumental.mp3',
 };
 
 export class AudioManager {

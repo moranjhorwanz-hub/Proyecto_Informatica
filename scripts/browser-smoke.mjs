@@ -97,7 +97,7 @@ try {
   for(const id of [1,2,3,4]) {
     await click(187+(id-1)*302,651);await advance(400);
     assert.equal(await evaluate(`testGame.scene.getScene('Menu').level.id`),id);
-    assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.color`),await evaluate(`testGame.scene.getScene('Menu').level.color`));
+    assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.color`),0xf4f0e7);
     assert.equal(await evaluate(`testGame.registry.get('services').audio.level`),id);
     assert.ok(await evaluate(`testGame.scene.getScene('Menu').hero.getBounds().bottom<629 && testGame.scene.getScene('Menu').hero.getBounds().top>135`),'Full-body hero remains above the selector and inside the scenario');
     const shot=await cdp('Page.captureScreenshot',{format:'png'});
@@ -125,12 +125,13 @@ try {
   }
   await cdp('Emulation.clearDeviceMetricsOverride');await advance(150);
   assert.equal(await evaluate(`JSON.stringify(testGame.registry.get('services').progress.data)`),originalProgress,'Menu exploration preserves progress');
-  console.log('Menu upgrade passed: six pointer destinations, four seasons/outfits/tracks, full-body bounds, texture reuse, particle budget and three viewport sizes.');
+  console.log('Menu upgrade passed: six pointer destinations, seasonal scenery and tracks, full-body bounds, texture reuse, particle budget and three viewport sizes.');
   await tap('ArrowDown', 'ArrowDown'); await tap('Enter', 'Enter');
   await waitFor(`testGame.scene.isActive('Shop')`, 'Menu opens Shop');
+  await tap('ArrowDown', 'ArrowDown');
   await tap('Enter', 'Enter');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`), 0);
-  assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.purchases`), []);
+  assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.purchases`), ['white']);
   assert.ok(await evaluate(`testGame.scene.getScene('Shop').feedback.text.includes('suficientes')`), 'Insufficient balance has visible feedback');
   await tap('Escape', 'Escape');
   await tap('Enter', 'Enter');
@@ -263,7 +264,7 @@ try {
     await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:${id}});true`);
     await waitFor(`testGame.scene.isActive('Game')`, 'Season practice starts');
     await advance(180);
-    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), `dancer-season-${Math.ceil(id / 3)}`);
+    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`), 'dancer-skin-white');
     await tap('Escape', 'Escape');
   }
   // Campaign integration: locks, collection, rewards, moving platforms and boss.
@@ -359,7 +360,7 @@ try {
   await tap('Escape','Escape');
   await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Shop')`, 'Shop reopens after campaign');
-  await click(172,399); // Snow item.
+  await click(172,213); // Snow item.
   await evaluate(`window.originalSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw Error('simulated quota');};true`);
   await click(792,555);
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance,'Failed save does not spend coins');
@@ -394,20 +395,17 @@ try {
     assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance,'Replay pays items without repeating bonus');
   }
   await tap('Escape','Escape'); await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
-  await tap('Enter','Enter'); // Claim Thriller for free.
-  assert.ok(await evaluate(`testGame.registry.get('services').shop.owns('thriller')`));
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),null,'Buying does not equip automatically');
-  await tap('Enter','Enter'); // Equip.
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'thriller');
+  assert.ok(await evaluate(`testGame.registry.get('services').shop.owns('white')`));
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'white');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance);
   const shopShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-shop.png',Buffer.from(shopShot.data,'base64'));
   await tap('Escape','Escape');
-  assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.outfit`),'Rojo Thriller');
+  assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.outfit`),'Blanco de gala');
   for(const id of [1,2,3,4]) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('Game',{levelId:${id},mode:'campaign'});true`);
     await advance(100);
-    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'dancer-skin-thriller','Equipped skin overrides every season');
+    assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'dancer-skin-white','Equipped skin overrides every season');
   }
   // Full reload reconstructs actual services from localStorage.
   await cdp('Page.reload'); await sleep(1500);
@@ -417,90 +415,19 @@ try {
   await evaluate('testGame.loop.stop();window.simTime=performance.now();true');
   manualFrames=true;
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance);
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'thriller');
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'white');
   assert.ok(await evaluate(`testGame.registry.get('services').progress.data.abilities.includes('freeze')`));
   await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Character')`,'Skins opens wardrobe');
   const wardrobeShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-wardrobe.png',Buffer.from(wardrobeShot.data,'base64'));
-  await tap('ArrowUp','ArrowUp'); await tap('Enter','Enter'); // Return to seasonal default.
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),null);
-  assert.ok(await evaluate(`testGame.registry.get('services').shop.owns('thriller')`),'Unequipping keeps ownership');
-  await tap('Escape','Escape');
-  await evaluate(`testGame.scene.getScene('Menu').scene.start('Game',{levelId:2,mode:'campaign'});true`);
-  await advance(100);
-  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.prefix`),'dancer-season-1','Default outfit restored');
-  console.log('Shop passed: insufficient coins, mouse purchase, failed-save rollback, snow unlock, replay earnings, skin equip across seasons, reload persistence and default outfit restore.');
-  // Phase 7 uses an explicit isolated save fixture to avoid farming 3400 coins.
-  await evaluate(`(()=>{const s=testGame.registry.get('services');s.progress.data={...s.progress.data,coins:5000,character:'michael',equippedSkin:'thriller',purchases:s.progress.data.purchases.filter(id=>id!=='freeze'),abilities:['hat','moonwalk']};localStorage.setItem('mja.save.v1',JSON.stringify(s.progress.data));})()`);
+  assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white']);
   await tap('Escape','Escape');
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');
   await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Characters')`,'Menu opens character selection');
-  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-skin-thriller-')`),'Michael previews his equipped outfit');
-  await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter'); await tap('Enter','Enter');
-  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-character-christmas-dancer-')`),'The animated preview uses the Christmas dancer outfit');
-  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-character-christmas-dancer-skin-thriller-')`),'The character preview matches the equipped outfit in gameplay');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'christmas-dancer');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
-  const characterShot=await cdp('Page.captureScreenshot',{format:'png'});
-  await writeFile('.tools/phase7-characters.png',Buffer.from(characterShot.data,'base64'));
-  await evaluate(`testGame.scene.getScene('Characters').scene.start('Game',{levelId:1,mode:'campaign'});true`);
-  await advance(150);
-  await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;true`);
-  assert.equal(await evaluate('p.prefix'),'dancer-character-christmas-dancer-skin-thriller');
-  assert.deepEqual(await evaluate(`['walk','run','jump','crouch','moonwalk','hurt','spin','kick','hat','dance']
-    .map(pose => p.scene.anims.get(p.prefix + '-' + pose).frames.length)`),
-    [6,2,5,3,7,2,5,5,2,5], 'The equipped outfit uses every pixel animation');
-  assert.deepEqual(await evaluate(`[p.width,p.height]`), [128,164], 'Outfit uses the shared pixel frame size');
-  await key('ArrowRight','ArrowRight','keyDown');await key('Shift','ShiftLeft','keyDown');await advance(150);
-  assert.equal(await evaluate('p.body.velocity.x'),380,'Agile character runs faster');
-  await key('ArrowRight','ArrowRight','keyUp');await key('Shift','ShiftLeft','keyUp');
-  await tap(' ','Space');
-  assert.ok(await evaluate('p.y<520'),'Agile character jumps higher');
-  await tap('Escape','Escape');
-  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
-  await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');await tap('Enter','Enter');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'snow-king');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
-  assert.equal(await evaluate(`testGame.registry.get('services').shop.owns('freeze')`),false,'Innate ability needs no separate snow purchase');
-  await evaluate(`testGame.scene.getScene('Characters').scene.start('Game',{levelId:1,mode:'campaign'});true`);await advance(150);
-  await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.enemy=practice.combat.enemies.getChildren()[0];enemy.body.reset(230,620);enemy.left=230;enemy.right=230;enemy.nextDodge=Infinity;true`);
-  await tap('l');
-  assert.equal(await evaluate('enemy.health'),3,'Innate snow causes a real hit');
-  assert.ok(await evaluate('enemy.frozenUntil-practice.playTime>2100'),'King freeze lasts 2.4 seconds');
-  const kingCooldown=await evaluate('practice.combat.state.next.freeze');
-  await advance(1900);await tap('l');
-  assert.ok(await evaluate(`practice.combat.state.next.freeze>${kingCooldown}`),'King snow can repeat after two seconds');
-  const kingShot=await cdp('Page.captureScreenshot',{format:'png'});
-  await writeFile('.tools/phase7-snow-king.png',Buffer.from(kingShot.data,'base64'));
-  await tap('Escape','Escape');
-  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
-  await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');await tap('Enter','Enter');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'gold-dancer');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000);
-  await evaluate(`testGame.scene.getScene('Characters').scene.start('Game',{levelId:1,mode:'campaign'});true`);await advance(150);
-  await evaluate(`window.practice=testGame.scene.getScene('Game');window.p=practice.player;window.enemy=practice.combat.enemies.getChildren()[0];enemy.body.reset(245,620);enemy.left=245;enemy.right=245;true`);
-  assert.equal(await evaluate('practice.combat.attack("freeze")'),false,'Switching away removes innate snow');
-  await tap('k');
-  assert.equal(await evaluate('enemy.health'),2,'Golden spin deals two damage at 115 px');
-  assert.ok(await evaluate('practice.combat.state.next.spin-practice.playTime<1200'),'Golden spin uses 1.2 second cooldown');
-  await evaluate('p.body.reset(760,880);p.setVelocity(0,0);true');await advance(100);
-  assert.equal(await evaluate('p.state.lives'),2,'Character still loses life on fall');
-  await tap('r');await advance(100);
-  assert.equal(await evaluate(`testGame.scene.getScene('Game').player.character.id`),'gold-dancer','Restart keeps selected character');
-  await cdp('Page.reload');await sleep(1500);await evaluate('window.testGame=window.__MJA_GAME__;true');
-  manualFrames=false;await waitFor(`testGame.scene.isActive('Menu')`,'Characters reload into menu');
-  await evaluate('testGame.loop.stop();window.simTime=performance.now();true');manualFrames=true;
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'gold-dancer');
-  assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.accessory`),'glasses');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'thriller');
-  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
-  await tap('ArrowDown','ArrowDown');await tap('Enter','Enter'); // Wrap gold -> Michael.
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000,'Free switching never charges again');
-  assert.equal(await evaluate(`testGame.registry.get('services').shop.owns('gold-dancer')`),true);
-  console.log('Characters passed: three purchases, selection, skin/identity, agile controls, innate snow/freeze/cooldown, golden damage/range, fall/restart, reload and free return to Michael.');
+  assert.deepEqual(await evaluate(`testGame.scene.getScene('Characters').items.map(item=>item.id)`),['michael']);
+  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-skin-white-')`));
   // Phase 8: settings through real pointer/keyboard input, then translated screens.
   await tap('Escape','Escape');
   for(let i=0;i<5;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
@@ -594,7 +521,7 @@ try {
   assert.equal(await evaluate('document.documentElement.lang'),'fr');
   const { defaultControls } = await import('../src/data/controls.js');
   assert.deepEqual(await evaluate(`testGame.registry.get('services').progress.data.settings`),{language:'fr',music:false,musicVolume:35,sfxVolume:80,difficulty:'Normal',masterVolume:100,graphicsQuality:'Alta',controls:defaultControls});
-  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),5000,'Settings preserve purchases and balance');
+  assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance,'Settings preserve purchases and balance');
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.character`),'michael');
   console.log(`Settings passed: ES/EN/FR, translated screens and HUD, independent audio gains, disabled music with effects, save rollback, fullscreen ${fullAvailable?'enter/exit':'unsupported feedback'}, all difficulty profiles/restart and reload persistence.`);
   for(const language of ['es','en','fr']) {
@@ -612,7 +539,7 @@ try {
   // Browser may request favicon before one exists; runtime errors are never filtered.
   const relevantErrors = errors.filter(error => !error.includes('favicon.ico'));
   assert.deepEqual(relevantErrors, [], 'No browser exceptions or console errors');
-  console.log('Browser smoke passed: menu, selection, movement, run, jump, moonwalk, cooldown, crouch/ceiling, damage, immunity, pause, falls, restart, finish, four outfits and return.');
+  console.log('Browser smoke passed: menu, selection, movement, run, jump, moonwalk, cooldown, crouch/ceiling, damage, immunity, pause, falls, restart, finish, Blanco de gala and return.');
   console.log('Screenshot: .tools/phase3-practice.png');
 } finally {
   if (socket?.readyState === WebSocket.OPEN) closeBrowser?.();
