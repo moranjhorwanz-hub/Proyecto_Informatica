@@ -204,7 +204,25 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createHud() {
-    menuText(this, 24, 20, 'Vida', 14).setScrollFactor(0).setDepth(101);
+    const heart = this.add.graphics().setScrollFactor(0).setDepth(101);
+    const pixels = [
+      '..RRR...RRR..',
+      '.RRRRR.RRRRR.',
+      'RRPRRRRRRHRRR',
+      'RPPPRRRRHHDRR',
+      'RPRRRRRRRRDDR',
+      'RRRRRRRRRRDRR',
+      '.RRRRRRRRDDR.',
+      '..RRRRRRDDR..',
+      '...RRRRDDR...',
+      '....RRDDR....',
+      '.....RDR.....',
+      '......D......',
+    ];
+    const colors = { R: 0xf00016, P: 0xffb9c8, H: 0xff899d, D: 0xb40010 };
+    pixels.forEach((row, y) => [...row].forEach((pixel, x) => {
+      if (colors[pixel]) heart.fillStyle(colors[pixel]).fillRect(25 + x * 2, 17 + y * 2, 2, 2);
+    }));
     this.add.rectangle(72, 20, lifeBarWidth + 4, 18, 0x30181e)
       .setOrigin(0).setStrokeStyle(1, menuColors.border, .6).setScrollFactor(0).setDepth(100);
     this.lifeBar = this.add.rectangle(74, 22, lifeBarWidth, 14, 0xe62940)
