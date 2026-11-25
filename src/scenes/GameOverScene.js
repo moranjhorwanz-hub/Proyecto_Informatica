@@ -9,10 +9,9 @@ export default class GameOverScene extends Phaser.Scene {
 
   create({ levelId = 1, mode = 'campaign', coins = 0, checkpoint, musicPosition } = {}) {
     this.add.image(640, 360, 'game-over').setDisplaySize(1280, 720);
-    const { progress } = this.registry.get('services');
     const level = levels.find(stage => stage.id === levelId) ?? levels[0];
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level, progress.data.equippedSkin), 'dance');
+    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level), 'dance');
     // Cover the printed score inside the artwork while preserving the panel border.
     this.add.graphics().fillStyle(0x130608).fillRoundedRect(475, 326, 350, 51, 8);
     this.add.text(614, 350, 'Monedas obtenidas', {

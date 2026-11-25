@@ -17,13 +17,13 @@ test('shield purchase costs coins and persists', () => {
   assert.equal(shop.buy('shield').reason, 'already-owned');
   assert.equal(setup(299).shop.buy('shield').reason, 'insufficient-coins');
 });
-test('Blanco de gala is equipped for free by default', () => {
+test('Blanco de gala is the only skin and is equipped for free', () => {
   const { progress, shop } = setup(0);
-  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white', 'thriller']);
+  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white']);
   assert.deepEqual(progress.data.purchases, ['white']);
   assert.equal(progress.data.equippedSkin, 'white');
   assert.equal(shop.buy('white').reason, 'already-owned');
-  assert.equal(shop.buy('thriller').reason, 'insufficient-coins');
+  assert.equal(shop.buy('thriller').reason, 'unknown-item');
   assert.equal(shop.equip(null).reason, 'not-a-skin');
   assert.equal(progress.data.coins, 0);
 });
@@ -50,16 +50,12 @@ test('failed and throwing saves roll back ability purchases', () => {
 test('inventory, equipped skin, balance and snow unlock survive a JSON save roundtrip', () => {
   let stored;
   const { progress, shop } = setup(1000, next => { stored = JSON.stringify(next); return true; });
-  assert.equal(shop.equip('thriller').reason, 'not-owned');
-  assert.equal(shop.buy('freeze').ok, true);
-  assert.equal(shop.buy('thriller').ok, true);
-  assert.equal(shop.equip('thriller').ok, true);
+  shop.buy('freeze');
   const loaded = validateProgress(JSON.parse(stored));
   assert.deepEqual(loaded, progress.data);
-  assert.equal(loaded.coins, 400);
-  assert.deepEqual(loaded.purchases, ['white', 'freeze', 'thriller']);
-  assert.equal(loaded.equippedSkin, 'thriller');
-  assert.equal(getAppearance(levels[0], loaded.equippedSkin).spriteSet, 'Thriller');
+  assert.equal(loaded.coins, 700);
+  assert.deepEqual(loaded.purchases, ['white', 'freeze']);
+  assert.equal(loaded.equippedSkin, 'white');
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);
 });
 test('load ignores unknown or duplicate purchases and derives abilities only from ownership', () => {
