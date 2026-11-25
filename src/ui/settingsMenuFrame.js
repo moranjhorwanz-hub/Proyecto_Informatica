@@ -14,7 +14,7 @@ export function createSettingsMenuFrame(scene) {
   const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const progress = scene.services.progress.data;
   const selectedLevel = levels[progress.selectedLevel - 1];
-  const hero = createPixelMenuCharacter(scene, 165, 634, 1.45, reducedMotion, getAppearance(selectedLevel, progress));
+  const hero = createPixelMenuCharacter(scene, 165, 634, 1.45, reducedMotion, getAppearance(selectedLevel));
   const frame = scene.add.graphics();
   frame.fillStyle(0x080c17, .97).fillPoints(cut(0, 0, 585, 88, 35), true);
   frame.lineStyle(3, 0xee2543).strokePoints(cut(0, 0, 585, 88, 35), true);

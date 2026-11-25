@@ -17,16 +17,14 @@ test('shield purchase costs coins and persists', () => {
   assert.equal(shop.buy('shield').reason, 'already-owned');
   assert.equal(setup(299).shop.buy('shield').reason, 'insufficient-coins');
 });
-test('all four skins can be claimed once with zero coins and equipped separately', () => {
-  let saves = 0;
-  const { progress, shop } = setup(0, () => { saves++; return true; });
-  const skins = ['thriller', 'white', 'christmas', 'gold'];
-  for (const id of skins) assert.deepEqual(shop.buy(id), { ok: true });
-  assert.equal(progress.data.coins, 0);
-  assert.deepEqual(progress.data.purchases, skins);
-  assert.equal(progress.data.equippedSkin, null);
-  assert.deepEqual(shop.buy('thriller'), { ok: false, reason: 'already-owned' });
-  assert.equal(saves, skins.length);
+test('Blanco de gala is the only skin and is equipped for free', () => {
+  const { progress, shop } = setup(0);
+  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white']);
+  assert.deepEqual(progress.data.purchases, ['white']);
+  assert.equal(progress.data.equippedSkin, 'white');
+  assert.equal(shop.buy('white').reason, 'already-owned');
+  assert.equal(shop.buy('thriller').reason, 'unknown-item');
+  assert.equal(shop.equip(null).reason, 'not-a-skin');
   assert.equal(progress.data.coins, 0);
 });
 test('unknown items, insufficient balance and invalid balances never mutate progress', () => {
@@ -37,73 +35,47 @@ test('unknown items, insufficient balance and invalid balances never mutate prog
   assert.equal(JSON.stringify(progress.data), initial);
   for (const coins of [-1, NaN, Infinity, 500.5, Number.MAX_SAFE_INTEGER + 1]) {
     progress.data.coins = coins;
-    assert.equal(shop.buy('thriller').reason, 'insufficient-coins');
-    assert.deepEqual(progress.data.purchases, []);
+    assert.equal(shop.buy('freeze').reason, 'insufficient-coins');
+    assert.deepEqual(progress.data.purchases, ['white']);
   }
 });
-test('equip requires an owned skin; default outfit can be restored without losing ownership', () => {
-  const { progress, shop } = setup();
-  assert.equal(shop.equip('white').reason, 'not-owned');
-  assert.equal(shop.equip('freeze').reason, 'not-a-skin');
-  assert.equal(shop.buy('white').ok, true);
-  assert.equal(shop.equip('white').ok, true);
-  assert.equal(progress.data.coins, 1000);
-  assert.equal(progress.data.equippedSkin, 'white');
-  assert.equal(shop.equip(null).ok, true);
-  assert.equal(progress.data.equippedSkin, null);
-  assert.deepEqual(progress.data.purchases, ['white']);
-});
-test('failed and throwing saves roll back purchases, ability unlocks and equipment', () => {
+test('failed and throwing saves roll back ability purchases', () => {
   for (const save of [() => false, () => { throw Error('quota'); }]) {
     const { progress, shop } = setup(1000, save);
     const initial = JSON.stringify(progress.data);
-    for (const id of ['thriller', 'freeze']) assert.equal(shop.buy(id).reason, 'save-failed');
+    assert.equal(shop.buy('freeze').reason, 'save-failed');
     assert.equal(JSON.stringify(progress.data), initial);
-    progress.data.purchases = ['thriller'];
-    assert.equal(shop.equip('thriller').reason, 'save-failed');
-    assert.equal(progress.data.equippedSkin, null);
-    progress.data.equippedSkin = 'thriller';
-    assert.equal(shop.equip(null).reason, 'save-failed');
-    assert.equal(progress.data.equippedSkin, 'thriller');
   }
 });
 test('inventory, equipped skin, balance and snow unlock survive a JSON save roundtrip', () => {
   let stored;
   const { progress, shop } = setup(1000, next => { stored = JSON.stringify(next); return true; });
-  shop.buy('freeze'); shop.buy('thriller'); shop.equip('thriller');
+  shop.buy('freeze');
   const loaded = validateProgress(JSON.parse(stored));
   assert.deepEqual(loaded, progress.data);
   assert.equal(loaded.coins, 700);
-  assert.deepEqual(loaded.purchases, ['freeze', 'thriller']);
-  assert.equal(loaded.equippedSkin, 'thriller');
+  assert.deepEqual(loaded.purchases, ['white', 'freeze']);
+  assert.equal(loaded.equippedSkin, 'white');
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);
 });
 test('load ignores unknown or duplicate purchases and derives abilities only from ownership', () => {
   const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'unknown', {}, 'white'], equippedSkin: 'gold', abilities: ['freeze', 'cheat'] });
   assert.deepEqual(loaded.purchases, ['freeze', 'white']);
-  assert.equal(loaded.equippedSkin, null);
+  assert.equal(loaded.equippedSkin, 'white');
   assert.deepEqual(loaded.abilities, ['hat', 'moonwalk', 'freeze']);
   assert.equal(validateProgress({ version: 1, abilities: ['freeze'], purchases: [] }).abilities.includes('freeze'), false);
-  assert.equal(validateProgress({ version: 1, purchases: ['freeze'], equippedSkin: 'freeze' }).equippedSkin, null);
+  assert.equal(validateProgress({ version: 1, purchases: ['freeze'], equippedSkin: 'freeze' }).equippedSkin, 'white');
 });
-test('a saved Negro imperial outfit falls back to the default without removing other purchases', () => {
-  const loaded = validateProgress({ ...defaultProgress(), purchases: ['black-gold', 'gold'], equippedSkin: 'black-gold' });
-  assert.deepEqual(loaded.purchases, ['gold']);
-  assert.equal(loaded.equippedSkin, null);
-});
-test('equipped skins override outfits across seasons without changing level identity or palette', () => {
+test('Blanco de gala is worn across seasons without changing level identity or palette', () => {
   for (const level of levels) {
     const before = JSON.stringify(level);
-    const dressed = getAppearance(level, { equippedSkin: 'white', purchases: ['white'] });
+    const dressed = getAppearance(level);
     assert.equal(dressed.id, level.id);
     assert.equal(dressed.track, level.track);
     assert.equal(dressed.sky, level.sky);
     assert.equal(dressed.textureId, 'skin-white');
     assert.equal(dressed.color, 0xf4f0e7);
     assert.equal(JSON.stringify(level), before);
-    const seasonal = { ...level, textureId: `season-${level.world}` };
-    assert.deepEqual(getAppearance(level, { equippedSkin: 'white', purchases: [] }), seasonal);
-    assert.deepEqual(getAppearance(level, { equippedSkin: null, purchases: ['white'] }), seasonal);
   }
 });
 

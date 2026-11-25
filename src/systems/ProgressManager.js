@@ -4,7 +4,7 @@ import { findShopItem, shopItems } from '../data/shopItems.js';
 import { getCharacter } from '../data/characters.js';
 import { DEFAULT_SETTINGS, validateSettings } from '../data/settings.js';
 import { CHEST_COUNT, CHEST_COIN_REWARD } from './chestRewards.js';
-export function defaultProgress(){return {version:1,coins:0,unlockedLevels:[1],completedLevels:[],records:{},achievements:[],purchases:[],equippedSkin:null,character:'michael',abilities:['hat','moonwalk'],selectedLevel:1,settings:{...DEFAULT_SETTINGS}};}
+export function defaultProgress(){return {version:1,coins:0,unlockedLevels:[1],completedLevels:[],records:{},achievements:[],purchases:['white'],equippedSkin:'white',character:'michael',abilities:['hat','moonwalk'],selectedLevel:1,settings:{...DEFAULT_SETTINGS}};}
 export function validateProgress(raw){
  const base=defaultProgress();
  if(!raw || raw.version!==1) return base;
@@ -17,7 +17,7 @@ export function validateProgress(raw){
  base.completedLevels=ids(raw.completedLevels);
  base.selectedLevel=Number.isInteger(raw.selectedLevel)&&raw.selectedLevel>=1&&raw.selectedLevel<=levels.length?raw.selectedLevel:1;
  base.purchases=Array.isArray(raw.purchases)?[...new Set(raw.purchases.filter(id=>typeof id==='string'&&findShopItem(id)))]:[];
- base.equippedSkin=findShopItem(raw.equippedSkin)?.type==='skin'&&base.purchases.includes(raw.equippedSkin)?raw.equippedSkin:null;
+ if(!base.purchases.includes('white'))base.purchases.push('white');
  base.character=getCharacter({character:raw.character,purchases:base.purchases}).id;
  // Derive abilities from ownership rather than trusting an arbitrary saved ability list.
  for(const item of shopItems)if(item.type==='ability'&&base.purchases.includes(item.id))base.abilities.push(item.ability);
