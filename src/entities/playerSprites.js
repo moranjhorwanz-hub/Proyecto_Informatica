@@ -39,29 +39,11 @@ const headPositions = {
 export function getPlayerSpritePrefix(scene, appearance, { preview = false } = {}) {
   if (!appearance.textureId && !preview) return PLAYER_PREFIX;
   const prefix = appearance.textureId ? `dancer-${appearance.textureId}` : `wardrobe-${appearance.id}`;
-  for (const [move, [group, count, frameRate, loop = true, start = 1]] of Object.entries(moves)) {
+  for (const [move, [, count, frameRate, loop = true]] of Object.entries(moves)) {
     if (preview && move !== 'idle') continue;
     const animation = `${prefix}-${move}`;
     if (!preview && scene.anims.exists(animation)) continue;
     const frames = Array.from({ length: count }, (_, index) => {
-      if (appearance.spriteSet) {
-        const key = `${animation}-${index}`;
-        if (!scene.textures.exists(key)) {
-          const source = scene.textures.get(`${appearance.spriteSet}-${sourceKey(group, start + index)}`).getSourceImage();
-          const texture = scene.textures.createCanvas(key, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT);
-          // The 192 px source frames share a center and have their floor at row 175.
-          // The opening dance pose is wider than the player frame.
-          const scale = move === 'dance' && index === 0 ? PLAYER_FRAME_WIDTH / 144 : 1;
-          const width = source.width * scale;
-          const context = texture.getContext();
-          context.imageSmoothingEnabled = false;
-          context.drawImage(source, (PLAYER_FRAME_WIDTH - width) / 2,
-            PLAYER_FRAME_HEIGHT - 176 * scale, width, source.height * scale);
-          texture.refresh();
-          texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
-        }
-        return { key };
-      }
       const [x, brim, facing = 1, raisedHat] = headPositions[move][index];
       const key = createOutfitFrame(scene, `${animation}-${index}`, `${PLAYER_PREFIX}-${move}-${index}`,
         appearance, { x, brim, facing, raisedHat });
@@ -138,10 +120,7 @@ export function preloadPlayerSprites(scene) {
     for (let index = 0; index < count; index++) sources.add(sourceKey(group, start + index));
   }
   for (const key of sources) {
-    const root = import.meta.env.BASE_URL + 'assets/player/';
-    const group = key.slice(0, -3);
-    scene.load.image(key, `${root}${key}.png`);
-    scene.load.image(`Thriller-${key}`, `${root}Thriller/${group}/${key}.png`);
+    scene.load.image(key, import.meta.env.BASE_URL + 'assets/player/' + key + '.png');
   }
 }
 

@@ -360,7 +360,7 @@ try {
   await tap('Escape','Escape');
   await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Shop')`, 'Shop reopens after campaign');
-  await click(172,275); // Snow item.
+  await click(172,213); // Snow item.
   await evaluate(`window.originalSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw Error('simulated quota');};true`);
   await click(792,555);
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance,'Failed save does not spend coins');
@@ -421,7 +421,7 @@ try {
   await waitFor(`testGame.scene.isActive('Character')`,'Skins opens wardrobe');
   const wardrobeShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-wardrobe.png',Buffer.from(wardrobeShot.data,'base64'));
-  assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white','thriller']);
+  assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white']);
   await tap('Escape','Escape');
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');
   await tap('Enter','Enter');
