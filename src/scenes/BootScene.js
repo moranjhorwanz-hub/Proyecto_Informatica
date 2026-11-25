@@ -19,6 +19,7 @@ export default class BootScene extends Phaser.Scene {
     preloadThrillerSprites(this);
     preloadBossHealthBar(this);
     preloadMicrophones(this);
+    this.load.image('player-health-hud', `${import.meta.env.BASE_URL}assets/vida%20del%20personaje.png`);
     this.load.image('neon-spikes', `${import.meta.env.BASE_URL}assets/neon-spikes.png`);
     this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);
     this.load.image('spring-menu', `${import.meta.env.BASE_URL}assets/backgrounds/spring-menu.png`);

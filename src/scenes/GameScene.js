@@ -201,16 +201,15 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createHud() {
-    menuText(this, 24, 20, 'Vida', 14).setScrollFactor(0).setDepth(101);
-    this.add.rectangle(72, 20, lifeBarWidth + 4, 18, 0x30181e)
-      .setOrigin(0).setStrokeStyle(1, menuColors.border, .6).setScrollFactor(0).setDepth(100);
-    this.lifeBar = this.add.rectangle(74, 22, lifeBarWidth, 14, 0xe62940)
-      .setOrigin(0).setScrollFactor(0).setDepth(101);
-    this.lifeCount = menuText(this, 324, 20, '', 14).setScrollFactor(0).setDepth(101);
+    this.add.image(12, 4, 'player-health-hud').setOrigin(0).setDisplaySize(434.4, 144.8).setScrollFactor(0).setDepth(100);
+    this.lifeBar = this.add.rectangle(86, 31, lifeBarWidth, 14, 0xe62940)
+      .setOrigin(0).setScrollFactor(0).setDepth(101).setVisible(false);
+    this.lifeHearts = this.add.graphics().setScrollFactor(0).setDepth(101);
+    this.lifeCount = menuText(this, 455, 58, '', 16).setScrollFactor(0).setDepth(101);
     this.refreshLifeHud();
-    this.hatPowerText = menuText(this, 24, 48, '', 16, menuColors.accentText).setScrollFactor(0).setDepth(101);
-    this.shieldText = menuText(this, 24, 70, '', 16, '#85edff').setScrollFactor(0).setDepth(101);
-    this.energyWaveText = menuText(this, 24, 92, '', 16, '#ffdc81').setScrollFactor(0).setDepth(101);
+    this.hatPowerText = menuText(this, 24, 145, '', 16, menuColors.accentText).setScrollFactor(0).setDepth(101);
+    this.shieldText = menuText(this, 24, 167, '', 16, '#85edff').setScrollFactor(0).setDepth(101);
+    this.energyWaveText = menuText(this, 24, 189, '', 16, '#ffdc81').setScrollFactor(0).setDepth(101);
   }
 
   setPaused(value) {
@@ -228,7 +227,15 @@ export default class GameScene extends Phaser.Scene {
     const { lives, stats } = this.player.state;
     this.lifeBar.setScale(lives / stats.lives, 1);
     const count = `${lives}/${stats.lives}`;
-    if (this.lifeCount.text !== count) this.lifeCount.setText(count);
+    if (this.lifeCount.text !== count) {
+      this.lifeCount.setText(count);
+      this.lifeHearts.clear();
+      const filled = 5 * lives / stats.lives;
+      for (let i = 0; i < 5; i++) {
+        const emptyFraction = 1 - Math.max(0, Math.min(1, filled - i));
+        if (emptyFraction > 0) this.lifeHearts.fillStyle(0x08000d, .8).fillRect(12 + (660 + i * 270 + 260 * (1 - emptyFraction)) * .2, 60, 52 * emptyFraction, 48);
+      }
+    }
   }
 
   update(_time, delta) {
