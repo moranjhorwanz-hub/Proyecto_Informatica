@@ -108,7 +108,7 @@ Una sola vida. Los enemigos son más rápidos, resistentes y agresivos.|One life
 Listo para jugar|Ready to play|Prêt à jouer
 Nivel bloqueado|Level locked|Niveau verrouillé
 La dificultad se guarda al elegirla y se aplica al volver al juego.|Difficulty saves when selected and takes effect when you return to the game.|La difficulté est enregistrée dès la sélection et s'applique au retour dans le jeu.
-Fácil: 4 vidas, enemigos lentos y jefe de 6 vidas.|Easy: 4 lives, slower enemies and a 6-health boss.|Facile : 4 vies, ennemis lents et boss à 6 points de vie.
+Fácil: 5 vidas, enemigos lentos y jefe de 6 vidas.|Easy: 5 lives, slower enemies and a 6-health boss.|Facile : 5 vies, ennemis lents et boss à 6 points de vie.
 Normal: 3 vidas y ritmo original.|Normal: 3 lives and the original pace.|Normale : 3 vies et rythme d'origine.
 Difícil: 2 vidas, enemigos rápidos y jefe de 10 vidas.|Hard: 2 lives, faster enemies and a 10-health boss.|Difficile : 2 vies, ennemis rapides et boss à 10 points de vie.
 Probar efecto|Test sound|Tester le son

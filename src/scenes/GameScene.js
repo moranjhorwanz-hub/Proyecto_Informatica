@@ -233,10 +233,9 @@ export default class GameScene extends Phaser.Scene {
     if (this.lifeCount.text !== count) {
       this.lifeCount.setText(count);
       this.lifeHearts.clear();
-      const filled = 5 * lives / stats.lives;
       for (let i = 0; i < 5; i++) {
-        const emptyFraction = 1 - Math.max(0, Math.min(1, filled - i));
-        if (emptyFraction > 0) this.lifeHearts.fillStyle(0x08000d, .8).fillRect(12 + (660 + i * 270 + 260 * (1 - emptyFraction)) * .2, 60, 52 * emptyFraction, 48);
+        if (i >= lives) this.lifeHearts.fillStyle(0x08000d, i >= stats.lives ? 1 : .8)
+          .fillRect(12 + (660 + i * 270) * .2, 60, 52, 48);
       }
     }
   }

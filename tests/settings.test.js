@@ -28,7 +28,7 @@ test('settings persist as one validated change; a failed save never changes pref
   for(const patch of [{language:'de'},{musicVolume:100.5},{sfxVolume:Infinity},{unknown:true},{}])assert.equal(manager.update(patch).reason,'invalid-settings');
 });
 test('difficulty adjusts lives and immunity while preserving character movement',()=>{
-  for(const [difficulty,lives] of [['Fácil',4],['Normal',3],['Difícil',2],['Extremo',1]]){
+  for(const [difficulty,lives] of [['Fácil',5],['Normal',3],['Difícil',2],['Extremo',1]]){
     const profile=getDifficulty({difficulty});const state=new PlayerState({...profile,runSpeed:380});
     assert.equal(state.lives,lives);assert.equal(state.stats.runSpeed,380);
     assert.equal(state.takeDamage(100),true);assert.equal(state.lives,lives-1);
@@ -56,13 +56,13 @@ test('Extreme persists and increases enemy pressure beyond Hard', () => {
 test('changing difficulty during play updates limits without refilling a damaged player', () => {
   const state = new PlayerState({ runSpeed: 380 });
   state.applyDifficulty(getDifficulty({ difficulty: 'Fácil' }));
-  assert.equal(state.lives, 4);
+  assert.equal(state.lives, 5);
   state.takeDamage(100);
   state.applyDifficulty(getDifficulty({ difficulty: 'Difícil' }));
   assert.equal(state.lives, 1);
   state.applyDifficulty(getDifficulty({ difficulty: 'Fácil' }));
-  assert.equal(state.lives, 3);
-  assert.equal(state.stats.lives, 4);
+  assert.equal(state.lives, 4);
+  assert.equal(state.stats.lives, 5);
   assert.equal(state.stats.invulnerability, 1600);
   assert.equal(state.stats.runSpeed, 380);
 });
