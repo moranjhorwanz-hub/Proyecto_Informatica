@@ -101,7 +101,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     });
     const progress = this.services.progress.data;
     const level = levels[this.selected];
-    updatePixelMenuCharacter(this.menuHero, getAppearance(level));
+    updatePixelMenuCharacter(this.menuHero, getAppearance(level, progress.equippedSkin));
     const unlocked = progress.unlockedLevels.includes(level.id);
     this.season.setText(level.subtitle);
     this.play.surface.setAlpha(unlocked ? 1 : .4);
