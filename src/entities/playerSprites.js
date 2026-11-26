@@ -44,6 +44,10 @@ const thrillerPoses = {
   spin: { frames: [{ number: 2 }, { number: 3 }, { number: 4 }, { number: 1 }, { number: 5 }] },
 };
 const outfitPoses = { 'billie-jean': billieJeanPoses, thriller: thrillerPoses };
+const menuOutfitLayouts = {
+  'billie-jean': { scale: billieJeanPoses.idle.scale, floor: 174 },
+  thriller: thrillerLayout,
+};
 
 export const PLAYER_PREFIX = 'player-pixel';
 export const PLAYER_FRAME_WIDTH = 128;
@@ -207,20 +211,25 @@ export function registerPlayerSprites(scene) {
   }
 }
 
-export function createThrillerMenuSprite(scene, x, y, scale, reducedMotion) {
+export function createOutfitMenuSprite(scene, x, y, scale, reducedMotion, appearance) {
+  const { spriteSet } = appearance;
+  const layout = menuOutfitLayouts[spriteSet];
+  if (!layout) return null;
+
+  const idlePose = outfitPoses[spriteSet]?.idle;
   const [idleGroup, , , , idleFrame] = moves.idle;
-  const idle = `thriller-${sourceKey(idleGroup, idleFrame)}`;
-  const hero = scene.add.sprite(x, y - scale, idle)
-    .setScale(scale * thrillerLayout.scale);
-  hero.setOrigin(.5, thrillerLayout.floor / hero.height);
+  const idle = sourceKey(idlePose?.group ?? idleGroup, idlePose?.start ?? idleFrame);
+  const hero = scene.add.sprite(x, y - scale, `${spriteSet}-${idle}`)
+    .setScale(scale * layout.scale);
+  hero.setOrigin(.5, layout.floor / hero.height);
   if (reducedMotion) return hero;
 
   // The enlarged menu sprite can use the source art directly to retain small facial details.
-  const animation = 'menu-thriller-dance';
+  const animation = `menu-${spriteSet}-dance`;
   if (!scene.anims.exists(animation)) {
     const [group, count, frameRate] = moves.dance;
     const frames = Array.from({ length: count }, (_, index) => ({
-      key: `thriller-${sourceKey(group, index + 1)}`,
+      key: `${spriteSet}-${sourceKey(group, index + 1)}`,
     }));
     scene.anims.create({ key: animation, frames, frameRate, repeat: -1 });
   }
