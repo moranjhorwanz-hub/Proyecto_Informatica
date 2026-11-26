@@ -116,7 +116,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     const { id } = levels[this.selected];
     if (!this.services.progress.data.unlockedLevels.includes(id)) return;
     this.services.progress.selectLevel(id);
-    this.services.audio.unlock();
+    this.services.audio.unlock(id);
     this.input.keyboard.resetKeys();
     this.scene.start('Game', { levelId: id, mode: 'campaign' });
   }
