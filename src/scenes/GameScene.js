@@ -81,7 +81,7 @@ export default class GameScene extends Phaser.Scene {
     label(this, 1225, 666, 'Zona de daño', 15, '#ffb0a3');
     }
     const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
-    this.appearance = getAppearance(this.level);
+    this.appearance = getAppearance(this.level, this.services.progress.data.equippedSkin);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
     this.player.state.shieldUsed = Boolean(data.retrying);
     this.shieldAura = this.add.image(0, 0, 'pixel-shield').setDisplaySize(70, 70).setDepth(9).setVisible(false);

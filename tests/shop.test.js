@@ -58,10 +58,11 @@ test('inventory, equipped skin, balance and snow unlock survive a JSON save roun
   assert.equal(loaded.coins, 700);
   assert.deepEqual(loaded.purchases, ['white', 'freeze']);
   assert.equal(loaded.equippedSkin, 'white');
+  assert.equal(getAppearance(levels[0], loaded.equippedSkin).outfit, 'Smooth Criminal');
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);
 });
 test('load ignores unknown or duplicate purchases and derives abilities only from ownership', () => {
-  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'billie-jean', 'unknown', {}, 'white'], equippedSkin: 'billie-jean', abilities: ['freeze', 'cheat'] });
+  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'billie-jean', 'thriller', 'unknown', {}, 'white'], equippedSkin: 'thriller', abilities: ['freeze', 'cheat'] });
   assert.deepEqual(loaded.purchases, ['freeze', 'white']);
   assert.equal(loaded.equippedSkin, 'white');
   assert.deepEqual(loaded.abilities, ['hat', 'moonwalk', 'freeze']);

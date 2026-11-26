@@ -195,7 +195,7 @@ Personaje desbloqueado y guardado. Pulsa de nuevo para seleccionarlo.|Character 
 Vestuario guardado. Se aplicará al menú y a cualquier nivel.|Outfit saved. It applies to the menu and every level.|Tenue enregistrée. Elle s'applique au menu et à tous les niveaux.
 Nieve desbloqueada y guardada. Ya puedes usar L en campaña.|Snow unlocked and saved. You can now use L in campaign.|Neige débloquée et enregistrée. L est disponible en campagne.
 Traje guardado. Pulsa de nuevo para equiparlo.|Outfit saved. Press again to equip it.|Tenue enregistrée. Appuyez encore pour l'équiper.
-Rojo Thriller|Thriller red|Rouge Thriller
+Thriller|Thriller|Thriller
 Smooth Criminal|Smooth Criminal|Smooth Criminal
 Traje de Billie Jean|Billie Jean outfit|Tenue de Billie Jean
 Chaqueta negra de lentejuelas, camiseta blanca, guante plateado y sombrero negro.|Black sequin jacket, white shirt, silver glove and black hat.|Veste noire ? sequins, t-shirt blanc, gant argent? et chapeau noir.

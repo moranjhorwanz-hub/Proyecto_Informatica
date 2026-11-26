@@ -103,7 +103,7 @@ export default class ShopScene extends Phaser.Scene {
     this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin && selected.id === 'freeze'); this.hatPreview.setVisible(selected.id === 'hat-power'); this.shieldPreview.setVisible(selected.id === 'shield');
     if (isSkin) {
       const level = levels[data.selectedLevel - 1];
-      const appearance = getAppearance(level);
+      const appearance = getAppearance(level, selected.type === 'skin' ? selected.id : data.equippedSkin);
       if (this.characters || this.wardrobe) updatePixelMenuCharacter(this.menuHero, appearance);
       this.preview.setTexture(wardrobePreviewTexture(this, appearance));
       this.preview.setScale(250 / this.preview.height);

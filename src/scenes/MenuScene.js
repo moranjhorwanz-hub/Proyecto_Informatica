@@ -23,7 +23,7 @@ export default class MenuScene extends Phaser.Scene {
       this.input.off('pointerdown',unlockMenu);
       this.input.keyboard.off('keydown',unlockMenu);
     });
-    this.appearance=getAppearance(this.level);
+    this.appearance=getAppearance(this.level, progress.equippedSkin);
     this.reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
     this.backdrop=null;
     const backdropKey={1:'spring-menu',2:'summer-menu',3:'autumn-menu',4:'christmas-menu'}[this.level.world];
