@@ -231,9 +231,20 @@ export default class GameScene extends Phaser.Scene {
     if (this.lifeCount.text !== count) {
       this.lifeCount.setText(count);
       this.lifeHearts.clear();
+      const heartOutline = [
+        [0, 35], [14, 35], [14, 0], [85, 0], [85, 20], [115, 20],
+        [115, 0], [186, 0], [186, 35], [200, 35], [200, 90],
+        [185, 90], [185, 110], [170, 110], [170, 130], [155, 130],
+        [155, 150], [135, 150], [135, 170], [115, 170], [115, 185],
+        [85, 185], [85, 170], [65, 170], [65, 150], [45, 150],
+        [45, 130], [30, 130], [30, 110], [15, 110], [15, 90], [0, 90],
+      ];
       for (let i = 0; i < 5; i++) {
-        if (i >= lives) this.lifeHearts.fillStyle(0x08000d, i >= stats.lives ? 1 : .8)
-          .fillRect(12 + (660 + i * 270) * .2, 60, 52, 48);
+        if (i < lives) continue;
+        const left = 12 + (660 + i * 270) * .2;
+        const points = heartOutline.map(([x, y]) => ({ x: left + x * .26, y: 61 + y * .25 }));
+        this.lifeHearts.fillStyle(0x24131e).fillPoints(points, true);
+        this.lifeHearts.lineStyle(2, 0x93616b).strokePoints(points, true);
       }
     }
   }

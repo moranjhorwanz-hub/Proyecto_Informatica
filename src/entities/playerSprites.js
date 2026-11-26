@@ -119,8 +119,9 @@ export function preloadPlayerSprites(scene) {
   for (const [group, count, , , start = 1] of Object.values(moves)) {
     for (let index = 0; index < count; index++) sources.add(sourceKey(group, start + index));
   }
+  const root = import.meta.env.BASE_URL + 'assets/player/';
   for (const key of sources) {
-    scene.load.image(key, import.meta.env.BASE_URL + 'assets/player/' + key + '.png');
+    scene.load.image(key, `${root}${key}.png`);
   }
 }
 
@@ -130,16 +131,20 @@ export function registerPlayerSprites(scene) {
     const frames = [];
     for (let index = 0; index < count; index++) {
       const key = animation + '-' + index;
-      const source = scene.textures.get(sourceKey(group, start + index)).getSourceImage();
-      const texture = scene.textures.createCanvas(key, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT);
-      const context = texture.getContext();
-      context.imageSmoothingEnabled = false;
-      // All source frames share the same floor, including the airborne poses.
-      context.drawImage(source, 0, 0, PLAYER_FRAME_WIDTH, 174);
-      texture.refresh();
-      texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+      registerSpriteFrame(scene, key, sourceKey(group, start + index));
       frames.push({ key });
     }
     scene.anims.create({ key: animation, frames, frameRate, repeat: loop ? -1 : 0 });
   }
+}
+
+function registerSpriteFrame(scene, key, sourceKey) {
+  const source = scene.textures.get(sourceKey).getSourceImage();
+  const texture = scene.textures.createCanvas(key, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT);
+  const context = texture.getContext();
+  context.imageSmoothingEnabled = false;
+  // The gala source frames share a common floor, including the airborne poses.
+  context.drawImage(source, 0, 0, PLAYER_FRAME_WIDTH, 174);
+  texture.refresh();
+  texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
 }
