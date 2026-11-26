@@ -55,7 +55,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     if (pose === 'hurt') this.attack = null;
     if (pose === 'run' && !input.run) pose = 'walk';
     if (this.attack && now < this.attack.until) pose = this.attack.pose;
-    if (pose !== this.currentPose) {
+    // An accepted air jump starts a new cycle even when the player is already airborne.
+    if (pose !== this.currentPose || (pose === 'jump' && movement.jump)) {
       this.currentPose = pose;
       this.anims.play(`${this.prefix}-${pose}`);
     }

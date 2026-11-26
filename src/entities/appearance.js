@@ -12,5 +12,6 @@ export function getAppearance(level, skinId) {
     hatColor: skin.hatColor,
     outfit: skin.name,
     textureId: `skin-${skin.id}`,
+    spriteSet: skin.spriteSet,
   };
 }

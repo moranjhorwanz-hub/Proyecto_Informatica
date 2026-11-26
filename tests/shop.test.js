@@ -19,7 +19,7 @@ test('shield purchase costs coins and persists', () => {
 });
 test('Smooth Criminal is equipped for free by default', () => {
   const { progress, shop } = setup(0);
-  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white']);
+  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white', 'billie-jean']);
   assert.deepEqual(progress.data.purchases, ['white']);
   assert.equal(progress.data.equippedSkin, 'white');
   assert.equal(shop.buy('white').reason, 'already-owned');
@@ -50,19 +50,20 @@ test('failed and throwing saves roll back ability purchases', () => {
 test('inventory, equipped skin, balance and snow unlock survive a JSON save roundtrip', () => {
   let stored;
   const { progress, shop } = setup(1000, next => { stored = JSON.stringify(next); return true; });
-  assert.equal(shop.equip('billie-jean').reason, 'not-a-skin');
+  assert.equal(shop.equip('billie-jean').reason, 'not-owned');
   assert.equal(shop.buy('freeze').ok, true);
-  assert.equal(shop.buy('billie-jean').reason, 'unknown-item');
+  assert.equal(shop.buy('billie-jean').ok, true);
+  assert.equal(shop.equip('billie-jean').ok, true);
   const loaded = validateProgress(JSON.parse(stored));
   assert.deepEqual(loaded, progress.data);
   assert.equal(loaded.coins, 700);
-  assert.deepEqual(loaded.purchases, ['white', 'freeze']);
-  assert.equal(loaded.equippedSkin, 'white');
-  assert.equal(getAppearance(levels[0], loaded.equippedSkin).outfit, 'Smooth Criminal');
+  assert.deepEqual(loaded.purchases, ['white', 'freeze', 'billie-jean']);
+  assert.equal(loaded.equippedSkin, 'billie-jean');
+  assert.equal(getAppearance(levels[0], loaded.equippedSkin).spriteSet, 'billie-jean');
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);
 });
 test('load ignores unknown or duplicate purchases and derives abilities only from ownership', () => {
-  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'billie-jean', 'thriller', 'unknown', {}, 'white'], equippedSkin: 'thriller', abilities: ['freeze', 'cheat'] });
+  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'thriller', 'unknown', {}, 'white'], equippedSkin: 'thriller', abilities: ['freeze', 'cheat'] });
   assert.deepEqual(loaded.purchases, ['freeze', 'white']);
   assert.equal(loaded.equippedSkin, 'white');
   assert.deepEqual(loaded.abilities, ['hat', 'moonwalk', 'freeze']);

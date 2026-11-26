@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { shopItems } from '../data/shopItems.js';
 import { createOutfitFrame } from './playerTextures.js';
 
 const moves = {
@@ -14,6 +15,22 @@ const moves = {
   hat: ['09_sombrero_alto', 2, 8, false],
   moonwalk: ['10_deslizar', 7, 12, false],
   celebrate: ['11_celebrar', 3, 5],
+};
+
+// Keep the supplied walk drawings below the standing height. The first crouch drawing is upright.
+const billieJeanPoses = {
+  idle: { group: '06_agacharse', start: 1, scale: 0.975 },
+  walk: { scale: 0.93 },
+  jump: {
+    // Finish on the airborne extension and let gameplay choose the landing pose.
+    frames: [{ number: 1 }, { number: 2 }, { number: 3 }, { number: 3 }, { number: 2 }],
+  },
+  spin: {
+    scale: 0.975,
+    // Right profile, front, left profile, back, then right profile to close the turn.
+    frames: [{ number: 1 }, { number: 2 }, { number: 1, flipX: true }, { number: 4 }, { number: 1 }],
+  },
+  crouch: { start: 2, count: 2, scale: 0.975 },
 };
 
 export const PLAYER_PREFIX = 'player-pixel';
@@ -39,11 +56,23 @@ const headPositions = {
 export function getPlayerSpritePrefix(scene, appearance, { preview = false } = {}) {
   if (!appearance.textureId && !preview) return PLAYER_PREFIX;
   const prefix = appearance.textureId ? `dancer-${appearance.textureId}` : `wardrobe-${appearance.id}`;
-  for (const [move, [, count, frameRate, loop = true]] of Object.entries(moves)) {
+  for (const [move, [group, count, frameRate, loop = true, start = 1]] of Object.entries(moves)) {
     if (preview && move !== 'idle') continue;
     const animation = `${prefix}-${move}`;
     if (!preview && scene.anims.exists(animation)) continue;
-    const frames = Array.from({ length: count }, (_, index) => {
+    const outfitPose = appearance.spriteSet === 'billie-jean' ? billieJeanPoses[move] : undefined;
+    const frames = Array.from({ length: outfitPose?.frames?.length ?? outfitPose?.count ?? count }, (_, index) => {
+      if (appearance.spriteSet) {
+        const key = `${animation}-${index}`;
+        if (!scene.textures.exists(key)) {
+          const poseFrame = outfitPose?.frames?.[index];
+          const number = poseFrame?.number ?? (outfitPose?.start ?? start) + index;
+          const frame = sourceKey(outfitPose?.group ?? group, number);
+          const source = `${appearance.spriteSet}-${frame}`;
+          registerOutfitFrame(scene, key, source, `${PLAYER_PREFIX}-${move}-${index}`, outfitPose?.scale, poseFrame?.flipX);
+        }
+        return { key };
+      }
       const [x, brim, facing = 1, raisedHat] = headPositions[move][index];
       const key = createOutfitFrame(scene, `${animation}-${index}`, `${PLAYER_PREFIX}-${move}-${index}`,
         appearance, { x, brim, facing, raisedHat });
@@ -120,8 +149,10 @@ export function preloadPlayerSprites(scene) {
     for (let index = 0; index < count; index++) sources.add(sourceKey(group, start + index));
   }
   const root = import.meta.env.BASE_URL + 'assets/player/';
+  const spriteSets = new Set(shopItems.map(item => item.spriteSet).filter(Boolean));
   for (const key of sources) {
     scene.load.image(key, `${root}${key}.png`);
+    for (const set of spriteSets) scene.load.image(`${set}-${key}`, `${root}${set}/${key}.png`);
   }
 }
 
@@ -147,4 +178,51 @@ function registerSpriteFrame(scene, key, sourceKey) {
   context.drawImage(source, 0, 0, PLAYER_FRAME_WIDTH, 174);
   texture.refresh();
   texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+}
+
+function registerOutfitFrame(scene, key, sourceKey, referenceKey, groundScale, flipX = false) {
+  const source = scene.textures.get(sourceKey).getSourceImage();
+  const canvas = document.createElement('canvas');
+  canvas.width = source.width;
+  canvas.height = source.height;
+  const sample = canvas.getContext('2d', { willReadFrequently: true });
+  sample.drawImage(source, 0, 0);
+
+  const art = visibleBounds(sample, source.width, source.height);
+  // Align grounded poses to one fixed origin instead of scaling each drawing independently.
+  let pose = { x: 0, y: 0, width: PLAYER_FRAME_WIDTH, height: PLAYER_FRAME_HEIGHT - 1 };
+  if (groundScale === undefined) {
+    const reference = scene.textures.get(referenceKey).getSourceImage();
+    pose = visibleBounds(reference.getContext('2d'), reference.width, reference.height);
+  }
+  const scale = Math.min(
+    groundScale ?? Phaser.Math.Clamp(pose.height / art.height, 0.92, 1.08),
+    PLAYER_FRAME_WIDTH / art.width,
+  );
+  const width = Math.round(art.width * scale);
+  const height = Math.round(art.height * scale);
+  const x = Phaser.Math.Clamp(Math.round(pose.x + (pose.width - width) / 2), 0, PLAYER_FRAME_WIDTH - width);
+  const y = Math.max(0, pose.y + pose.height - height);
+  const texture = scene.textures.createCanvas(key, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT);
+  const context = texture.getContext();
+  context.imageSmoothingEnabled = false;
+  if (flipX) context.setTransform(-1, 0, 0, 1, 2 * x + width, 0);
+  context.drawImage(source, art.x, art.y, art.width, art.height, x, y, width, height);
+  texture.refresh();
+  texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+}
+
+function visibleBounds(context, width, height) {
+  const { data } = context.getImageData(0, 0, width, height);
+  let left = width, top = height, right = 0, bottom = 0;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] === 0) continue;
+      left = Math.min(left, x);
+      top = Math.min(top, y);
+      right = Math.max(right, x + 1);
+      bottom = Math.max(bottom, y + 1);
+    }
+  }
+  return { x: left, y: top, width: right - left, height: bottom - top };
 }
