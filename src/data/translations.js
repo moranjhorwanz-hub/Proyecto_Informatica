@@ -101,6 +101,7 @@ Preferencias guardadas.|Preferences saved.|Préférences enregistrées.
 No se pudo guardar. Los ajustes no han cambiado.|Could not save. Settings were not changed.|Échec de l'enregistrement. Les réglages restent inchangés.
 Los cambios se guardan automáticamente.|Changes are saved automatically.|Les modifications sont enregistrées automatiquement.
 Dificultad guardada.|Difficulty saved.|Difficulté enregistrée.
+Si cambias la dificultad, volverás al inicio del nivel.|Changing the difficulty restarts the level when you return.|Si vous changez la difficulté, le niveau recommencera à votre retour.
 Una sola vida. Los enemigos son más rápidos, resistentes y agresivos.|One life. Enemies are faster, tougher and more aggressive.|Une seule vie. Les ennemis sont plus rapides, résistants et agressifs.
 Listo para jugar|Ready to play|Prêt à jouer
 Nivel bloqueado|Level locked|Niveau verrouillé

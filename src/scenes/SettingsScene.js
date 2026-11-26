@@ -10,12 +10,22 @@ export default class SettingsScene extends Phaser.Scene {
 
   create({ gameOver, victory, fromPause } = {}) {
     const returnScene = victory ? 'Victory' : gameOver ? 'GameOver' : 'Menu';
-    this.goBack = fromPause ? () => {
-      this.scene.stop();
-      this.scene.resume('Game');
-    } : () => this.scene.start(returnScene, victory ?? gameOver ?? {});
+    const attempt = fromPause ?? gameOver;
+    this.inLevelSettings = Boolean(attempt);
     this.services = this.registry.get('services');
     this.draft = { ...this.services.progress.data.settings };
+    const startingDifficulty = this.draft.difficulty;
+    this.goBack = () => {
+      if (attempt && this.services.progress.data.settings.difficulty !== startingDifficulty) {
+        const { levelId, mode } = attempt;
+        this.scene.start('Game', { levelId, mode });
+      } else if (fromPause) {
+        this.scene.stop();
+        this.scene.resume('Game');
+      } else {
+        this.scene.start(returnScene, victory ?? gameOver ?? {});
+      }
+    };
     this.tab = 0;
     this.controlDevice = 0;
     this.focus = -1;
@@ -244,7 +254,10 @@ export default class SettingsScene extends Phaser.Scene {
     this.row(280, 'Dificultad').setColor(this.focus === index ? '#ff889c' : '#f4f6fd');
     choices.forEach((label, choice) =>
       this.button(710 + choice * 125, 260, 116, 40, label, () => select(choice), choice === current));
-    this.text(379, 330, 'La dificultad se guarda al elegirla y se aplica al volver al juego.', 18, '#afbfd6');
+    const difficultyHint = this.inLevelSettings
+      ? 'Si cambias la dificultad, volverás al inicio del nivel.'
+      : 'La dificultad se guarda al elegirla y se aplica al volver al juego.';
+    this.text(379, 330, difficultyHint, 18, '#afbfd6');
     if (this.draft.difficulty === 'Extremo') {
       this.text(379, 357, 'Una sola vida. Los enemigos son más rápidos, resistentes y agresivos.', 17, '#ff9ca8');
     }

@@ -53,19 +53,6 @@ test('Extreme persists and increases enemy pressure beyond Hard', () => {
   assert.ok(extreme.shotInterval < hard.shotInterval);
   assert.equal(extreme.enemyHealthBonus, 2);
 });
-test('changing difficulty during play updates limits without refilling a damaged player', () => {
-  const state = new PlayerState({ runSpeed: 380 });
-  state.applyDifficulty(getDifficulty({ difficulty: 'Fácil' }));
-  assert.equal(state.lives, 5);
-  state.takeDamage(100);
-  state.applyDifficulty(getDifficulty({ difficulty: 'Difícil' }));
-  assert.equal(state.lives, 1);
-  state.applyDifficulty(getDifficulty({ difficulty: 'Fácil' }));
-  assert.equal(state.lives, 4);
-  assert.equal(state.stats.lives, 5);
-  assert.equal(state.stats.invulnerability, 1600);
-  assert.equal(state.stats.runSpeed, 380);
-});
 test('custom controls survive saving and loading, and reject duplicate or reserved keys', () => {
   const progress = { data: defaultProgress() };
   let stored;

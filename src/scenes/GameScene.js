@@ -114,23 +114,17 @@ export default class GameScene extends Phaser.Scene {
     this.touch = createTouchControls(this);
     this.refreshTouchControls();
     this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
+    const attempt = { levelId: this.level.id, mode: this.campaign ? 'campaign' : 'practice' };
     this.pauseMenu = createPauseMenu(this, {
       resume: () => this.setPaused(false),
-      restart: () => this.scene.restart({ levelId: this.level.id, mode: this.campaign ? 'campaign' : 'practice', retrying: true }),
+      restart: () => this.scene.restart({ ...attempt, retrying: true }),
       menu: () => this.scene.start('Menu'),
       settings: () => {
-        this.scene.launch('Settings', { fromPause: true });
+        this.scene.launch('Settings', { fromPause: attempt });
         this.scene.pause();
       },
     });
     const refreshAfterSettings = () => {
-      const difficulty = getDifficulty(this.services.progress.data.settings);
-      if (difficulty !== this.difficulty) {
-        this.player.state.applyDifficulty(difficulty);
-        this.combat.applyDifficulty(difficulty);
-        this.difficulty = difficulty;
-        this.refreshLifeHud();
-      }
       this.bindControls();
       this.controlHints.forEach(refresh => refresh());
       this.refreshTouchControls();

@@ -51,26 +51,6 @@ export default class CombatSystem {
     this.enemyProjectiles = s.physics.add.group({ allowGravity: false });
     s.physics.add.collider(this.enemyProjectiles, s.solids, shot => shot.destroy());
   }
-  applyDifficulty(difficulty) {
-    const previous = this.scene.difficulty;
-    const speedRatio = difficulty.enemySpeed / previous.enemySpeed;
-    const intervalRatio = difficulty.shotInterval / previous.shotInterval;
-    const now = this.scene.playTime;
-    for (const enemy of this.enemies.getChildren()) {
-      if (!enemy.active) continue;
-      enemy.speed *= speedRatio;
-      for (const cooldown of ['nextAttack', 'nextShot', 'nextDodge']) {
-        if (enemy[cooldown] > now) enemy[cooldown] = now + (enemy[cooldown] - now) * intervalRatio;
-      }
-      const healthChange = enemy === this.boss
-        ? difficulty.bossHealth - previous.bossHealth
-        : (difficulty.enemyHealthBonus ?? 0) - (previous.enemyHealthBonus ?? 0);
-      if (!healthChange) continue;
-      const damageTaken = enemy.maxHealth - enemy.health;
-      enemy.maxHealth += healthChange;
-      enemy.health = Math.max(1, enemy.maxHealth - damageTaken);
-    }
-  }
   createTextures() {
     const scene = this.scene;
     if (scene.textures.exists('combat-flake')) return;

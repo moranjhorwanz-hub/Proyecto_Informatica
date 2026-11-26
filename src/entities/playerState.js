@@ -59,12 +59,6 @@ export class PlayerState {
     return { vx: direction * speed, jump };
   }
 
-  applyDifficulty({ lives, invulnerability }) {
-    const livesLost = this.stats.lives - this.lives;
-    if (this.lives > 0) this.lives = Math.max(1, lives - livesLost);
-    this.stats = Object.freeze({ ...this.stats, lives, invulnerability });
-  }
-
   restoreLife() {
     if (this.lives > 0 && this.lives < this.stats.lives) this.lives++;
   }

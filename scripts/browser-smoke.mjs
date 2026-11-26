@@ -495,15 +495,27 @@ try {
     await tap('r');await advance(100);
     assert.equal(await evaluate(`testGame.scene.getScene('Game').player.state.lives`),lives,'Restart respects difficulty');
   }
+  await evaluate(`testGame.scene.getScene('Game').scene.restart({levelId:4,mode:'campaign',
+    checkpoint:{section:1,collected:['coin-0'],time:3000}});true`);
+  await advance(150);
+  assert.equal(await evaluate(`testGame.scene.getScene('Game').levelManager.checkpoint.section`),1);
   await tap('p');
   await click(654,456);
   await waitFor(`testGame.scene.isActive('Settings')`, 'In-game Settings opens');
+  await tap('Escape','Escape');
+  assert.equal(await evaluate(`testGame.scene.getScene('Game').levelManager.checkpoint.section`),1,
+    'Leaving settings without changing difficulty preserves the checkpoint');
+  await click(654,456);
   await click(170,350);
   await click(768,280);
   await tap('Escape','Escape');
-  await waitFor(`testGame.scene.isActive('Game')`, 'Game resumes with the new difficulty');
-  assert.deepEqual(await evaluate(`(()=>{const g=testGame.scene.getScene('Game');return [g.lifeCount.text,g.combat.boss.health,g.combat.boss.speed]})()`),
-    ['4/4',10,67.5]);
+  await waitFor(`testGame.scene.isActive('Game')`, 'Game restarts with the new difficulty');
+  assert.deepEqual(await evaluate(`(()=>{
+    const g=testGame.scene.getScene('Game');
+    return [g.level.id,g.player.x===g.levelManager.course.spawn[0],g.levelManager.checkpoint,
+      g.levelManager.coins,g.player.state.lives,g.paused];
+  })()`),[4,true,null,0,5,false], 'Changing difficulty begins a new attempt at the level start');
+  await tap('p');
   await click(654,456);
   await waitFor(`testGame.scene.isActive('Settings')`, 'In-game Settings reopens');
   await click(170,350);
