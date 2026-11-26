@@ -55,9 +55,9 @@ export default class MenuScene extends Phaser.Scene {
   createNavigation(focus = 0) {
     menuPanel(this,44,153,285,403);
     text(this,65,173,'ELIGE TU RITMO',11,menuColors.muted).setLetterSpacing(2);
-    const entries=[['Jugar','LevelSelect'],['Tienda','Shop'],['Personajes','Characters'],['Skins','Character'],['Ataques','Attacks'],['Configuración','Settings']];
+    const entries=[['Jugar','LevelSelect'],['Tienda','Shop'],['Skins','Character'],['Ataques','Attacks'],['Configuración','Settings']];
     this.buttons=entries.map(([label,key],index)=>{
-      const y=228+index*53;
+      const y=228+index*64;
       const box=this.add.rectangle(186,y,246,44,menuColors.ink,.3).setStrokeStyle(1,menuColors.border,.12).setInteractive({useHandCursor:true});
       const number=text(this,78,y-7,String(index+1).padStart(2,'0'),11,menuColors.muted);
       const title=text(this,109,y-12,label,20);

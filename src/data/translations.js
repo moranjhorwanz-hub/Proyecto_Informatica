@@ -21,7 +21,6 @@ MEJOR TIEMPO|BEST TIME|MEILLEUR TEMPS
 Jugar|Play|Jouer
 Tienda|Shop|Boutique
 Skins|Outfits|Tenues
-Personajes|Characters|Personnages
 Ataques|Attacks|Attaques
 Configuración|Settings|Réglages
 Gráficos|Graphics|Graphismes
@@ -65,8 +64,6 @@ Mando: ↑ ↓ Elegir · A / ✕ Abrir · ← → Estación|Controller: ↑ ↓ 
 Mando: Cruceta Elegir · A / ✕ Jugar · B / ○ Volver|Controller: D-pad Select · A / ✕ Play · B / ○ Back|Manette : Croix Choisir · A / ✕ Jouer · B / ○ Retour
 Mando: ↑ ↓ Elegir · A / ✕ Confirmar · B / ○ Volver|Controller: ↑ ↓ Select · A / ✕ Confirm · B / ○ Back|Manette : ↑ ↓ Choisir · A / ✕ Confirmer · B / ○ Retour
 LB / L1 Vestuario · RB / R1 Tienda|LB / L1 Wardrobe · RB / R1 Shop|LB / L1 Vestiaire · RB / R1 Boutique
-LB / L1 Tienda · RB / R1 Personajes|LB / L1 Shop · RB / R1 Characters|LB / L1 Boutique · RB / R1 Personnages
-LB / L1 Vestuario · RB / R1 Personajes|LB / L1 Wardrobe · RB / R1 Characters|LB / L1 Vestiaire · RB / R1 Personnages
 Mando: LB / L1 Apartados · RB / R1 Tienda|Controller: LB / L1 Tabs · RB / R1 Shop|Manette : LB / L1 Onglets · RB / R1 Boutique
 A / ✕ Ensayo · B / ○ Volver|A / ✕ Practice · B / ○ Back|A / ✕ Entraînement · B / ○ Retour
 Mando: LB / L1 y RB / R1 Apartados · Cruceta Elegir o ajustar|Controller: LB / L1 and RB / R1 Tabs · D-pad Select or adjust|Manette : LB / L1 et RB / R1 Onglets · Croix Choisir ou régler
@@ -156,7 +153,6 @@ Jugar nivel|Play level|Jouer le niveau
 ENTER Jugar|ENTER Play|ENTRÉE Jouer
 Ensayo libre desde Ataques (sin recompensas).|Free practice from Attacks (no rewards).|Entraînement libre depuis Attaques (sans récompenses).
 Completa la estación anterior para desbloquear este nivel.|Finish the previous season to unlock this level.|Terminez la saison précédente pour débloquer ce niveau.
-Elige tu personaje|Choose your character|Choisissez votre personnage
 Tu vestuario|Your outfits|Vos tenues
 La tienda del ritmo|The rhythm shop|La boutique du rythme
 Cada personaje tiene habilidades propias. Compra una vez y selecciona cuando quieras.|Each character has unique abilities. Buy once and switch whenever you like.|Chaque personnage a ses talents. Achetez une fois, puis choisissez librement.
@@ -182,16 +178,12 @@ Ver controles|View controls|Voir les commandes
 Usar en el juego|Use in game|Utiliser en jeu
 Usar vestuario predeterminado|Use default outfit|Utiliser la tenue par défaut
 Equipar skin|Equip outfit|Équiper la tenue
-Seleccionar personaje|Select character|Choisir le personnage
 Este artículo no está disponible.|This item is unavailable.|Cet article est indisponible.
 Ya tienes este artículo. No se han descontado monedas.|You already own this item. No coins were spent.|Vous avez déjà cet article. Aucune pièce débitée.
 No tienes suficientes monedas. Completa o repite niveles para conseguir más.|Not enough coins. Finish or replay levels to earn more.|Pas assez de pièces. Terminez ou rejouez des niveaux pour en gagner.
 Compra primero este artículo.|Buy this item first.|Achetez d'abord cet article.
-Este personaje no está disponible.|This character is unavailable.|Ce personnage est indisponible.
 Este artículo no es una skin.|This item is not an outfit.|Cet article n'est pas une tenue.
 No se pudo guardar. No se ha aplicado ningún cambio ni descontado monedas.|Could not save. No changes were applied and no coins were spent.|Échec de l'enregistrement. Aucun changement et aucune pièce débitée.
-Personaje seleccionado y guardado. Se conservan tu skin y tus compras.|Character selected and saved. Your outfit and purchases are kept.|Personnage choisi et enregistré. Tenue et achats conservés.
-Personaje desbloqueado y guardado. Pulsa de nuevo para seleccionarlo.|Character unlocked and saved. Press again to select it.|Personnage débloqué et enregistré. Appuyez encore pour le choisir.
 Vestuario guardado. Se aplicará al menú y a cualquier nivel.|Outfit saved. It applies to the menu and every level.|Tenue enregistrée. Elle s'applique au menu et à tous les niveaux.
 Nieve desbloqueada y guardada. Ya puedes usar L en campaña.|Snow unlocked and saved. You can now use L in campaign.|Neige débloquée et enregistrée. L est disponible en campagne.
 Traje guardado. Pulsa de nuevo para equiparlo.|Outfit saved. Press again to equip it.|Tenue enregistrée. Appuyez encore pour l'équiper.

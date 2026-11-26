@@ -4,7 +4,7 @@ Juego de navegador con JavaScript, Phaser 3 / Arcade y Vite. Entrega local de la
 
 ## Nuevo plan de mejoras: fases 1 y 2
 
-Sobre la entrega anterior se ha analizado la estructura existente y renovado el menú: escenario estacional con capas parallax, iluminación, sombras, partículas limitadas, personaje completo en el centro y paneles semitransparentes. Los botones están ordenados como Jugar, Tienda, Personajes, Skins, Ataques y Configuración. Mantiene mouse, teclado, idiomas, skins, pistas y estadísticas; respeta la preferencia del sistema de reducir movimiento.
+Sobre la entrega anterior se ha analizado la estructura existente y renovado el menú: escenario estacional con capas parallax, iluminación, sombras, partículas limitadas, personaje completo en el centro y paneles semitransparentes. Los botones están ordenados como Jugar, Tienda, Skins, Ataques y Configuración. Mantiene mouse, teclado, idiomas, skins, pistas y estadísticas; respeta la preferencia del sistema de reducir movimiento.
 
 Consulta el [nuevo plan adjunto](docs/PLAN_DE_MEJORAS.md), la [auditoría de la fase 1](docs/UPGRADE_PHASE1.md) y los [cambios y validación de la fase 2](docs/UPGRADE_PHASE2.md). Esta entrega conserva los cuatro recorridos actuales; los doce niveles, sus migraciones y los sprites jugables definitivos corresponden a las siguientes fases del nuevo plan. No renumera ni sustituye los documentos de las fases anteriores.
 
@@ -46,7 +46,7 @@ npm.cmd run dev
 
 El ensayo libre, accesible desde Ataques, cambia el ambiente, traje y pista con la estación del menú. El recorrido de 2700 px incluye plataformas, dos huecos y un puente bajo; una baldosa roja señalizada permite probar daño e invulnerabilidad de 1,3 s. Caer resta una vida y devuelve al inicio. Al perder las vidas del perfil elegido se ofrece reiniciar. Llegar a la bandera muestra «Ensayo completado» sin dar monedas, récords ni desbloquear niveles.
 
-J lanza el sombrero de retorno; K activa el giro; L lanza un copo que congela. El HUD muestra las recargas. Tres muñecos de nieve permiten ensayar impactos y daño. La nieve está habilitada temporalmente en el ensayo; en campaña se desbloquea comprando el copo por 300 monedas o seleccionando al Rey de la Nieve. Ataques abre una guía con acceso al ensayo. Tienda, skins y personajes están disponibles. Configuración e idiomas están disponibles. Ver `docs/PHASE4.md`.
+J lanza el sombrero de retorno; K activa el giro; L lanza un copo que congela. El HUD muestra las recargas. Tres muñecos de nieve permiten ensayar impactos y daño. La nieve está habilitada temporalmente en el ensayo; en campaña se desbloquea comprando el copo por 300 monedas. Ataques abre una guía con acceso al ensayo. La tienda y el vestuario están disponibles. Configuración e idiomas están disponibles. Ver `docs/PHASE4.md`.
 
 ## Campaña
 
@@ -58,17 +58,9 @@ Cada moneda recogida vale 10, cada regalo 25 y la primera victoria de cada nivel
 
 La tienda ofrece Rojo Thriller (500), Blanco de gala (800), Espíritu navideño (1000), Brillo dorado (2000) y Copo de nieve (300). Selecciona con mouse o ↑/↓ y confirma con el botón o Enter. Una compra de skin añade el artículo al inventario; pulsa de nuevo para equiparlo. La skin sustituye el traje del menú y de cualquier estación sin cambiar sus habilidades. El copo desbloquea L en campaña automáticamente.
 
-«Skins» abre el vestuario para equipar compras o recuperar el traje del personaje (Michael adapta el suyo a la estación). V abre el vestuario desde la tienda; T vuelve a la tienda desde el vestuario y la guía de ataques. La interfaz muestra precio, saldo faltante, propiedad y equipamiento. Si no puede guardar una compra o cambio de vestuario, lo informa y deja el saldo e inventario intactos. Las compras duplicadas nunca cobran de nuevo. C abre Personajes desde tienda y vestuario.
+«Skins» abre el vestuario para equipar compras o recuperar el traje del personaje (Michael adapta el suyo a la estación). V abre el vestuario desde la tienda; T vuelve a la tienda desde el vestuario y la guía de ataques. La interfaz muestra precio, saldo faltante, propiedad y equipamiento. Si no puede guardar una compra o cambio de vestuario, lo informa y deja el saldo e inventario intactos. Las compras duplicadas nunca cobran de nuevo.
 
-## Personajes
-
-Michael está disponible gratis. En «Personajes» puedes comprar al Bailarín navideño (700), al Rey de la Nieve (1200) o al Bailarín dorado (1500), y seleccionar los que ya tengas. Usa mouse o ↑/↓ y Enter: la primera activación compra, la segunda selecciona. Volver a Michael es gratis. La selección se guarda y permanece al reiniciar o recargar.
-
-- Bailarín navideño: Shift corre a 380 px/s; Espacio salta más alto.
-- Rey de la Nieve: L funciona sin comprar el copo, congela 2,4 s y recarga en 2 s.
-- Bailarín dorado: K tiene alcance de 125 px, daño de dos puntos y recarga de 1,2 s.
-
-Las skins conservan el rostro, accesorio y habilidades del personaje. Cambiar de personaje no conserva la nieve propia del Rey; el copo comprado sí permanece disponible para todos. La guía de ataques y el HUD muestran el perfil activo. Los dibujos son originales provisionales con proporciones y animaciones compartidas.
+Michael es el personaje jugable. Puedes cambiar su traje desde Skins.
 
 ## Configuración
 

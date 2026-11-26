@@ -79,8 +79,7 @@ test('result menu changes selection with the D-pad and wraps with the keyboard',
 
 test('menu bumpers dispatch the shortcuts shown in each scene', () => {
   for (const [sceneKey, leftKey, rightKey] of [
-    ['Settings', 'Tab', 'Tab'], ['Attacks', 'Tab', 't'], ['Shop', 'v', 'c'],
-    ['Character', 't', 'c'], ['Characters', 'v', 't'],
+    ['Settings', 'Tab', 'Tab'], ['Attacks', 'Tab', 't'], ['Shop', 'v'], ['Character', 't'],
   ]) {
     const pad = makePad();
     const input = new GamepadInput(() => [pad]);
@@ -96,7 +95,9 @@ test('menu bumpers dispatch the shortcuts shown in each scene', () => {
     pad.buttons[5].pressed = true;
     input.poll();
     input.navigate(scene);
-    assert.deepEqual(keys, [[leftKey, true], [rightKey, false]], sceneKey);
+    const expected = [[leftKey, true]];
+    if (rightKey) expected.push([rightKey, false]);
+    assert.deepEqual(keys, expected, sceneKey);
   }
 });
 

@@ -104,9 +104,9 @@ try {
     await writeFile(`.tools/upgrade-menu-${id}.png`,Buffer.from(shot.data,'base64'));
   }
   await click(187,651);await advance(400);
-  const keys=['LevelSelect','Shop','Characters','Character','Attacks','Settings'];
+  const keys=['LevelSelect','Shop','Character','Attacks','Settings'];
   for(let index=0;index<keys.length;index++) {
-    await click(186,228+index*53);await advance(100);
+    await click(186,228+index*64);await advance(100);
     assert.equal(await evaluate(`testGame.scene.isActive('${keys[index]}')`),true,'Every menu destination opens with pointer input');
     await tap('Escape','Escape');
   }
@@ -125,7 +125,7 @@ try {
   }
   await cdp('Emulation.clearDeviceMetricsOverride');await advance(150);
   assert.equal(await evaluate(`JSON.stringify(testGame.registry.get('services').progress.data)`),originalProgress,'Menu exploration preserves progress');
-  console.log('Menu upgrade passed: six pointer destinations, seasonal scenery and tracks, full-body bounds, texture reuse, particle budget and three viewport sizes.');
+  console.log('Menu upgrade passed: five pointer destinations, seasonal scenery and tracks, full-body bounds, texture reuse, particle budget and three viewport sizes.');
   await tap('ArrowDown', 'ArrowDown'); await tap('Enter', 'Enter');
   await waitFor(`testGame.scene.isActive('Shop')`, 'Menu opens Shop');
   await tap('ArrowDown', 'ArrowDown');
@@ -417,20 +417,14 @@ try {
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.coins`),expectedBalance);
   assert.equal(await evaluate(`testGame.registry.get('services').progress.data.equippedSkin`),'white');
   assert.ok(await evaluate(`testGame.registry.get('services').progress.data.abilities.includes('freeze')`));
-  await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
+  await tap('ArrowDown','ArrowDown'); await tap('ArrowDown','ArrowDown'); await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Character')`,'Skins opens wardrobe');
   const wardrobeShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-wardrobe.png',Buffer.from(wardrobeShot.data,'base64'));
   assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white','billie-jean']);
-  await tap('Escape','Escape');
-  for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');
-  await tap('Enter','Enter');
-  await waitFor(`testGame.scene.isActive('Characters')`,'Menu opens character selection');
-  assert.deepEqual(await evaluate(`testGame.scene.getScene('Characters').items.map(item=>item.id)`),['michael']);
-  assert.ok(await evaluate(`testGame.scene.getScene('Characters').menuHero.texture.key.startsWith('dancer-skin-white-')`));
   // Phase 8: settings through real pointer/keyboard input, then translated screens.
   await tap('Escape','Escape');
-  for(let i=0;i<5;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
+  for(let i=0;i<4;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');
   await waitFor(`testGame.scene.isActive('Settings')`,'Settings opens from menu');
   const settingsShows = title => evaluate(`testGame.scene.getScene('Settings').children.list.some(t=>t.sourceText===${JSON.stringify(title)})`);
   assert.equal(await settingsShows('Calidad de gráficos'),true);
@@ -475,7 +469,7 @@ try {
   await writeFile('.tools/phase8-settings-fr.png',Buffer.from(settingsShot.data,'base64'));
   await tap('Escape','Escape');
   assert.equal(await evaluate(`testGame.scene.getScene('Menu').buttons[0].t.text`),'Jouer');
-  const screenCases=[['Shop','La boutique du rythme'],['Character','Vos tenues'],['Characters','Choisissez votre personnage'],['LevelSelect','Trouvez votre rythme'],['Attacks','Le pouvoir de la danse'],['Game','Vie'],['Victory','Niveau terminé !'],['GameOver','Pièces obtenues']];
+  const screenCases=[['Shop','La boutique du rythme'],['Character','Vos tenues'],['LevelSelect','Trouvez votre rythme'],['Attacks','Le pouvoir de la danse'],['Game','Vie'],['Victory','Niveau terminé !'],['GameOver','Pièces obtenues']];
   for(const [sceneKey,expected] of screenCases) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('${sceneKey}',{levelId:1,mode:'campaign',result:{reward:10,first:false,saved:true}});true`);
     await advance(150);

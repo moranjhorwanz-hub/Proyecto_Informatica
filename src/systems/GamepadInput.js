@@ -11,9 +11,8 @@ const menuKeys = {
 const bumperKeys = {
   Settings: { moon: 'Tab', note: 'Tab' },
   Attacks: { moon: 'Tab', note: 't' },
-  Shop: { moon: 'v', note: 'c' },
-  Character: { moon: 't', note: 'c' },
-  Characters: { moon: 'v', note: 't' },
+  Shop: { moon: 'v' },
+  Character: { moon: 't' },
 };
 
 export class GamepadInput {

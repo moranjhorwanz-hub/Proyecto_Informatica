@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { getAppearance } from '../entities/appearance.js';
 import { updatePixelMenuCharacter } from '../visuals/menuCharacter.js';
-import { characters } from '../data/characters.js';
 import { wardrobePreviewTexture } from '../visuals/wardrobePreview.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
 
@@ -14,7 +13,6 @@ const messages = {
   'already-owned': 'Ya tienes este artículo. No se han descontado monedas.',
   'insufficient-coins': 'No tienes suficientes monedas. Completa o repite niveles para conseguir más.',
   'not-owned': 'Compra primero este artículo.',
-  'unknown-character': 'Este personaje no está disponible.',
   'not-a-skin': 'Este artículo no es una skin.',
   'save-failed': 'No se pudo guardar. No se ha aplicado ningún cambio ni descontado monedas.',
 };
@@ -26,17 +24,14 @@ export default class ShopScene extends Phaser.Scene {
     this.services = this.registry.get('services');
     this.shop = this.services.shop;
     this.wardrobe = this.scene.key === 'Character';
-    this.characters = this.scene.key === 'Characters';
-    this.items = this.characters ? characters.map(character => ({ ...character, type: 'character' })) : this.wardrobe
-      ? this.shop.catalog.filter(item => item.type === 'skin')
-      : this.shop.catalog.filter(item => item.type !== 'character');
-    const selected = itemId ?? (this.characters ? this.services.progress.data.character : this.wardrobe ? this.services.progress.data.equippedSkin : undefined);
+    this.items = this.wardrobe ? this.shop.catalog.filter(item => item.type === 'skin') : this.shop.catalog;
+    const selected = itemId ?? (this.wardrobe ? this.services.progress.data.equippedSkin : undefined);
     this.focus = Math.max(0, this.items.findIndex(item => item.id === selected));
     this.menuHero = createSettingsMenuFrame(this);
     this.text(51, 20, '✦', 36);
-    this.text(106, 19, this.characters ? 'Elige tu personaje' : this.wardrobe ? 'Tu vestuario' : 'La tienda del ritmo', 38, textColor, 'bold italic');
+    this.text(106, 19, this.wardrobe ? 'Tu vestuario' : 'La tienda del ritmo', 38, textColor, 'bold italic');
     this.balanceText = this.text(1210, 42, '', 22, '#ff9ca8', 'bold').setOrigin(1, 0);
-    if (!this.characters && !this.wardrobe) this.text(1210, 74, 'Compra con las monedas ganadas al completar niveles. Sin dinero real.', 16, muted).setOrigin(1, 0);
+    if (!this.wardrobe) this.text(1210, 74, 'Compra con las monedas ganadas al completar niveles. Sin dinero real.', 16, muted).setOrigin(1, 0);
     this.rows = this.items.map((item, index) => {
       const y = 124 + index * 62;
       const surface = this.add.graphics();
@@ -57,8 +52,7 @@ export default class ShopScene extends Phaser.Scene {
     this.shieldPreview = this.add.image(792, 392, 'pixel-shield').setDisplaySize(155, 155).setVisible(false);
     this.actionText = this.button(580, 531, 424, 48, '', () => this.activate(), true);
     this.feedback = this.text(380, 590, '', 16, '#c3ecdd').setWordWrapWidth(820);
-    this.button(662, 664, 210, 43, this.wardrobe ? 'Tienda (T)' : 'Vestuario (V)', () => this.scene.start(this.wardrobe ? 'Shop' : 'Character'));
-    this.button(882, 664, 215, 43, this.characters ? 'Tienda (T)' : 'Personajes (C)', () => this.scene.start(this.characters ? 'Shop' : 'Characters'));
+    this.button(882, 664, 215, 43, this.wardrobe ? 'Tienda (T)' : 'Vestuario (V)', () => this.scene.start(this.wardrobe ? 'Shop' : 'Character'));
     this.button(1107, 664, 138, 43, 'Volver', () => this.scene.start('Menu'));
     this.input.keyboard.on('keydown', this.onKey, this);
     this.events.once('shutdown', () => this.input.keyboard.off('keydown', this.onKey, this));
@@ -81,40 +75,32 @@ export default class ShopScene extends Phaser.Scene {
     const data = this.services.progress.data, selected = this.items[this.focus];
     this.balanceText.setText(`Monedas: ${data.coins}`);
     this.rows.forEach(({ surface, points, status }, index) => {
-      const item = this.items[index], owned = this.owns(item);
-      const equipped = item.type === 'character' ? data.character === item.id : item.type === 'skin' && data.equippedSkin === item.id;
+      const item = this.items[index], owned = this.shop.owns(item.id);
+      const equipped = item.type === 'skin' && data.equippedSkin === item.id;
       const focused = index === this.focus;
       surface.clear().fillStyle(focused ? 0xba1029 : 0x172335).fillPoints(points, true)
         .lineStyle(1.5, focused ? 0xff6277 : 0x536680).strokePoints(points, true);
-      status.setText(equipped ? this.characters ? 'Seleccionado' : 'Equipada' : owned ? item.type === 'ability' ? 'Desbloqueado' : 'En tu inventario' : `${item.price === 0 ? 'Gratis' : `${item.price} monedas`}${this.wardrobe ? ' · Disponible en tienda' : data.coins < item.price ? ` · Faltan ${item.price - data.coins}` : ''}`);
+      status.setText(equipped ? 'Equipada' : owned ? item.type === 'ability' ? 'Desbloqueado' : 'En tu inventario' : `${item.price === 0 ? 'Gratis' : `${item.price} monedas`}${this.wardrobe ? ' · Disponible en tienda' : data.coins < item.price ? ` · Faltan ${item.price - data.coins}` : ''}`);
     });
     this.previewTitle.setText(selected.name);
     this.previewBody.setText(selected.description);
-    const isSkin = selected.type !== 'ability';
+    const isSkin = selected.type === 'skin';
     this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin && selected.id === 'freeze'); this.hatPreview.setVisible(selected.id === 'hat-power'); this.shieldPreview.setVisible(selected.id === 'shield');
     if (isSkin) {
       const level = levels[data.selectedLevel - 1];
-      const appearance = getAppearance(level, selected.type === 'skin' ? selected.id : data.equippedSkin);
-      if (this.characters || this.wardrobe) updatePixelMenuCharacter(this.menuHero, appearance);
+      const appearance = getAppearance(level, selected.id);
+      if (this.wardrobe) updatePixelMenuCharacter(this.menuHero, appearance);
       this.preview.setTexture(wardrobePreviewTexture(this, appearance));
       this.preview.setScale(250 / this.preview.height);
     }
-    const owned = this.owns(selected);
+    const owned = this.shop.owns(selected.id);
     const claimLabel = selected.price === 0 ? 'Obtener gratis' : `Comprar · ${selected.price} monedas`;
-    this.actionText.setText(this.characters ? !owned ? claimLabel : data.character === selected.id ? 'Seleccionado · Jugar →' : 'Seleccionar personaje' : this.wardrobe && !owned ? 'Ver en tienda →' : !owned ? claimLabel : selected.type === 'ability' ? 'Desbloqueado · Ver controles →' : data.equippedSkin === selected.id ? 'Equipada · Usar en el juego →' : 'Equipar skin');
+    this.actionText.setText(this.wardrobe && !owned ? 'Ver en tienda →' : !owned ? claimLabel : selected.type === 'ability' ? 'Desbloqueado · Ver controles →' : data.equippedSkin === selected.id ? 'Equipada · Usar en el juego →' : 'Equipar skin');
   }
-  owns(item) { return item.id === 'michael' || this.shop.owns(item.id); }
   activate() {
-    const item = this.items[this.focus], owned = this.owns(item);
+    const item = this.items[this.focus], owned = this.shop.owns(item.id);
     if (this.wardrobe && !owned) { this.scene.start('Shop', { itemId: item.id }); return; }
     if (owned && item.type === 'ability') { this.scene.start('Attacks'); return; }
-    if (this.characters) {
-      if (owned && this.services.progress.data.character === item.id) { this.scene.start('LevelSelect'); return; }
-      const result = owned ? this.shop.selectCharacter(item.id) : this.shop.buy(item.id);
-      this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
-      this.feedback.setText(result.ok ? owned ? 'Personaje seleccionado y guardado. Se conservan tu skin y tus compras.' : 'Personaje desbloqueado y guardado. Pulsa de nuevo para seleccionarlo.' : messages[result.reason]);
-      this.refresh(); return;
-    }
     if (owned && this.services.progress.data.equippedSkin === item.id) { this.scene.start('LevelSelect'); return; }
     const result = owned ? this.shop.equip(item.id) : this.shop.buy(item.id);
     this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
@@ -131,7 +117,5 @@ export default class ShopScene extends Phaser.Scene {
     if (event.key === 'Enter') this.activate();
     if (event.key === 'Escape') this.scene.start('Menu');
     if (event.key.toLowerCase() === (this.wardrobe ? 't' : 'v')) this.scene.start(this.wardrobe ? 'Shop' : 'Character');
-    if (event.key.toLowerCase() === 'c' && !this.characters) this.scene.start('Characters');
-    if (event.key.toLowerCase() === 't' && this.characters) this.scene.start('Shop');
   }
 }
