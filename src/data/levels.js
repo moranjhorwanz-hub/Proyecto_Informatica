@@ -7,10 +7,10 @@ const worlds = [
  {name:'Navidad', sky:0x172e50, land:0x577789, accent:0xc1e7ff}
 ];
 const stages = [
- ['Billie Jean','Billie Jean',0x050a24,0xffd78c],
- ['Smooth Criminal','Smooth Criminal',0x091322,0xffcc8b],
- ['Thriller','Thriller',0x24243e,0xf1a057],
- ['Bad','Bad',0x060e20,0xf17d68],
+ ['Billie Jean','Billie Jean',0x050a24,0xffd78c,'billie-jean'],
+ ['Smooth Criminal','Smooth Criminal',0x091322,0xffcc8b,'white'],
+ ['Thriller','Thriller',0x24243e,0xf1a057,'thriller'],
+ ['Bad','Bad',0x060e20,0xf17d68,'bad'],
  ['Noche de baile','Rock with You',0x20365c,0x9ee3f3],
  ['Gran escenario','Wanna Be Startin’ Somethin’',0x433455,0xffcf72],
  ['Bosque encantado','Black or White',0x24243e,0xf1a057],
@@ -20,7 +20,7 @@ const stages = [
  ['Luces bajo la nieve','Man in the Mirror',0x282e55,0xffd998],
  ['Concierto de Navidad','They Don’t Care About Us',0x382340,0xf4caa1]
 ];
-export const levels=stages.map(([name,track,sky,accent],i)=>({
+export const levels=stages.map(([name,track,sky,accent,themeSkin],i)=>({
  ...worlds[Math.floor(i/3)], id:i+1, world:Math.floor(i/3)+1, stage:i%3+1,
- name,track,sky,accent,subtitle:worlds[Math.floor(i/3)].name,difficulty:i+1
+ name,track,sky,accent,themeSkin,subtitle:worlds[Math.floor(i/3)].name,difficulty:i+1
 }));

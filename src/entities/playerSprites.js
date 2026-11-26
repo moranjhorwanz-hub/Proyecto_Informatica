@@ -33,20 +33,28 @@ const billieJeanPoses = {
   crouch: { start: 2, count: 2, scale: 0.975 },
 };
 
-const thrillerLayout = { scale: 0.32, floor: 460 };
+const outfitLayouts = {
+  thriller: { scale: 0.32, floor: 460 },
+  bad: { scale: 0.27, floor: 490 },
+};
+// Keep the last airborne drawing visible until gameplay switches to a grounded pose.
+const airborneJump = { frames: [{ number: 1 }, { number: 2 }, { number: 3 }, { number: 4 }, { number: 4 }] };
 const thrillerPoses = {
   hat: {
     frames: [{ group: '11_celebrar', number: 2 }, { group: '03_baile_sombrero', number: 5 }],
   },
-  // Keep an airborne pose until the character lands.
-  jump: { frames: [{ number: 1 }, { number: 2 }, { number: 3 }, { number: 4 }, { number: 4 }] },
+  jump: airborneJump,
   // Start facing forward along the stage, then turn through back, left and front.
   spin: { frames: [{ number: 2 }, { number: 3 }, { number: 4 }, { number: 1 }, { number: 5 }] },
 };
-const outfitPoses = { 'billie-jean': billieJeanPoses, thriller: thrillerPoses };
+const badPoses = {
+  idle: { group: '11_celebrar', start: 1 },
+  jump: airborneJump,
+};
+const outfitPoses = { 'billie-jean': billieJeanPoses, thriller: thrillerPoses, bad: badPoses };
 const menuOutfitLayouts = {
   'billie-jean': { scale: billieJeanPoses.idle.scale, floor: 174 },
-  thriller: thrillerLayout,
+  ...outfitLayouts,
 };
 
 export const PLAYER_PREFIX = 'player-pixel';
@@ -72,7 +80,7 @@ const headPositions = {
 export function getPlayerSpritePrefix(scene, appearance, { preview = false } = {}) {
   if (!appearance.textureId && !preview) return PLAYER_PREFIX;
   const prefix = appearance.textureId ? `dancer-${appearance.textureId}` : `wardrobe-${appearance.id}`;
-  const layout = appearance.spriteSet === 'thriller' ? thrillerLayout : undefined;
+  const layout = outfitLayouts[appearance.spriteSet];
   for (const [move, [group, count, frameRate, loop = true, start = 1]] of Object.entries(moves)) {
     if (preview && move !== 'idle') continue;
     const animation = `${prefix}-${move}`;
@@ -161,8 +169,8 @@ function thrownHatPalette(appearance) {
 }
 
 export function getThrownProjectileTexture(scene, playerPrefix, appearance) {
-  const pulse = appearance?.spriteSet === 'thriller';
-  const key = pulse ? 'combat-thriller-pulse' : `combat-hat-${playerPrefix}`;
+  const pulse = appearance?.returningPulse;
+  const key = pulse ? 'combat-returning-pulse' : `combat-hat-${playerPrefix}`;
   if (scene.textures.exists(key)) return key;
 
   const texture = scene.textures.createCanvas(key, 48, 28);

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ShopManager } from '../src/systems/ShopManager.js';
 import { defaultProgress, validateProgress } from '../src/systems/ProgressManager.js';
-import { getAppearance } from '../src/entities/appearance.js';
+import { getAppearance, getLevelAppearance } from '../src/entities/appearance.js';
 import { levels } from '../src/data/levels.js';
 
 const setup = (coins = 1000, save = () => true) => {
@@ -19,15 +19,19 @@ test('shield purchase costs coins and persists', () => {
 });
 test('Smooth Criminal is equipped for free by default', () => {
   const { progress, shop } = setup(0);
-  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white', 'billie-jean', 'thriller']);
+  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white', 'billie-jean', 'thriller', 'bad']);
   assert.deepEqual(progress.data.purchases, ['white']);
   assert.equal(progress.data.equippedSkin, 'white');
   assert.equal(shop.buy('white').reason, 'already-owned');
   assert.equal(shop.equip(null).reason, 'not-a-skin');
-  assert.equal(shop.buy('thriller').ok, true);
-  assert.equal(shop.equip('thriller').ok, true);
-  assert.equal(progress.data.coins, 0);
-  assert.equal(validateProgress(progress.data).equippedSkin, 'thriller');
+  for (const id of ['thriller', 'bad']) {
+    assert.equal(shop.buy(id).ok, true);
+    assert.equal(shop.equip(id).ok, true);
+    assert.equal(progress.data.coins, 0);
+    const loaded = validateProgress(progress.data);
+    assert.equal(loaded.equippedSkin, id);
+    assert.equal(Boolean(getAppearance(levels[0], id).returningPulse), id === 'thriller');
+  }
 });
 test('unknown items, insufficient balance and invalid balances never mutate progress', () => {
   const { progress, shop } = setup(299);
@@ -80,9 +84,25 @@ test('Smooth Criminal is worn across seasons without changing level identity or 
     assert.equal(dressed.track, level.track);
     assert.equal(dressed.sky, level.sky);
     assert.equal(dressed.textureId, 'skin-white');
+    assert.equal(dressed.outfit, 'Traje de Smooth Criminal');
     assert.equal(dressed.color, 0xf4f0e7);
     assert.equal(JSON.stringify(level), before);
   }
+});
+
+test('levels use their themed outfit only when owned and preserve the manual selection', () => {
+  const progress = { ...defaultProgress(), equippedSkin: 'bad', purchases: ['white', 'bad'] };
+  assert.equal(getLevelAppearance(levels[0], progress).textureId, 'skin-bad');
+  assert.equal(getLevelAppearance(levels[4], progress).textureId, 'skin-bad');
+
+  progress.purchases.push('billie-jean', 'thriller');
+  progress.equippedSkin = 'thriller';
+  assert.deepEqual(levels.slice(0, 4).map(level => getLevelAppearance(level, progress).textureId),
+    ['skin-billie-jean', 'skin-white', 'skin-thriller', 'skin-bad']);
+  assert.equal(getLevelAppearance(levels[2], progress).returningPulse, true);
+  assert.equal(getLevelAppearance(levels[3], progress).returningPulse, undefined);
+  assert.equal(getAppearance(levels[1], 'bad').textureId, 'skin-bad');
+  assert.equal(progress.equippedSkin, 'thriller');
 });
 
 test('hat power purchase persists and requires sufficient coins', () => {

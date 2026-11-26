@@ -104,7 +104,7 @@ export default class ShopScene extends Phaser.Scene {
     if (owned && this.services.progress.data.equippedSkin === item.id) { this.scene.start('LevelSelect'); return; }
     const result = owned ? this.shop.equip(item.id) : this.shop.buy(item.id);
     this.feedback.setColor(result.ok ? '#c3ecdd' : '#ffb5b5');
-    this.feedback.setText(result.ok ? owned ? 'Vestuario guardado. Se aplicará al menú y a cualquier nivel.' : item.type === 'ability' ? 'Habilidad desbloqueada y guardada.' : 'Traje guardado. Pulsa de nuevo para equiparlo.' : messages[result.reason]);
+    this.feedback.setText(result.ok ? owned ? 'Vestuario guardado. Si tienes el traje temático del nivel, se equipa automáticamente.' : item.type === 'ability' ? 'Habilidad desbloqueada y guardada.' : 'Traje guardado. Pulsa de nuevo para equiparlo.' : messages[result.reason]);
     this.refresh();
   }
   onKey(event) {

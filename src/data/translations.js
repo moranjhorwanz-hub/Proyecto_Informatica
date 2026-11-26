@@ -185,16 +185,19 @@ No tienes suficientes monedas. Completa o repite niveles para conseguir más.|No
 Compra primero este artículo.|Buy this item first.|Achetez d'abord cet article.
 Este artículo no es una skin.|This item is not an outfit.|Cet article n'est pas une tenue.
 No se pudo guardar. No se ha aplicado ningún cambio ni descontado monedas.|Could not save. No changes were applied and no coins were spent.|Échec de l'enregistrement. Aucun changement et aucune pièce débitée.
-Vestuario guardado. Se aplicará al menú y a cualquier nivel.|Outfit saved. It applies to the menu and every level.|Tenue enregistrée. Elle s'applique au menu et à tous les niveaux.
+Vestuario guardado. Si tienes el traje temático del nivel, se equipa automáticamente.|Outfit saved. If you own the level's themed outfit, it is equipped automatically.|Tenue enregistrée. La tenue du niveau s'équipe automatiquement si vous la possédez.
 Nieve desbloqueada y guardada. Ya puedes usar L en campaña.|Snow unlocked and saved. You can now use L in campaign.|Neige débloquée et enregistrée. L est disponible en campagne.
 Traje guardado. Pulsa de nuevo para equiparlo.|Outfit saved. Press again to equip it.|Tenue enregistrée. Appuyez encore pour l'équiper.
 Thriller|Thriller|Thriller
 Smooth Criminal|Smooth Criminal|Smooth Criminal
+Traje de Smooth Criminal|Smooth Criminal outfit|Tenue de Smooth Criminal
 Traje de Billie Jean|Billie Jean outfit|Tenue de Billie Jean
 Traje de Thriller|Thriller outfit|Tenue de Thriller
+Traje BAD|BAD outfit|Tenue BAD
+Chaqueta negra con hebillas y pantalones con franjas rojas.|Black jacket with buckles and trousers with red stripes.|Veste noire à boucles et pantalon à bandes rouges.
 Chaqueta y pantalones rojos con detalles negros.|Red jacket and trousers with black accents.|Veste et pantalon rouges avec des détails noirs.
 Chaqueta negra de lentejuelas, camiseta blanca, guante plateado y sombrero negro.|Black sequin jacket, white shirt, silver glove and black hat.|Veste noire ? sequins, t-shirt blanc, gant argent? et chapeau noir.
-Equilibrado. Camina a 230, corre a 340 px/s y usa los ataques básicos. Viste el traje Smooth Criminal.|Balanced. Walks at 230 px/s, runs at 340 px/s and uses basic attacks. Wears the Smooth Criminal outfit.|Équilibré. Marche à 230 px/s, court à 340 px/s et utilise les attaques de base. Porte la tenue Smooth Criminal.
+Equilibrado. Camina a 230, corre a 340 px/s y usa los ataques básicos. Viste el traje de Smooth Criminal.|Balanced. Walks at 230 px/s, runs at 340 px/s and uses basic attacks. Wears the Smooth Criminal outfit.|Équilibré. Marche à 230 px/s, court à 340 px/s et utilise les attaques de base. Porte la tenue Smooth Criminal.
 Espíritu navideño|Christmas spirit|Esprit de Noël
 Brillo dorado|Golden shine|Éclat doré
 Copo de nieve|Snowflake|Flocon de neige

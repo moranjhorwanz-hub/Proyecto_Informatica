@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
-import { getAppearance } from '../entities/appearance.js';
+import { getLevelAppearance } from '../entities/appearance.js';
 import { createPixelMenuCharacter } from '../visuals/menuCharacter.js';
 import { bindResultMenu } from '../ui/resultMenu.js';
 
@@ -12,7 +12,7 @@ export default class GameOverScene extends Phaser.Scene {
     const { progress } = this.registry.get('services');
     const level = levels.find(stage => stage.id === levelId) ?? levels[0];
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level, progress.data.equippedSkin), 'dance');
+    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getLevelAppearance(level, progress.data), 'dance');
     // Cover the printed score inside the artwork while preserving the panel border.
     this.add.graphics().fillStyle(0x130608).fillRoundedRect(475, 326, 350, 51, 8);
     this.add.text(614, 350, 'Monedas obtenidas', {

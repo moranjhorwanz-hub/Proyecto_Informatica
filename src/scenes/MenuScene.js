@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
 import { getCharacter } from '../data/characters.js';
-import { getAppearance } from '../entities/appearance.js';
+import { getLevelAppearance } from '../entities/appearance.js';
 import { createMenuBackdrop, createImageMenuBackdrop } from '../visuals/menuBackdrop.js';
 import { createMenuCharacter } from '../visuals/menuCharacter.js';
 import { menuText as text, menuPanel, fitMenuText, menuColors } from '../ui/menuComponents.js';
@@ -23,7 +23,7 @@ export default class MenuScene extends Phaser.Scene {
       this.input.off('pointerdown',unlockMenu);
       this.input.keyboard.off('keydown',unlockMenu);
     });
-    this.appearance=getAppearance(this.level, progress.equippedSkin);
+    this.appearance=getLevelAppearance(this.level, progress);
     this.reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
     this.backdrop=null;
     const backdropKey={1:'spring-menu',2:'summer-menu',3:'autumn-menu',4:'christmas-menu'}[this.level.world];

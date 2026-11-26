@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { levels } from '../data/levels.js';
-import { getAppearance } from '../entities/appearance.js';
+import { getLevelAppearance } from '../entities/appearance.js';
 import { createPixelMenuCharacter } from '../visuals/menuCharacter.js';
 import { achievementNames } from '../systems/ProgressManager.js';
 import { fitMenuText } from '../ui/menuComponents.js';
@@ -30,7 +30,7 @@ export default class VictoryScene extends Phaser.Scene {
 
     this.add.image(640, 360, 'victory-city').setDisplaySize(1280, 720);
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level, progress.data.equippedSkin), 'dance');
+    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getLevelAppearance(level, progress.data), 'dance');
 
     const title = this.label(center, 174, 'VICTORIA', 108, '#ffffff', 'bold italic')
       .setStroke('#dc2234', 5)

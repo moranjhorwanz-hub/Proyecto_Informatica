@@ -401,7 +401,7 @@ try {
   const shopShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-shop.png',Buffer.from(shopShot.data,'base64'));
   await tap('Escape','Escape');
-  assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.outfit`),'Smooth Criminal');
+  assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.outfit`),'Traje de Smooth Criminal');
   for(const id of [1,2,3,4]) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('Game',{levelId:${id},mode:'campaign'});true`);
     await advance(100);
@@ -421,7 +421,7 @@ try {
   await waitFor(`testGame.scene.isActive('Character')`,'Skins opens wardrobe');
   const wardrobeShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-wardrobe.png',Buffer.from(wardrobeShot.data,'base64'));
-  assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white','billie-jean','thriller']);
+  assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white','billie-jean','thriller','bad']);
   // Phase 8: settings through real pointer/keyboard input, then translated screens.
   await tap('Escape','Escape');
   for(let i=0;i<4;i++)await tap('ArrowDown','ArrowDown');await tap('Enter','Enter');

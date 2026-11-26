@@ -4,7 +4,7 @@ import CombatSystem from '../systems/CombatSystem.js';
 import LevelManager from '../systems/LevelManager.js';
 import { levels } from '../data/levels.js';
 import { courses } from '../data/courses.js';
-import { getAppearance } from '../entities/appearance.js';
+import { getLevelAppearance } from '../entities/appearance.js';
 import { getDifficulty } from '../data/settings.js';
 import { keyLabel, menuKey } from '../data/controls.js';
 import { scenery } from './scenery.js';
@@ -84,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
     label(this, 1225, 666, 'Zona de daño', 15, '#ffb0a3');
     }
     const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
-    this.appearance = getAppearance(this.level, this.services.progress.data.equippedSkin);
+    this.appearance = getLevelAppearance(this.level, this.services.progress.data);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
     this.player.state.shieldUsed = Boolean(data.retrying);
     this.shieldAura = this.add.graphics().setDepth(9).setVisible(false);

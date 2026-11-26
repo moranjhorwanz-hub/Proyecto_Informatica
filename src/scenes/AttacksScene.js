@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { canUseSnow, getCharacter } from '../data/characters.js';
 import { keyLabel } from '../data/controls.js';
+import { levels } from '../data/levels.js';
+import { getLevelAppearance } from '../entities/appearance.js';
 import { COMBAT_DEFAULTS } from '../systems/combatState.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
 
@@ -86,8 +88,9 @@ export default class AttacksScene extends Phaser.Scene {
 
   renderMoves() {
     const combat = { ...COMBAT_DEFAULTS, ...this.character.combat };
-    const { equippedSkin, settings: { controls } } = this.services.progress.data;
-    const usesPulse = equippedSkin === 'thriller';
+    const progress = this.services.progress.data;
+    const { controls } = progress.settings;
+    const usesPulse = getLevelAppearance(levels[progress.selectedLevel - 1], progress).returningPulse;
     const moves = [
       ['hat', usesPulse ? 'Pulso de retorno' : 'Sombrero de retorno',
         usesPulse ? 'Lanza un pulso que regresa. Solo uno en vuelo.' : 'Lanza un sombrero que regresa. Solo uno en vuelo.',

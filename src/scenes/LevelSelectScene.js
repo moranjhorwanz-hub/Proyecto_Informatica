@@ -3,7 +3,7 @@ import { levels } from '../data/levels.js';
 import { achievementNames } from '../systems/ProgressManager.js';
 import { fitMenuText } from '../ui/menuComponents.js';
 import { createSettingsMenuFrame, cut } from '../ui/settingsMenuFrame.js';
-import { getAppearance } from '../entities/appearance.js';
+import { getLevelAppearance } from '../entities/appearance.js';
 import { updatePixelMenuCharacter } from '../visuals/menuCharacter.js';
 import { thrillerPreviewTexture } from '../visuals/parallaxScenery.js';
 
@@ -99,7 +99,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     });
     const progress = this.services.progress.data;
     const level = levels[this.selected];
-    updatePixelMenuCharacter(this.menuHero, getAppearance(level, progress.equippedSkin));
+    updatePixelMenuCharacter(this.menuHero, getLevelAppearance(level, progress));
     const unlocked = progress.unlockedLevels.includes(level.id);
     this.season.setText(level.subtitle);
     this.play.surface.setAlpha(unlocked ? 1 : .4);
