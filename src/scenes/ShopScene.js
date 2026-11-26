@@ -66,11 +66,6 @@ export default class ShopScene extends Phaser.Scene {
     this.shieldPreview = this.add.image(792, 392, 'pixel-shield').setDisplaySize(155, 155).setVisible(false);
     this.actionText = this.button(580, 531, 424, 48, '', () => this.activate(), true);
     this.feedback = this.text(380, 590, '', 16, '#c3ecdd').setWordWrapWidth(820);
-    this.text(35, 659, '↑ ↓ Elegir    Enter · Confirmar    Esc · Volver', 14, muted);
-    this.text(35, 677, 'Mando: ↑ ↓ Elegir · A / ✕ Confirmar · B / ○ Volver', 14, '#ff9ca8');
-    const shortcuts = this.characters ? 'LB / L1 Vestuario · RB / R1 Tienda'
-      : this.wardrobe ? 'LB / L1 Tienda · RB / R1 Personajes' : 'LB / L1 Vestuario · RB / R1 Personajes';
-    this.text(35, 695, shortcuts, 14, '#ff9ca8');
     this.button(662, 664, 210, 43, this.wardrobe ? 'Tienda (T)' : 'Vestuario (V)', () => this.scene.start(this.wardrobe ? 'Shop' : 'Character'));
     this.button(882, 664, 215, 43, this.characters ? 'Tienda (T)' : 'Personajes (C)', () => this.scene.start(this.characters ? 'Shop' : 'Characters'));
     this.button(1107, 664, 138, 43, 'Volver', () => this.scene.start('Menu'));
@@ -108,7 +103,7 @@ export default class ShopScene extends Phaser.Scene {
     this.preview.setVisible(isSkin); this.snowPreview.setVisible(!isSkin && selected.id === 'freeze'); this.hatPreview.setVisible(selected.id === 'hat-power'); this.shieldPreview.setVisible(selected.id === 'shield');
     if (isSkin) {
       const level = levels[data.selectedLevel - 1];
-      const appearance = getAppearance(level);
+      const appearance = getAppearance(level, selected.type === 'skin' ? selected.id : data.equippedSkin);
       if (this.characters || this.wardrobe) updatePixelMenuCharacter(this.menuHero, appearance);
       this.preview.setTexture(wardrobePreviewTexture(this, appearance));
       this.preview.setScale(250 / this.preview.height);
