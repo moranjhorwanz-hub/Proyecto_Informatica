@@ -63,9 +63,7 @@ export default class ShopScene extends Phaser.Scene {
     this.hatPreview.fillStyle(0xe5b83d).fillRect(738, 405, 108, 12);
     this.hatPreview.lineStyle(4, 0xffd45b);
     for (const [x, y] of [[714, 354], [865, 370], [810, 320]]) { this.hatPreview.lineBetween(x - 12, y, x + 12, y); this.hatPreview.lineBetween(x, y - 12, x, y + 12); }
-    this.shieldPreview = this.add.graphics().setVisible(false);
-    this.shieldPreview.fillStyle(0x72e7f1).fillPoints([{x:792,y:315},{x:861,y:348},{x:850,y:425},{x:792,y:470},{x:734,y:425},{x:723,y:348}], true);
-    this.shieldPreview.lineStyle(8, 0xe7a8ff).strokePoints([{x:792,y:315},{x:861,y:348},{x:850,y:425},{x:792,y:470},{x:734,y:425},{x:723,y:348}], true, true);
+    this.shieldPreview = this.add.image(792, 392, 'pixel-shield').setDisplaySize(155, 155).setVisible(false);
     this.actionText = this.button(580, 531, 424, 48, '', () => this.activate(), true);
     this.feedback = this.text(380, 590, '', 16, '#c3ecdd').setWordWrapWidth(820);
     this.text(35, 659, '↑ ↓ Elegir    Enter · Confirmar    Esc · Volver', 14, muted);

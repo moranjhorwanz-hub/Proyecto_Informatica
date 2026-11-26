@@ -55,17 +55,11 @@ export default class LevelManager {
   }
   createChest(x, y, index) {
     const s = this.scene;
-    const art = s.add.graphics().setDepth(5);
-    art.fillStyle(0x592276).fillRoundedRect(x - 32, y - 25, 64, 50, 6);
-    art.fillStyle(0xb833d1).fillRect(x - 23, y - 19, 46, 36);
-    art.lineStyle(6, 0xf8ad46).strokeRoundedRect(x - 32, y - 25, 64, 50, 6);
-    art.lineStyle(5, 0xffd174).lineBetween(x - 31, y, x + 31, y);
-    art.fillStyle(0x76218f).fillCircle(x, y, 12).lineStyle(3, 0xffd174).strokeCircle(x, y, 12);
-    const mark = s.add.text(x, y, '?', { fontFamily: 'Arial', fontSize: '22px', fontStyle: 'bold', color: '#ffe483' }).setOrigin(.5).setDepth(6);
+    const art = s.add.image(x, y, 'chest').setDisplaySize(88, 59).setDepth(5);
     const chest = s.add.zone(x, y, 64, 50);
-    chest.kind = 'chest'; chest.pickupKey = `chest-${index}`; chest.art = art; chest.mark = mark;
+    chest.kind = 'chest'; chest.pickupKey = `chest-${index}`; chest.art = art;
     this.pickups.add(chest);
-    this.floatingChests.push({ chest, art, mark, baseY: y, phase: index * 1.7 });
+    this.floatingChests.push({ chest, art, baseY: y, phase: index * 1.7 });
   }
   pickup(x,y,kind,index) {
     const key = `${kind}-${index}`;
@@ -116,9 +110,50 @@ export default class LevelManager {
           this.checkpoint.collected ??= [];
           if (!this.checkpoint.collected.includes(item.pickupKey)) this.checkpoint.collected.push(item.pickupKey);
         }
-        item.art.destroy(); item.mark.destroy();
-        const notice = s.add.text(s.player.x, s.player.y - 150, reward.message, { fontFamily: 'Arial', fontSize: '18px', color: '#ffe483', backgroundColor: '#301447', padding: { x: 8, y: 5 } }).setOrigin(.5).setDepth(30);
-        s.tweens.add({ targets: notice, y: notice.y - 35, alpha: 0, delay: 1800, duration: 600, onComplete: () => notice.destroy() });
+        item.art.destroy();
+        const notice = s.add.text(s.player.x, s.player.y - 150, reward.message, {
+          fontFamily: 'Arial, sans-serif', fontSize: '28px', fontStyle: 'bold',
+          color: '#fff1f2', backgroundColor: '#490b18',
+          stroke: '#ab203a', strokeThickness: 2,
+          shadow: { offsetX: 0, offsetY: 2, color: '#ff304b', blur: 8, fill: true },
+          padding: { x: 14, y: 8 },
+        }).setOrigin(.5).setDepth(30);
+        const maskGraphics = s.make.graphics({ x: 0, y: 0, add: false });
+        const mask = maskGraphics.createGeometryMask();
+        notice.setMask(mask);
+        const bounds = notice.getBounds();
+        const tileSize = 4;
+        const tiles = [];
+        for (let y = 0; y < bounds.height; y += tileSize) {
+          for (let x = 0; x < bounds.width; x += tileSize) {
+            tiles.push({ x, y, threshold: Math.random() });
+          }
+        }
+        const dissolve = { progress: 0 };
+        const drawMask = () => {
+          const currentBounds = notice.getBounds();
+          maskGraphics.clear().fillStyle(0xffffff);
+          for (const tile of tiles) {
+            if (tile.threshold >= dissolve.progress) {
+              maskGraphics.fillRect(currentBounds.x + tile.x, currentBounds.y + tile.y,
+                Math.min(tileSize, bounds.width - tile.x), Math.min(tileSize, bounds.height - tile.y));
+            }
+          }
+        };
+        const followPlayer = () => {
+          notice.setPosition(s.player.x, s.player.y - 150);
+          drawMask();
+        };
+        const cleanup = () => {
+          s.events.off('update', followPlayer);
+          s.events.off('shutdown', cleanup);
+          notice.destroy(); mask.destroy(); maskGraphics.destroy();
+        };
+        s.events.on('update', followPlayer);
+        s.events.once('shutdown', cleanup);
+        drawMask();
+        s.tweens.add({ targets: dissolve, progress: 1, delay: 1500, duration: 1200,
+          onUpdate: drawMask, onComplete: cleanup });
       } else if (item.kind === 'coin') {
         this.collected.add(item.pickupKey);
         this.coins++;
@@ -134,11 +169,10 @@ export default class LevelManager {
   update(now) {
     const s=this.scene;
     this.floatingChests = this.floatingChests.filter(({ chest }) => chest.active);
-    for (const { chest, art, mark, baseY, phase } of this.floatingChests) {
+    for (const { chest, art, baseY, phase } of this.floatingChests) {
       const offset = Math.sin(now / 550 + phase) * 8;
       chest.y = baseY + offset;
-      art.y = offset;
-      mark.y = baseY + offset;
+      art.y = baseY + offset;
       chest.body.updateFromGameObject();
     }
     this.moving.forEach(({block,x,range,period})=>{
