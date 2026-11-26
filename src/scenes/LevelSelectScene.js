@@ -37,8 +37,6 @@ export default class LevelSelectScene extends Phaser.Scene {
     this.add.graphics().lineStyle(1, 0x354560).lineBetween(377, 544, 1209, 544);
     this.achievementCount = this.text(378, 558, '', 18, white, 'bold');
     this.achievements = this.text(378, 586, '', 15, muted).setWordWrapWidth(825);
-    this.text(35, 665, 'Flechas · Elegir    Enter · Jugar    Esc · Volver', 15, muted);
-    this.text(35, 685, 'Mando: Cruceta Elegir · A / ✕ Jugar · B / ○ Volver', 15, '#ff9ca8');
     this.play = this.button(885, 664, 212, 'Jugar', () => this.startLevel(), true);
     this.button(1107, 664, 138, 'Volver', () => this.scene.start('Menu'));
 
