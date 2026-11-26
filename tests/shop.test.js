@@ -17,7 +17,7 @@ test('shield purchase costs coins and persists', () => {
   assert.equal(shop.buy('shield').reason, 'already-owned');
   assert.equal(setup(299).shop.buy('shield').reason, 'insufficient-coins');
 });
-test('Blanco de gala is equipped for free by default', () => {
+test('Smooth Criminal is equipped for free by default', () => {
   const { progress, shop } = setup(0);
   assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white']);
   assert.deepEqual(progress.data.purchases, ['white']);
@@ -58,17 +58,18 @@ test('inventory, equipped skin, balance and snow unlock survive a JSON save roun
   assert.equal(loaded.coins, 700);
   assert.deepEqual(loaded.purchases, ['white', 'freeze']);
   assert.equal(loaded.equippedSkin, 'white');
+  assert.equal(getAppearance(levels[0], loaded.equippedSkin).outfit, 'Smooth Criminal');
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);
 });
 test('load ignores unknown or duplicate purchases and derives abilities only from ownership', () => {
-  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'billie-jean', 'unknown', {}, 'white'], equippedSkin: 'billie-jean', abilities: ['freeze', 'cheat'] });
+  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'billie-jean', 'thriller', 'unknown', {}, 'white'], equippedSkin: 'thriller', abilities: ['freeze', 'cheat'] });
   assert.deepEqual(loaded.purchases, ['freeze', 'white']);
   assert.equal(loaded.equippedSkin, 'white');
   assert.deepEqual(loaded.abilities, ['hat', 'moonwalk', 'freeze']);
   assert.equal(validateProgress({ version: 1, abilities: ['freeze'], purchases: [] }).abilities.includes('freeze'), false);
   assert.equal(validateProgress({ version: 1, purchases: ['freeze'], equippedSkin: 'freeze' }).equippedSkin, 'white');
 });
-test('Blanco de gala is worn across seasons without changing level identity or palette', () => {
+test('Smooth Criminal is worn across seasons without changing level identity or palette', () => {
   for (const level of levels) {
     const before = JSON.stringify(level);
     const dressed = getAppearance(level);
