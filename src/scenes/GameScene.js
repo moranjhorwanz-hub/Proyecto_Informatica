@@ -40,9 +40,12 @@ export default class GameScene extends Phaser.Scene {
     this.paused = false;
     this.finished = false;
     this.dead = false;
-    this.services.audio.play(this.level.id, data.musicPosition);
+    const { audio } = this.services;
+    audio.muteStageEffects(this.level.id === 4);
+    audio.play(this.level.id, data.musicPosition);
     this.events.once('shutdown', () => {
-      if (this.services.audio.worldMusic) this.services.audio.stopMusic();
+      if (audio.worldMusic) audio.stopMusic();
+      audio.muteStageEffects(false);
     });
     this.cameras.main.setBackgroundColor(this.level.sky);
     this.backdrop = null;
