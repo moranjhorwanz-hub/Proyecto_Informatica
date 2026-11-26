@@ -23,6 +23,8 @@ export default class BootScene extends Phaser.Scene {
     preloadMicrophones(this);
     this.load.image('chest', `${import.meta.env.BASE_URL}assets/cofre.png`);
     this.load.image('pixel-shield', `${import.meta.env.BASE_URL}assets/escudo-16bit.png`);
+    this.load.image('player-snowflake', `${import.meta.env.BASE_URL}assets/copo-transparente.png`);
+    this.load.image('golden-hat', `${import.meta.env.BASE_URL}assets/sombrero-dorado.png`);
     this.load.image('player-health-hud', `${import.meta.env.BASE_URL}assets/vida%20del%20personaje.png`);
     this.load.image('neon-spikes', `${import.meta.env.BASE_URL}assets/neon-spikes.png`);
     this.load.image('campaign-atlas', `${import.meta.env.BASE_URL}assets/backgrounds/campaign-atlas.png`);

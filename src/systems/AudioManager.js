@@ -19,11 +19,20 @@ export class AudioManager {
     this.jumpBuffer = null; this.jumpLoading = null;
     this.coinBuffer = null; this.coinLoading = null; this.inMenu = false;
     this.musicVoices = new Set(); this.sfxVoices = new Set();
+    this.stageEffectsMuted = false;
     this.settings = validateSettings(settings);
   }
   get muted() { return !this.settings.music; }
   get musicLevel() { return this.muted ? 0 : this.settings.musicVolume * this.settings.masterVolume / 10000; }
-  get effectsLevel() { return this.settings.sfxVolume * this.settings.masterVolume / 10000; }
+  get effectsLevel() {
+    return this.stageEffectsMuted ? 0 : this.settings.sfxVolume * this.settings.masterVolume / 10000;
+  }
+  muteStageEffects(muted) {
+    this.stageEffectsMuted = muted;
+    if (!this.context) return;
+    if (muted) this.stopVoices(this.sfxVoices);
+    this.sfxGain.gain.setValueAtTime(this.effectsLevel, this.context.currentTime);
+  }
   configure(settings) {
     const previous = this.settings.music;
     this.settings = validateSettings(settings);

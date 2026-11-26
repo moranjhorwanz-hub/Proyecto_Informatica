@@ -40,9 +40,12 @@ export default class GameScene extends Phaser.Scene {
     this.paused = false;
     this.finished = false;
     this.dead = false;
-    this.services.audio.play(this.level.id, data.musicPosition);
+    const { audio } = this.services;
+    audio.muteStageEffects(this.level.id === 4);
+    audio.play(this.level.id, data.musicPosition);
     this.events.once('shutdown', () => {
-      if (this.services.audio.worldMusic) this.services.audio.stopMusic();
+      if (audio.worldMusic) audio.stopMusic();
+      audio.muteStageEffects(false);
     });
     this.cameras.main.setBackgroundColor(this.level.sky);
     this.backdrop = null;
@@ -84,7 +87,7 @@ export default class GameScene extends Phaser.Scene {
     this.appearance = getAppearance(this.level, this.services.progress.data.equippedSkin);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
     this.player.state.shieldUsed = Boolean(data.retrying);
-    this.shieldAura = this.add.image(0, 0, 'pixel-shield').setDisplaySize(70, 70).setDepth(9).setVisible(false);
+    this.shieldAura = this.add.graphics().setDepth(9).setVisible(false);
     this.physics.add.collider(this.player, this.solids);
     if(!this.campaign)this.physics.add.overlap(this.player, this.hazard, () => {
       this.player.takeDamage(this.player.x < this.hazard.x ? -1 : 1);
@@ -287,7 +290,16 @@ export default class GameScene extends Phaser.Scene {
       if (justPressed(kind)) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
-    this.shieldAura.setPosition(this.player.x + this.player.state.facing * 42, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
+    const shieldActive = this.player.state.shieldHits > 0;
+    this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(shieldActive);
+    if (shieldActive) {
+      const pulse = (this.playTime % 1200) / 1200;
+      this.shieldAura.clear()
+        .fillStyle(0x39caff, .08).fillEllipse(0, 0, 100, 145)
+        .lineStyle(3, 0x9fefff, .8).strokeEllipse(0, 0, 100, 145)
+        .lineStyle(3, 0x49d8ff, .6 * (1 - pulse))
+        .strokeEllipse(0, 0, 100 + pulse * 32, 145 + pulse * 32);
+    }
     const shield = this.player.state;
     this.shieldText.setText(shield.shieldHits > 0 ? `Escudo: ${shield.shieldHits} / 3 golpes` : this.services.progress.data.abilities.includes('shield') ? shield.shieldUsed ? 'Escudo agotado' : 'E / ↑: escudo listo' : '');
     const waveSeconds = Math.ceil((this.combat.state.energyWaveUntil - this.playTime) / 1000);

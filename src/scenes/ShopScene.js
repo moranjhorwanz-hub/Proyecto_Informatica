@@ -52,17 +52,8 @@ export default class ShopScene extends Phaser.Scene {
     this.previewBody = this.text(380, 189, '', 20, muted).setWordWrapWidth(820);
     this.add.graphics().lineStyle(1, 0x354560).lineBetween(377, 257, 1209, 257);
     this.preview = this.add.sprite(792, 512, '__DEFAULT').setOrigin(.5, 1);
-    this.snowPreview = this.add.graphics().setVisible(false);
-    this.snowPreview.lineStyle(5, 0xbceaff);
-    for (let i = 0; i < 3; i++) {
-      const a = i * Math.PI / 3;
-      this.snowPreview.lineBetween(792 - Math.cos(a) * 52, 398 - Math.sin(a) * 52, 792 + Math.cos(a) * 52, 398 + Math.sin(a) * 52);
-    }
-    this.hatPreview = this.add.graphics().setVisible(false);
-    this.hatPreview.fillStyle(0xf3f2ea).fillEllipse(792, 430, 180, 34).fillRoundedRect(738, 350, 108, 78, 22);
-    this.hatPreview.fillStyle(0xe5b83d).fillRect(738, 405, 108, 12);
-    this.hatPreview.lineStyle(4, 0xffd45b);
-    for (const [x, y] of [[714, 354], [865, 370], [810, 320]]) { this.hatPreview.lineBetween(x - 12, y, x + 12, y); this.hatPreview.lineBetween(x, y - 12, x, y + 12); }
+    this.snowPreview = this.add.image(792, 398, 'player-snowflake').setDisplaySize(170, 170).setVisible(false);
+    this.hatPreview = this.add.image(792, 395, 'golden-hat').setDisplaySize(240, 160).setVisible(false);
     this.shieldPreview = this.add.image(792, 392, 'pixel-shield').setDisplaySize(155, 155).setVisible(false);
     this.actionText = this.button(580, 531, 424, 48, '', () => this.activate(), true);
     this.feedback = this.text(380, 590, '', 16, '#c3ecdd').setWordWrapWidth(820);

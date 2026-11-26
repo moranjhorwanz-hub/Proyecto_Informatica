@@ -118,8 +118,12 @@ export default class CombatSystem {
     else {
       const isNote = kind === 'note';
       const shot = this.projectiles.create(p.x + p.state.facing * 30, p.y - 65,
-        isNote ? 'combat-note' : 'combat-flake');
+        isNote ? 'combat-note' : 'player-snowflake');
       if (isNote) shot.setDepth(12).body.setSize(26, 30);
+      else {
+        shot.setDisplaySize(48, 48).setDepth(12);
+        shot.body.setSize(shot.width * .6, shot.height * .6);
+      }
       shot.body.setAllowGravity(false);
       shot.setVelocityX(p.state.facing * (isNote ? 620 : 430));
       shot.expires = s.playTime + (isNote ? 750 : 1200);
@@ -177,7 +181,7 @@ export default class CombatSystem {
       }
       for (const shot of shots) {
         if (!enemy.active || !shot.active || !spritesTouch(shot, enemy)) continue;
-        if (shot.texture.key === 'combat-flake') enemy.freeze(this.state.settings.freezeDuration);
+        if (shot.texture.key === 'player-snowflake') enemy.freeze(this.state.settings.freezeDuration);
         this.damageEnemy(enemy);
         shot.destroy();
       }
