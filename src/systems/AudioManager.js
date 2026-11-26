@@ -19,11 +19,20 @@ export class AudioManager {
     this.jumpBuffer = null; this.jumpLoading = null;
     this.coinBuffer = null; this.coinLoading = null; this.inMenu = false;
     this.musicVoices = new Set(); this.sfxVoices = new Set();
+    this.stageEffectsMuted = false;
     this.settings = validateSettings(settings);
   }
   get muted() { return !this.settings.music; }
   get musicLevel() { return this.muted ? 0 : this.settings.musicVolume * this.settings.masterVolume / 10000; }
-  get effectsLevel() { return this.settings.sfxVolume * this.settings.masterVolume / 10000; }
+  get effectsLevel() {
+    return this.stageEffectsMuted ? 0 : this.settings.sfxVolume * this.settings.masterVolume / 10000;
+  }
+  muteStageEffects(muted) {
+    this.stageEffectsMuted = muted;
+    if (!this.context) return;
+    if (muted) this.stopVoices(this.sfxVoices);
+    this.sfxGain.gain.setValueAtTime(this.effectsLevel, this.context.currentTime);
+  }
   configure(settings) {
     const previous = this.settings.music;
     this.settings = validateSettings(settings);
@@ -40,7 +49,7 @@ export class AudioManager {
       this.play(this.level, this.worldMusic?.currentTime ?? this.worldPosition);
     }
   }
-  unlock(level) {
+  unlock(level, position) {
     if (!this.context) {
       this.context = new (window.AudioContext || window.webkitAudioContext)();
       this.musicGain = this.context.createGain(); this.sfxGain = this.context.createGain();
@@ -53,7 +62,7 @@ export class AudioManager {
     this.loadJumpSound();
     this.loadCoinSound();
     this.loadEnemyHitSound();
-    if (level !== undefined) this.play(level);
+    if (level !== undefined) this.play(level, position);
     else if (this.inMenu) this.playMenu();
     else if (!this.awaitingRetry && !this.worldMusic) this.play(this.level, this.worldPosition);
   }
@@ -115,7 +124,8 @@ export class AudioManager {
   play(level, position) {
     // The selector starts playback during the input event. Keep that track
     // when Phaser creates the level on the next frame.
-    if (position === undefined && this.worldMusic && this.level === level) return;
+    if (!this.muted && this.worldMusic && this.level === level
+      && (position === undefined || position === this.worldPosition)) return;
     this.awaitingRetry = false;
     this.worldPosition = position ?? 0;
     this.stopMenu();

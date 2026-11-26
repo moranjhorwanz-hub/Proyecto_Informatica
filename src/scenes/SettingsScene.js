@@ -87,11 +87,6 @@ export default class SettingsScene extends Phaser.Scene {
 
     [this.graphicsPage, this.audioPage, this.controlsPage, this.generalPage][this.tab].call(this);
     this.feedback = this.text(377, 584, notice, 17, '#ffd2d9');
-    this.text(35, 659, this.tab === 2 && this.controlDevice === 0
-      ? 'Tab · Apartados    ↑ ↓ · Elegir    Enter · Cambiar'
-      : 'Tab · Apartados    ↑ ↓ · Elegir    ← → · Ajustar', 14, '#afbfd6');
-    this.text(35, 677, 'Mando: LB / L1 y RB / R1 Apartados · Cruceta Elegir o ajustar', 14, '#ff9ca8');
-    this.text(35, 695, 'A / ✕ Aplicar · B / ○ Volver', 14, '#ff9ca8');
     this.button(691, 664, 259, 43, 'Restablecer valores', () => {
       this.draft = { ...DEFAULT_SETTINGS };
       this.binding = null;

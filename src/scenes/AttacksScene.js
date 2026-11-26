@@ -17,7 +17,11 @@ export default class AttacksScene extends Phaser.Scene {
     this.snowUnlocked = canUseSnow(progress.data);
     this.tab = 0;
     this.actions = {
-      practice: () => this.scene.start('Game', { levelId: progress.data.selectedLevel, mode: 'practice' }),
+      practice: () => {
+        const levelId = progress.data.selectedLevel;
+        this.services.audio.unlock(levelId);
+        this.scene.start('Game', { levelId, mode: 'practice' });
+      },
       shop: () => this.scene.start('Shop', { itemId: 'freeze' }),
       back: () => this.scene.start('Menu'),
     };
@@ -75,9 +79,6 @@ export default class AttacksScene extends Phaser.Scene {
     if (this.tab === 0) this.renderMoves();
     else this.renderCharacter();
 
-    this.text(35, 659, 'Tab · Apartados    Enter · Ensayo    T · Tienda    Esc · Volver', 14, 'normal', '#afbfd6');
-    this.text(35, 677, 'Mando: LB / L1 Apartados · RB / R1 Tienda', 14, 'normal', '#ff9ca8');
-    this.text(35, 695, 'A / ✕ Ensayo · B / ○ Volver', 14, 'normal', '#ff9ca8');
     this.button(705, 664, 170, 43, 'Abrir tienda', this.actions.shop);
     this.button(885, 664, 212, 43, 'Entrar al ensayo', this.actions.practice, true);
     this.button(1107, 664, 138, 43, 'Volver', this.actions.back);

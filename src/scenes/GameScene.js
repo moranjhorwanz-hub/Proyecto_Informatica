@@ -40,9 +40,12 @@ export default class GameScene extends Phaser.Scene {
     this.paused = false;
     this.finished = false;
     this.dead = false;
-    this.services.audio.play(this.level.id, data.musicPosition);
+    const { audio } = this.services;
+    audio.muteStageEffects(this.level.id === 4);
+    audio.play(this.level.id, data.musicPosition);
     this.events.once('shutdown', () => {
-      if (this.services.audio.worldMusic) this.services.audio.stopMusic();
+      if (audio.worldMusic) audio.stopMusic();
+      audio.muteStageEffects(false);
     });
     this.cameras.main.setBackgroundColor(this.level.sky);
     this.backdrop = null;
@@ -81,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
     label(this, 1225, 666, 'Zona de daño', 15, '#ffb0a3');
     }
     const [spawnX,spawnY]=this.levelManager?.spawn || [130,600];
-    this.appearance = getAppearance(this.level);
+    this.appearance = getAppearance(this.level, this.services.progress.data.equippedSkin);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
     this.player.state.shieldUsed = Boolean(data.retrying);
     this.shieldAura = this.add.image(0, 0, 'pixel-shield').setDisplaySize(70, 70).setDepth(9).setVisible(false);

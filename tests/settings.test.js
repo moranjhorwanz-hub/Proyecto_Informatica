@@ -11,7 +11,7 @@ import { PlayerState } from '../src/entities/playerState.js';
 import { AudioManager } from '../src/systems/AudioManager.js';
 
 test('invalid saved preferences fall back independently without changing progression',()=>{
-  const data={...defaultProgress(),coins:123,purchases:['thriller'],equippedSkin:'thriller',settings:{language:'xx',music:'yes',musicVolume:-1,sfxVolume:101,difficulty:'constructor'}};
+  const data={...defaultProgress(),coins:123,purchases:['removed-skin'],equippedSkin:'removed-skin',settings:{language:'xx',music:'yes',musicVolume:-1,sfxVolume:101,difficulty:'constructor'}};
   const loaded=validateProgress(data);
   assert.deepEqual(loaded.settings,DEFAULT_SETTINGS);
   assert.equal(loaded.coins,123);assert.equal(loaded.equippedSkin,'white');

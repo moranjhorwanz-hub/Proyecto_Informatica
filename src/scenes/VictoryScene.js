@@ -17,18 +17,20 @@ export default class VictoryScene extends Phaser.Scene {
   create({ levelId = 1, result = null } = {}) {
     const level = levels.find(stage => stage.id === levelId) ?? levels[0];
     const nextLevel = levels[levels.indexOf(level) + 1];
-    const { progress } = this.registry.get('services');
-    const retry = () => this.scene.start('Game', { levelId: level.id, mode: 'campaign' });
-    const advance = nextLevel
-      ? () => this.scene.start('Game', { levelId: nextLevel.id, mode: 'campaign' })
-      : retry;
+    const { progress, audio } = this.registry.get('services');
+    const startLevel = levelId => {
+      audio.unlock(levelId);
+      this.scene.start('Game', { levelId, mode: 'campaign' });
+    };
+    const retry = () => startLevel(level.id);
+    const advance = nextLevel ? () => startLevel(nextLevel.id) : retry;
     const menu = () => this.scene.start('Menu');
     const settings = () => this.scene.start('Settings', { victory: { levelId: level.id, result } });
     const levelSelect = () => this.scene.start('LevelSelect');
 
     this.add.image(640, 360, 'victory-city').setDisplaySize(1280, 720);
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level), 'dance');
+    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level, progress.data.equippedSkin), 'dance');
 
     const title = this.label(center, 174, 'VICTORIA', 108, '#ffffff', 'bold italic')
       .setStroke('#dc2234', 5)

@@ -13,7 +13,7 @@ test('only Michael is playable', () => {
   assert.equal(shop.buy('gold-dancer').reason, 'unknown-item');
 });
 
-test('old saves switch to Michael in Blanco de gala and keep purchased abilities', () => {
+test('old saves switch to Michael in Smooth Criminal and keep purchased abilities', () => {
   const loaded = validateProgress({
     ...defaultProgress(),
     coins: 450,

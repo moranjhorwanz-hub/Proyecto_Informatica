@@ -12,7 +12,7 @@ export default class GameOverScene extends Phaser.Scene {
     const { progress } = this.registry.get('services');
     const level = levels.find(stage => stage.id === levelId) ?? levels[0];
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level), 'dance');
+    createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level, progress.data.equippedSkin), 'dance');
     // Cover the printed score inside the artwork while preserving the panel border.
     this.add.graphics().fillStyle(0x130608).fillRoundedRect(475, 326, 350, 51, 8);
     this.add.text(614, 350, 'Monedas obtenidas', {
@@ -22,7 +22,10 @@ export default class GameOverScene extends Phaser.Scene {
       fontFamily: 'Arial', fontSize: 34, fontStyle: 'bold', color: '#ffdd50',
     }).setOrigin(.5);
 
-    const retry = () => this.scene.start('Game', { levelId, mode, checkpoint, musicPosition, retrying: true });
+    const retry = () => {
+      this.registry.get('services').audio.unlock(levelId, musicPosition);
+      this.scene.start('Game', { levelId, mode, checkpoint, musicPosition, retrying: true });
+    };
     const menu = () => this.scene.start('Menu');
     const settings = () => this.scene.start('Settings', { gameOver: { levelId, mode, coins, checkpoint, musicPosition } });
     const options = [

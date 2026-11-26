@@ -23,7 +23,7 @@ export default class MenuScene extends Phaser.Scene {
       this.input.off('pointerdown',unlockMenu);
       this.input.keyboard.off('keydown',unlockMenu);
     });
-    this.appearance=getAppearance(this.level);
+    this.appearance=getAppearance(this.level, progress.equippedSkin);
     this.reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
     this.backdrop=null;
     const backdropKey={1:'spring-menu',2:'summer-menu',3:'autumn-menu',4:'christmas-menu'}[this.level.world];
@@ -103,7 +103,6 @@ export default class MenuScene extends Phaser.Scene {
       box.on('pointerout',()=>box.setStrokeStyle(1,menuColors.border,selected?.8:.18));
       return {id:level.id,box,label};
     });
-    text(this,1234,697,'KING JACKSON',10,menuColors.muted).setOrigin(1,0).setLetterSpacing(1);
   }
 
   highlight(immediate=false) {

@@ -401,7 +401,7 @@ try {
   const shopShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-shop.png',Buffer.from(shopShot.data,'base64'));
   await tap('Escape','Escape');
-  assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.outfit`),'Blanco de gala');
+  assert.equal(await evaluate(`testGame.scene.getScene('Menu').appearance.outfit`),'Smooth Criminal');
   for(const id of [1,2,3,4]) {
     await evaluate(`testGame.scene.getScenes(true)[0].scene.start('Game',{levelId:${id},mode:'campaign'});true`);
     await advance(100);
@@ -539,7 +539,7 @@ try {
   // Browser may request favicon before one exists; runtime errors are never filtered.
   const relevantErrors = errors.filter(error => !error.includes('favicon.ico'));
   assert.deepEqual(relevantErrors, [], 'No browser exceptions or console errors');
-  console.log('Browser smoke passed: menu, selection, movement, run, jump, moonwalk, cooldown, crouch/ceiling, damage, immunity, pause, falls, restart, finish, Blanco de gala and return.');
+  console.log('Browser smoke passed: menu, selection, movement, run, jump, moonwalk, cooldown, crouch/ceiling, damage, immunity, pause, falls, restart, finish, Smooth Criminal and return.');
   console.log('Screenshot: .tools/phase3-practice.png');
 } finally {
   if (socket?.readyState === WebSocket.OPEN) closeBrowser?.();
