@@ -9,6 +9,7 @@ export default class GameOverScene extends Phaser.Scene {
 
   create({ levelId = 1, mode = 'campaign', coins = 0, checkpoint, musicPosition } = {}) {
     this.add.image(640, 360, 'game-over').setDisplaySize(1280, 720);
+    const { progress } = this.registry.get('services');
     const level = levels.find(stage => stage.id === levelId) ?? levels[0];
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     createPixelMenuCharacter(this, 205, 669, 2.3, reducedMotion, getAppearance(level), 'dance');
