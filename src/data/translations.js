@@ -265,6 +265,7 @@ FIN DEL ENSAYO|END OF PRACTICE|FIN DE L'ENTRAÎNEMENT
 Zona de daño|Damage zone|Zone de dégâts
 Pausa|Pause|Pause
 Continuar|Resume|Reprendre
+Reiniciar partida|Restart game|Recommencer la partie
 A/D o ← →  Mover    SHIFT  Correr    ESPACIO  Saltar    S/↓  Agacharse    M  Moonwalk    R  Reiniciar    ESC  Menú|A/D or ← →  Move    SHIFT  Run    SPACE  Jump    S/↓  Crouch    M  Moonwalk    R  Restart    ESC  Menu|A/D ou ← →  Bouger    MAJ  Courir    ESPACE  Sauter    S/↓  S'accroupir    M  Moonwalk    R  Recommencer    ÉCHAP  Menu
 Sombrero|Hat|Chapeau
 Giro|Spin|Rotation

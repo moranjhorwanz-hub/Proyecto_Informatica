@@ -40,7 +40,7 @@ export class AudioManager {
       this.play(this.level, this.worldMusic?.currentTime ?? this.worldPosition);
     }
   }
-  unlock() {
+  unlock(level) {
     if (!this.context) {
       this.context = new (window.AudioContext || window.webkitAudioContext)();
       this.musicGain = this.context.createGain(); this.sfxGain = this.context.createGain();
@@ -53,7 +53,8 @@ export class AudioManager {
     this.loadJumpSound();
     this.loadCoinSound();
     this.loadEnemyHitSound();
-    if (this.inMenu) this.playMenu();
+    if (level !== undefined) this.play(level);
+    else if (this.inMenu) this.playMenu();
     else if (!this.awaitingRetry && !this.worldMusic) this.play(this.level, this.worldPosition);
   }
   loadDamageSound() {
@@ -111,9 +112,12 @@ export class AudioManager {
     if (!this.muted) this.menuMusic.play().catch(() => {});
   }
   stopMenu() { this.inMenu = false; if (this.menuMusic) { this.menuMusic.pause(); this.menuMusic.currentTime = 0; } }
-  play(level, position = 0) {
+  play(level, position) {
+    // The selector starts playback during the input event. Keep that track
+    // when Phaser creates the level on the next frame.
+    if (position === undefined && this.worldMusic && this.level === level) return;
     this.awaitingRetry = false;
-    this.worldPosition = position;
+    this.worldPosition = position ?? 0;
     this.stopMenu();
     this.stopMusic(); this.level = Number.isInteger(level) && level >= 1 && level <= 12 ? level : 1;
     if (!this.context || this.muted) return;
@@ -123,7 +127,7 @@ export class AudioManager {
       this.worldMusic = track;
       track.loop = true;
       track.volume = this.musicLevel;
-      track.currentTime = position;
+      track.currentTime = this.worldPosition;
       track.play().catch(() => {
         if (this.worldMusic !== track) return;
         this.stopMusic();

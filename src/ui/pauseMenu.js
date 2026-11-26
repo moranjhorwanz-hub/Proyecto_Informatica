@@ -40,10 +40,10 @@ export function createPauseMenu(scene, actions) {
     .setFontStyle('bold italic').setStroke('#3c2844', 5).setShadow(0, 4, '#ff344e', 12, true, true);
   root.add(title);
 
-  const options = [['Continuar', actions.resume], ['Menú principal', actions.menu], ['Configuración', actions.settings]];
+  const options = [['Continuar', actions.resume], ['Reiniciar partida', actions.restart], ['Menú principal', actions.menu], ['Configuración', actions.settings]];
   let selected = 0;
   const rows = options.map(([label, action], index) => {
-    const y = 274 + index * 77;
+    const y = 262 + index * 61;
     const graphics = scene.add.graphics();
     const text = menuText(scene, 654, y + 28, label, 30).setOrigin(.5).setFontStyle('bold');
     const hit = scene.add.zone(654, y + 28, 386, 56).setInteractive({ useHandCursor: true });
@@ -52,9 +52,6 @@ export function createPauseMenu(scene, actions) {
     hit.on('pointerdown', action);
     return { graphics, text, label, y, points: bevel(461, y, 386, 56, 12) };
   });
-  const hint = menuText(scene, 640, 532, '', 20, '#e2d9ed').setOrigin(.5);
-  const controllerHint = menuText(scene, 640, 550, '', 13, '#ff9ca8').setOrigin(.5);
-  root.add([hint, controllerHint]);
   root.setScrollFactor(0, 0, true);
 
   function draw() {
@@ -78,8 +75,6 @@ export function createPauseMenu(scene, actions) {
       selected = 0;
       title.setText('PAUSA');
       rows.forEach(({ text, label }) => fitMenuText(text.setText(label).setFontSize(30), 350));
-      fitMenuText(hint.setText('Esc · Volver al menú').setFontSize(20), 430);
-      fitMenuText(controllerHint.setText('Mando: Menu / Options Continuar · View / Share Menú').setFontSize(13), 670);
       draw();
     },
     move(step) {

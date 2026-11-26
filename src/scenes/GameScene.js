@@ -84,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
     this.appearance = getAppearance(this.level);
     this.player = new Player(this, spawnX, spawnY, this.appearance);
     this.player.state.shieldUsed = Boolean(data.retrying);
-    this.shieldAura = this.add.ellipse(0, 0, 84, 136, 0x52d9ff, .14).setStrokeStyle(3, 0x85edff, .85).setDepth(9).setVisible(false);
+    this.shieldAura = this.add.image(0, 0, 'pixel-shield').setDisplaySize(70, 70).setDepth(9).setVisible(false);
     this.physics.add.collider(this.player, this.solids);
     if(!this.campaign)this.physics.add.overlap(this.player, this.hazard, () => {
       this.player.takeDamage(this.player.x < this.hazard.x ? -1 : 1);
@@ -113,6 +113,7 @@ export default class GameScene extends Phaser.Scene {
     this.bossHealthBar = createBossHealthBar(this, this.levelManager?.course.boss?.kind);
     this.pauseMenu = createPauseMenu(this, {
       resume: () => this.setPaused(false),
+      restart: () => this.scene.restart({ levelId: this.level.id, mode: this.campaign ? 'campaign' : 'practice', retrying: true }),
       menu: () => this.scene.start('Menu'),
       settings: () => {
         this.scene.launch('Settings', { fromPause: true });
@@ -275,7 +276,7 @@ export default class GameScene extends Phaser.Scene {
       if (justPressed(kind)) this.combat.attack(kind);
     }
     this.combat.update(this.playTime, delta);
-    this.shieldAura.setPosition(this.player.x, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
+    this.shieldAura.setPosition(this.player.x + this.player.state.facing * 42, this.player.y - 60).setVisible(this.player.state.shieldHits > 0);
     const shield = this.player.state;
     this.shieldText.setText(shield.shieldHits > 0 ? `Escudo: ${shield.shieldHits} / 3 golpes` : this.services.progress.data.abilities.includes('shield') ? shield.shieldUsed ? 'Escudo agotado' : 'E / ↑: escudo listo' : '');
     const waveSeconds = Math.ceil((this.combat.state.energyWaveUntil - this.playTime) / 1000);
