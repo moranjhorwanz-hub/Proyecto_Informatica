@@ -17,7 +17,7 @@ test('shield purchase costs coins and persists', () => {
   assert.equal(shop.buy('shield').reason, 'already-owned');
   assert.equal(setup(299).shop.buy('shield').reason, 'insufficient-coins');
 });
-test('Blanco de gala is equipped for free by default', () => {
+test('Smooth Criminal is equipped for free by default', () => {
   const { progress, shop } = setup(0);
   assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white']);
   assert.deepEqual(progress.data.purchases, ['white']);
@@ -68,7 +68,7 @@ test('load ignores unknown or duplicate purchases and derives abilities only fro
   assert.equal(validateProgress({ version: 1, abilities: ['freeze'], purchases: [] }).abilities.includes('freeze'), false);
   assert.equal(validateProgress({ version: 1, purchases: ['freeze'], equippedSkin: 'freeze' }).equippedSkin, 'white');
 });
-test('Blanco de gala is worn across seasons without changing level identity or palette', () => {
+test('Smooth Criminal is worn across seasons without changing level identity or palette', () => {
   for (const level of levels) {
     const before = JSON.stringify(level);
     const dressed = getAppearance(level);
