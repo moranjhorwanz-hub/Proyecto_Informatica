@@ -86,9 +86,11 @@ export default class AttacksScene extends Phaser.Scene {
 
   renderMoves() {
     const combat = { ...COMBAT_DEFAULTS, ...this.character.combat };
-    const { controls } = this.services.progress.data.settings;
+    const { equippedSkin, settings: { controls } } = this.services.progress.data;
+    const usesPulse = equippedSkin === 'thriller';
     const moves = [
-      ['hat', 'Sombrero de retorno', 'Lanza un sombrero que regresa. Solo uno en vuelo.',
+      ['hat', usesPulse ? 'Pulso de retorno' : 'Sombrero de retorno',
+        usesPulse ? 'Lanza un pulso que regresa. Solo uno en vuelo.' : 'Lanza un sombrero que regresa. Solo uno en vuelo.',
         `${seconds(combat.hatCooldown)} s`],
       ['spin', 'Giro', `Golpea alrededor de ti en un radio de ${combat.spinRange ?? 100} px.`,
         `${seconds(combat.spinCooldown)} s`],
@@ -96,7 +98,8 @@ export default class AttacksScene extends Phaser.Scene {
         `${seconds(combat.freezeCooldown)} s`],
       ['note', 'Nota musical', 'Lanza una nota rápida que inflige un punto de daño.',
         `${seconds(combat.noteCooldown)} s`],
-      ['hatPower', 'Sombrero estelar', 'Duplica el daño del sombrero durante 10 s. Se compra en la tienda.', '30 s'],
+      ['hatPower', 'Sombrero estelar',
+        usesPulse ? 'Duplica el daño del pulso durante 10 s. Se compra en la tienda.' : 'Duplica el daño del sombrero durante 10 s. Se compra en la tienda.', '30 s'],
       ['moon', 'Moonwalk', 'Esquiva mientras te deslizas.', '—'],
     ];
     this.text(1188, 181, 'Recarga', 16, 'bold', '#afbfd6').setOrigin(1, 0);

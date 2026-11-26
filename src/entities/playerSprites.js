@@ -33,6 +33,18 @@ const billieJeanPoses = {
   crouch: { start: 2, count: 2, scale: 0.975 },
 };
 
+const thrillerLayout = { scale: 0.32, floor: 460 };
+const thrillerPoses = {
+  hat: {
+    frames: [{ group: '11_celebrar', number: 2 }, { group: '03_baile_sombrero', number: 5 }],
+  },
+  // Keep an airborne pose until the character lands.
+  jump: { frames: [{ number: 1 }, { number: 2 }, { number: 3 }, { number: 4 }, { number: 4 }] },
+  // Start facing forward along the stage, then turn through back, left and front.
+  spin: { frames: [{ number: 2 }, { number: 3 }, { number: 4 }, { number: 1 }, { number: 5 }] },
+};
+const outfitPoses = { 'billie-jean': billieJeanPoses, thriller: thrillerPoses };
+
 export const PLAYER_PREFIX = 'player-pixel';
 export const PLAYER_FRAME_WIDTH = 128;
 export const PLAYER_FRAME_HEIGHT = 164;
@@ -56,20 +68,22 @@ const headPositions = {
 export function getPlayerSpritePrefix(scene, appearance, { preview = false } = {}) {
   if (!appearance.textureId && !preview) return PLAYER_PREFIX;
   const prefix = appearance.textureId ? `dancer-${appearance.textureId}` : `wardrobe-${appearance.id}`;
+  const layout = appearance.spriteSet === 'thriller' ? thrillerLayout : undefined;
   for (const [move, [group, count, frameRate, loop = true, start = 1]] of Object.entries(moves)) {
     if (preview && move !== 'idle') continue;
     const animation = `${prefix}-${move}`;
     if (!preview && scene.anims.exists(animation)) continue;
-    const outfitPose = appearance.spriteSet === 'billie-jean' ? billieJeanPoses[move] : undefined;
+    const outfitPose = outfitPoses[appearance.spriteSet]?.[move];
     const frames = Array.from({ length: outfitPose?.frames?.length ?? outfitPose?.count ?? count }, (_, index) => {
       if (appearance.spriteSet) {
         const key = `${animation}-${index}`;
         if (!scene.textures.exists(key)) {
           const poseFrame = outfitPose?.frames?.[index];
           const number = poseFrame?.number ?? (outfitPose?.start ?? start) + index;
-          const frame = sourceKey(outfitPose?.group ?? group, number);
+          const frame = sourceKey(poseFrame?.group ?? outfitPose?.group ?? group, number);
           const source = `${appearance.spriteSet}-${frame}`;
-          registerOutfitFrame(scene, key, source, `${PLAYER_PREFIX}-${move}-${index}`, outfitPose?.scale, poseFrame?.flipX);
+          if (layout) registerSpriteFrame(scene, key, source, layout);
+          else registerOutfitFrame(scene, key, source, `${PLAYER_PREFIX}-${move}-${index}`, outfitPose?.scale, poseFrame?.flipX);
         }
         return { key };
       }
@@ -101,12 +115,25 @@ const thrownHatPixels = [
   '.......#########........',
 ];
 
-export function getThrownHatTexture(scene, playerPrefix, appearance) {
-  const key = `combat-hat-${playerPrefix}`;
-  if (scene.textures.exists(key)) return key;
+const thrownPulsePixels = [
+  '........................',
+  '...........r............',
+  '.........rrsr...........',
+  '.......rrsssr...........',
+  '.....rrsshhssrr.........',
+  '...rrsshh++hhssrr.......',
+  '..rrsshh++++hhssrrr.....',
+  '.....rrsh++++hhssrrrr...',
+  '.......rrshhhssrrr......',
+  '.........rssssrr........',
+  '.........rsmrr..........',
+  '........rrr.............',
+  '.........r..............',
+  '........................',
+];
+const pulsePalette = { r: '#a8133f', s: '#ee204c', m: '#ff4965', h: '#ff9b72', '+': '#fff1ce' };
 
-  const texture = scene.textures.createCanvas(key, 48, 28);
-  const context = texture.getContext();
+function thrownHatPalette(appearance) {
   const base = Phaser.Display.Color.IntegerToColor(
     (appearance?.textureId && appearance.hatColor) ?? 0xe8e4db,
   );
@@ -117,7 +144,7 @@ export function getThrownHatTexture(scene, playerPrefix, appearance) {
   };
   const light = [255, 247, 230];
   const shadow = [10, 12, 23];
-  const palette = {
+  return {
     '#': blend(shadow, .91),
     h: blend(light, .43),
     g: blend(light, .18),
@@ -127,7 +154,18 @@ export function getThrownHatTexture(scene, playerPrefix, appearance) {
     b: blend(shadow, .84),
     '+': blend(light, .68),
   };
-  thrownHatPixels.forEach((row, y) => {
+}
+
+export function getThrownProjectileTexture(scene, playerPrefix, appearance) {
+  const pulse = appearance?.spriteSet === 'thriller';
+  const key = pulse ? 'combat-thriller-pulse' : `combat-hat-${playerPrefix}`;
+  if (scene.textures.exists(key)) return key;
+
+  const texture = scene.textures.createCanvas(key, 48, 28);
+  const context = texture.getContext();
+  const pixels = pulse ? thrownPulsePixels : thrownHatPixels;
+  const palette = pulse ? pulsePalette : thrownHatPalette(appearance);
+  pixels.forEach((row, y) => {
     [...row].forEach((pixel, x) => {
       if (pixel === '.') return;
       context.fillStyle = palette[pixel];
@@ -169,13 +207,41 @@ export function registerPlayerSprites(scene) {
   }
 }
 
-function registerSpriteFrame(scene, key, sourceKey) {
+export function createThrillerMenuSprite(scene, x, y, scale, reducedMotion) {
+  const [idleGroup, , , , idleFrame] = moves.idle;
+  const idle = `thriller-${sourceKey(idleGroup, idleFrame)}`;
+  const hero = scene.add.sprite(x, y - scale, idle)
+    .setScale(scale * thrillerLayout.scale);
+  hero.setOrigin(.5, thrillerLayout.floor / hero.height);
+  if (reducedMotion) return hero;
+
+  // The enlarged menu sprite can use the source art directly to retain small facial details.
+  const animation = 'menu-thriller-dance';
+  if (!scene.anims.exists(animation)) {
+    const [group, count, frameRate] = moves.dance;
+    const frames = Array.from({ length: count }, (_, index) => ({
+      key: `thriller-${sourceKey(group, index + 1)}`,
+    }));
+    scene.anims.create({ key: animation, frames, frameRate, repeat: -1 });
+  }
+  hero.play(animation);
+  return hero;
+}
+
+function registerSpriteFrame(scene, key, sourceKey, layout) {
   const source = scene.textures.get(sourceKey).getSourceImage();
   const texture = scene.textures.createCanvas(key, PLAYER_FRAME_WIDTH, PLAYER_FRAME_HEIGHT);
   const context = texture.getContext();
   context.imageSmoothingEnabled = false;
-  // The gala source frames share a common floor, including the airborne poses.
-  context.drawImage(source, 0, 0, PLAYER_FRAME_WIDTH, 174);
+  if (layout) {
+    // Use the same position and scale for all source frames to retain the authored movement.
+    const width = source.width * layout.scale;
+    const x = (PLAYER_FRAME_WIDTH - width) / 2;
+    const y = PLAYER_FRAME_HEIGHT - 1 - layout.floor * layout.scale;
+    context.drawImage(source, x, y, width, source.height * layout.scale);
+  } else {
+    context.drawImage(source, 0, 0, PLAYER_FRAME_WIDTH, 174);
+  }
   texture.refresh();
   texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
 }

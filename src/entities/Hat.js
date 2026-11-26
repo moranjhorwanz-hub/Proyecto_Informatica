@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
-import { getThrownHatTexture } from './playerSprites.js';
+import { getThrownProjectileTexture } from './playerSprites.js';
 export const HAT_DEFAULTS = Object.freeze({ speed: 480, cooldown: 500, outboundDuration: 450, damage: 2 });
 
 export default class Hat extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, owner) {
-    super(scene, owner.x, owner.y - 60, getThrownHatTexture(scene, owner.prefix, scene.appearance));
+    super(scene, owner.x, owner.y - 60, getThrownProjectileTexture(scene, owner.prefix, scene.appearance));
     scene.add.existing(this); scene.physics.add.existing(this);
     this.owner = owner; this.born = scene.playTime; this.direction = owner.state.facing;
     this.hit = new Set();

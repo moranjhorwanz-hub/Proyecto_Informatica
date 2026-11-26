@@ -190,6 +190,8 @@ Traje guardado. Pulsa de nuevo para equiparlo.|Outfit saved. Press again to equi
 Thriller|Thriller|Thriller
 Smooth Criminal|Smooth Criminal|Smooth Criminal
 Traje de Billie Jean|Billie Jean outfit|Tenue de Billie Jean
+Traje de Thriller|Thriller outfit|Tenue de Thriller
+Chaqueta y pantalones rojos con detalles negros.|Red jacket and trousers with black accents.|Veste et pantalon rouges avec des détails noirs.
 Chaqueta negra de lentejuelas, camiseta blanca, guante plateado y sombrero negro.|Black sequin jacket, white shirt, silver glove and black hat.|Veste noire ? sequins, t-shirt blanc, gant argent? et chapeau noir.
 Equilibrado. Camina a 230, corre a 340 px/s y usa los ataques básicos. Viste el traje Smooth Criminal.|Balanced. Walks at 230 px/s, runs at 340 px/s and uses basic attacks. Wears the Smooth Criminal outfit.|Équilibré. Marche à 230 px/s, court à 340 px/s et utilise les attaques de base. Porte la tenue Smooth Criminal.
 Espíritu navideño|Christmas spirit|Esprit de Noël
@@ -233,6 +235,9 @@ Movimientos|Moves|Mouvements
 Personaje|Character|Personnage
 Recarga|Cooldown|Recharge
 Sombrero de retorno|Returning hat|Chapeau boomerang
+Pulso de retorno|Returning pulse|Impulsion boomerang
+Lanza un pulso que regresa. Solo uno en vuelo.|Launch a returning pulse. Only one can be in flight.|Lance une impulsion qui revient. Une seule peut être en vol.
+Duplica el daño del pulso durante 10 s. Se compra en la tienda.|Doubles pulse damage for 10 s. Buy it in the shop.|Double les dégâts de l’impulsion pendant 10 s. Disponible en boutique.
 Copo|Snowflake|Flocon
 Lanza un sombrero que regresa. Solo uno en vuelo.|Throw a returning hat. Only one can be in flight.|Lance un chapeau qui revient. Un seul peut être en vol.
 Golpea alrededor de ti en un radio de {range} px.|Hit enemies within {range} px.|Frappe les ennemis dans un rayon de {range} px.

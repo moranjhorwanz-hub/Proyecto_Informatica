@@ -1,4 +1,4 @@
-import { getPlayerSpritePrefix, getThrownHatTexture } from '../entities/playerSprites.js';
+import { getPlayerSpritePrefix, getThrownProjectileTexture } from '../entities/playerSprites.js';
 import { fitMenuText, menuText } from './menuComponents.js';
 
 function bevel(x, y, width, height, corner) {
@@ -34,8 +34,8 @@ export function createPauseMenu(scene, actions) {
 
   const prefix = getPlayerSpritePrefix(scene, scene.appearance);
   root.add(scene.add.image(331, 507, `${prefix}-dance-3`).setOrigin(.5, 1).setScale(1.85));
-  const hat = getThrownHatTexture(scene, prefix, scene.appearance);
-  root.add(scene.add.image(426, 156, hat).setScale(2.45).setAngle(-20));
+  const projectile = getThrownProjectileTexture(scene, prefix, scene.appearance);
+  root.add(scene.add.image(426, 156, projectile).setScale(2.45).setAngle(-20));
   const title = menuText(scene, 656, 196, 'PAUSA', 66, '#fff6ff').setOrigin(.5)
     .setFontStyle('bold italic').setStroke('#3c2844', 5).setShadow(0, 4, '#ff344e', 12, true, true);
   root.add(title);

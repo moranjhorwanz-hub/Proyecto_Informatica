@@ -19,13 +19,15 @@ test('shield purchase costs coins and persists', () => {
 });
 test('Smooth Criminal is equipped for free by default', () => {
   const { progress, shop } = setup(0);
-  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white', 'billie-jean']);
+  assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white', 'billie-jean', 'thriller']);
   assert.deepEqual(progress.data.purchases, ['white']);
   assert.equal(progress.data.equippedSkin, 'white');
   assert.equal(shop.buy('white').reason, 'already-owned');
-  assert.equal(shop.buy('thriller').reason, 'unknown-item');
   assert.equal(shop.equip(null).reason, 'not-a-skin');
+  assert.equal(shop.buy('thriller').ok, true);
+  assert.equal(shop.equip('thriller').ok, true);
   assert.equal(progress.data.coins, 0);
+  assert.equal(validateProgress(progress.data).equippedSkin, 'thriller');
 });
 test('unknown items, insufficient balance and invalid balances never mutate progress', () => {
   const { progress, shop } = setup(299);
@@ -63,7 +65,7 @@ test('inventory, equipped skin, balance and snow unlock survive a JSON save roun
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);
 });
 test('load ignores unknown or duplicate purchases and derives abilities only from ownership', () => {
-  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'thriller', 'unknown', {}, 'white'], equippedSkin: 'thriller', abilities: ['freeze', 'cheat'] });
+  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'removed-skin', 'unknown', {}, 'white'], equippedSkin: 'removed-skin', abilities: ['freeze', 'cheat'] });
   assert.deepEqual(loaded.purchases, ['freeze', 'white']);
   assert.equal(loaded.equippedSkin, 'white');
   assert.deepEqual(loaded.abilities, ['hat', 'moonwalk', 'freeze']);
