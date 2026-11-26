@@ -17,7 +17,11 @@ export default class AttacksScene extends Phaser.Scene {
     this.snowUnlocked = canUseSnow(progress.data);
     this.tab = 0;
     this.actions = {
-      practice: () => this.scene.start('Game', { levelId: progress.data.selectedLevel, mode: 'practice' }),
+      practice: () => {
+        const levelId = progress.data.selectedLevel;
+        this.services.audio.unlock(levelId);
+        this.scene.start('Game', { levelId, mode: 'practice' });
+      },
       shop: () => this.scene.start('Shop', { itemId: 'freeze' }),
       back: () => this.scene.start('Menu'),
     };

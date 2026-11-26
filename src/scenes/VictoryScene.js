@@ -17,11 +17,13 @@ export default class VictoryScene extends Phaser.Scene {
   create({ levelId = 1, result = null } = {}) {
     const level = levels.find(stage => stage.id === levelId) ?? levels[0];
     const nextLevel = levels[levels.indexOf(level) + 1];
-    const { progress } = this.registry.get('services');
-    const retry = () => this.scene.start('Game', { levelId: level.id, mode: 'campaign' });
-    const advance = nextLevel
-      ? () => this.scene.start('Game', { levelId: nextLevel.id, mode: 'campaign' })
-      : retry;
+    const { progress, audio } = this.registry.get('services');
+    const startLevel = levelId => {
+      audio.unlock(levelId);
+      this.scene.start('Game', { levelId, mode: 'campaign' });
+    };
+    const retry = () => startLevel(level.id);
+    const advance = nextLevel ? () => startLevel(nextLevel.id) : retry;
     const menu = () => this.scene.start('Menu');
     const settings = () => this.scene.start('Settings', { victory: { levelId: level.id, result } });
     const levelSelect = () => this.scene.start('LevelSelect');
