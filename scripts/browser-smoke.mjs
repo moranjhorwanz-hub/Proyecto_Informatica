@@ -421,7 +421,7 @@ try {
   await waitFor(`testGame.scene.isActive('Character')`,'Skins opens wardrobe');
   const wardrobeShot=await cdp('Page.captureScreenshot',{format:'png'});
   await writeFile('.tools/phase6-wardrobe.png',Buffer.from(wardrobeShot.data,'base64'));
-  assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white']);
+  assert.deepEqual(await evaluate(`testGame.scene.getScene('Character').items.map(item=>item.id)`),['white','billie-jean']);
   await tap('Escape','Escape');
   for(let i=0;i<2;i++)await tap('ArrowDown','ArrowDown');
   await tap('Enter','Enter');
