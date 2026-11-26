@@ -53,7 +53,7 @@ const badPoses = {
 };
 const outfitPoses = { 'billie-jean': billieJeanPoses, thriller: thrillerPoses, bad: badPoses };
 const menuOutfitLayouts = {
-  'billie-jean': { scale: billieJeanPoses.idle.scale, floor: 174 },
+  'billie-jean': { scale: billieJeanPoses.idle.scale, floor: 174, filter: Phaser.Textures.FilterMode.NEAREST },
   ...outfitLayouts,
 };
 
@@ -226,8 +226,13 @@ export function createOutfitMenuSprite(scene, x, y, scale, reducedMotion, appear
 
   const idlePose = outfitPoses[spriteSet]?.idle;
   const [idleGroup, , , , idleFrame] = moves.idle;
-  const idle = sourceKey(idlePose?.group ?? idleGroup, idlePose?.start ?? idleFrame);
-  const hero = scene.add.sprite(x, y - scale, `${spriteSet}-${idle}`)
+  const textureKey = (group, number) => {
+    const key = `${spriteSet}-${sourceKey(group, number)}`;
+    if (layout.filter !== undefined) scene.textures.get(key).setFilter(layout.filter);
+    return key;
+  };
+  const idle = textureKey(idlePose?.group ?? idleGroup, idlePose?.start ?? idleFrame);
+  const hero = scene.add.sprite(x, y - scale, idle)
     .setScale(scale * layout.scale);
   hero.setOrigin(.5, layout.floor / hero.height);
   if (reducedMotion) return hero;
@@ -237,7 +242,7 @@ export function createOutfitMenuSprite(scene, x, y, scale, reducedMotion, appear
   if (!scene.anims.exists(animation)) {
     const [group, count, frameRate] = moves.dance;
     const frames = Array.from({ length: count }, (_, index) => ({
-      key: `${spriteSet}-${sourceKey(group, index + 1)}`,
+      key: textureKey(group, index + 1),
     }));
     scene.anims.create({ key: animation, frames, frameRate, repeat: -1 });
   }
