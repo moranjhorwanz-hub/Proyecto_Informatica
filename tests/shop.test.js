@@ -17,7 +17,7 @@ test('shield purchase costs coins and persists', () => {
   assert.equal(shop.buy('shield').reason, 'already-owned');
   assert.equal(setup(299).shop.buy('shield').reason, 'insufficient-coins');
 });
-test('Blanco de gala is the only skin and is equipped for free', () => {
+test('Blanco de gala is equipped for free by default', () => {
   const { progress, shop } = setup(0);
   assert.deepEqual(shop.catalog.filter(item => item.type === 'skin').map(item => item.id), ['white']);
   assert.deepEqual(progress.data.purchases, ['white']);
@@ -50,7 +50,9 @@ test('failed and throwing saves roll back ability purchases', () => {
 test('inventory, equipped skin, balance and snow unlock survive a JSON save roundtrip', () => {
   let stored;
   const { progress, shop } = setup(1000, next => { stored = JSON.stringify(next); return true; });
-  shop.buy('freeze');
+  assert.equal(shop.equip('billie-jean').reason, 'not-a-skin');
+  assert.equal(shop.buy('freeze').ok, true);
+  assert.equal(shop.buy('billie-jean').reason, 'unknown-item');
   const loaded = validateProgress(JSON.parse(stored));
   assert.deepEqual(loaded, progress.data);
   assert.equal(loaded.coins, 700);
@@ -59,7 +61,7 @@ test('inventory, equipped skin, balance and snow unlock survive a JSON save roun
   assert.equal(loaded.abilities.filter(id => id === 'freeze').length, 1);
 });
 test('load ignores unknown or duplicate purchases and derives abilities only from ownership', () => {
-  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'unknown', {}, 'white'], equippedSkin: 'gold', abilities: ['freeze', 'cheat'] });
+  const loaded = validateProgress({ version: 1, purchases: ['freeze', 'freeze', 'billie-jean', 'unknown', {}, 'white'], equippedSkin: 'billie-jean', abilities: ['freeze', 'cheat'] });
   assert.deepEqual(loaded.purchases, ['freeze', 'white']);
   assert.equal(loaded.equippedSkin, 'white');
   assert.deepEqual(loaded.abilities, ['hat', 'moonwalk', 'freeze']);

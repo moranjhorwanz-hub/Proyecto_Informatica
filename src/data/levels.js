@@ -1,10 +1,10 @@
 ﻿// Stable IDs preserve existing unlocks and records. Songs are thematic references;
 // the game plays original instrumental music, not the original recordings.
 const worlds = [
- {name:'Primavera', outfit:'Traje rojo', color:0xce3d50, sky:0x183c46, land:0x275c4b, accent:0xf5aab6},
- {name:'Verano', outfit:'Traje blanco', color:0xf2ead9, sky:0x174666, land:0x397879, accent:0xf7cb80},
- {name:'Otoño', outfit:'Traje negro', color:0x242632, sky:0x302b46, land:0x665048, accent:0xe6a466},
- {name:'Navidad', outfit:'Traje navideño', color:0xba324b, sky:0x172e50, land:0x577789, accent:0xc1e7ff}
+ {name:'Primavera', sky:0x183c46, land:0x275c4b, accent:0xf5aab6},
+ {name:'Verano', sky:0x174666, land:0x397879, accent:0xf7cb80},
+ {name:'Otoño', sky:0x302b46, land:0x665048, accent:0xe6a466},
+ {name:'Navidad', sky:0x172e50, land:0x577789, accent:0xc1e7ff}
 ];
 const stages = [
  ['Billie Jean','Billie Jean',0x050a24,0xffd78c],

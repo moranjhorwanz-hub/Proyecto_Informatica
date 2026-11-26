@@ -18,6 +18,7 @@ export function validateProgress(raw){
  base.selectedLevel=Number.isInteger(raw.selectedLevel)&&raw.selectedLevel>=1&&raw.selectedLevel<=levels.length?raw.selectedLevel:1;
  base.purchases=Array.isArray(raw.purchases)?[...new Set(raw.purchases.filter(id=>typeof id==='string'&&findShopItem(id)))]:[];
  if(!base.purchases.includes('white'))base.purchases.push('white');
+ if(base.purchases.includes(raw.equippedSkin)&&findShopItem(raw.equippedSkin)?.type==='skin')base.equippedSkin=raw.equippedSkin;
  base.character=getCharacter({character:raw.character,purchases:base.purchases}).id;
  // Derive abilities from ownership rather than trusting an arbitrary saved ability list.
  for(const item of shopItems)if(item.type==='ability'&&base.purchases.includes(item.id))base.abilities.push(item.ability);
